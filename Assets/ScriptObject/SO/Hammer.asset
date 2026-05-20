@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddaaa74b2d238794aa0f1db8dc6f5f2e, type: 3}
+  m_Name: Hammer
+  m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
+  weaponName: 
+  weaponPrefab: {fileID: 1535349502953269601, guid: b435523cd257b39459121b98cb081b37, type: 3}
+  weaponImg: {fileID: 0}
+  type: 0
+  damage: 50
+  range: 20
+  leftClickCoolTime: 1
+  rightClickCoolTime: 2
+  skillQCoolTime: 2

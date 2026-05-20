@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
+  m_Name: PaintGun
+  m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
+  weaponName: 
+  weaponPrefab: {fileID: 4301670011250563236, guid: 27af0b578259fbc449f576cb5598c42b, type: 3}
+  weaponImg: {fileID: 0}
+  type: 1
+  damage: 5
+  range: 200
+  MaxAmmo: 50
+  leftClickCoolTime: 0.2
+  rightClickCoolTime: 0
+  skillQCoolTime: 0
+  ReloadCoolTime: 0.6

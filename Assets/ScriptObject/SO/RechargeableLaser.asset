@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
+  m_Name: RechargeableLaser
+  m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
+  weaponName: 
+  weaponPrefab: {fileID: 8417411230035474967, guid: cb400fa685e791c4a9fa219255a7683a, type: 3}
+  weaponImg: {fileID: 0}
+  type: 1
+  damage: 30
+  range: 200
+  MaxAmmo: 50
+  reloadRate: 0
+  leftClickCoolTime: 0
+  rightClickCoolTime: 0
+  skillQCoolTime: 0
+  ReloadCoolTime: 0

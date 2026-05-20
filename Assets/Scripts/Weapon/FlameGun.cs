@@ -1,0 +1,130 @@
+using Fusion;
+using UnityEngine;
+
+public class FlameGun : WeaponBase
+{
+    [Header("발사체 세팅")]
+    [SerializeField] GameObject flameProjectilePrefab;
+    [SerializeField] LayerMask targetLayer;
+
+    private RangedWeapon rangedWeapon;
+
+    public override void Init(PlayerWeapon owner, WeaponData data)
+    {
+        base.Init(owner, data);
+
+        rangedWeapon = data as RangedWeapon;
+    }
+
+    protected override void BasicAttack()
+    {
+        if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
+        {
+            CurrentAmmo -= 1;
+            Shoot();
+            LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedWeapon.leftClickCoolTime);
+        }
+    }
+    protected override void SecondAttack()
+    {
+        if(CurrentAmmo == rangedWeapon.MaxAmmo)
+        {
+            //추후 소모한 탄약 개수에 따라 장판이 커지게 수정가능, 현재는 모든 탄약 소모
+            CurrentAmmo = 0;
+            SpawnProjectile();
+        }
+    }
+
+    private void SpawnProjectile()
+    {
+        if(HasStateAuthority)
+        {
+            if (myPlayer == null || myPlayer.fpsCamera == null) return;
+
+            Vector3 camOrigin = myPlayer.fpsCamera.transform.position;
+            Vector3 camForward = myPlayer.fpsCamera.transform.forward;
+            Vector3 targetPoint;
+
+
+            if (Runner.GetPhysicsScene().Raycast(camOrigin, camForward, 
+                out RaycastHit hit, rangedWeapon.range, targetLayer))
+            {
+                targetPoint = hit.point; // 에임에 뭔가 걸리면 거기가 타겟!
+            }
+            else
+            {
+                targetPoint = camOrigin + camForward * rangedWeapon.range; // 허공이면 100m 앞의 좌표
+            }
+
+            Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+
+            NetworkObject obj = Runner.Spawn(flameProjectilePrefab, firePoint.position,
+                Quaternion.LookRotation(shootDirection), null);
+            FlameProjectile proj = obj.GetComponent<FlameProjectile>();
+            proj.InitProjectile(shootDirection, Object.InputAuthority);
+        }
+    }
+
+    private void Shoot()
+    {
+        if (myPlayer == null || myPlayer.fpsCamera == null) return;
+
+        Vector3 origin = myPlayer.fpsCamera.transform.position;
+        Vector3 direction = myPlayer.fpsCamera.transform.forward;
+
+        Debug.DrawRay(origin, direction * rangedWeapon.range, Color.red, 2f);
+
+        bool isHit = Runner.LagCompensation.Raycast(
+            origin,
+            direction,
+            rangedWeapon.range,
+            Object.InputAuthority,
+            out LagCompensatedHit hit,
+            targetLayer
+        );
+
+        if (!isHit)
+        {
+            Debug.Log("2. 허공에 빗나감");
+            return;
+        }
+
+        if (hit.Hitbox != null)
+        {
+
+            GameObject target = hit.Hitbox.Root.gameObject;
+            Debug.Log($"4. 명중! 대상: {target.name}");
+
+            if (target == myPlayer.gameObject)
+            {
+                Debug.Log("내가 나를 맞춤 (자해 방지)");
+                return;
+            }
+            //맞췄을때 본인 화면에서 일어나게 할 거 가능
+            if (HasInputAuthority)
+            {
+                Debug.Log($"[내 화면] 내가 {target.name}을(를) 공격함!");
+            }
+            if (HasStateAuthority)
+            {
+                PlayerHealth targetHP = target.GetComponent<PlayerHealth>();
+                if (targetHP != null)
+                {
+                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+                }
+
+                PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
+                if (targetWeapon != null)
+                {
+                    targetWeapon.RPC_TakeHitLog(myPlayer.gameObject.name);
+                }
+            }
+        }
+        else if (hit.Collider != null)
+        {
+            Debug.Log($"맞은 오브젝트 : {hit.Collider.gameObject.name}");
+        }
+    }
+
+    protected override void SkillQ() { }
+}
