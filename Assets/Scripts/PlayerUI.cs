@@ -15,10 +15,26 @@ public class PlayerUI : MonoBehaviour
         if(instance == null) instance = this;
         else Destroy(gameObject);
     }
+    public void Configure(TextMeshProUGUI hp, TextMeshProUGUI ammo)
+    {
+        hpText = hp;
+        ammoText = ammo;
+        instance = this;
+        Clear();
+    }
+
+    public void Clear()
+    {
+        if (hpText != null)
+            hpText.text = "HP : ";
+
+        if (ammoText != null)
+            ammoText.text = "Ammo : ";
+    }
 
     public void UpdateHPText(int currentHP, int maxHP)
     {
-        hpText.text = $"HP: {currentHP}/{maxHP}";
+        if (hpText != null) hpText.text = $"HP : {currentHP}/{maxHP}";
     }
 
     public void UpdateAmmoText(int currentAmmo, int maxAmmo)

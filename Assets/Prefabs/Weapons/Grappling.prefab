@@ -506,7 +506,7 @@ MonoBehaviour:
   attackWidth: 1.5
   environmentLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 769
   grappleRange: 40
   grappleSpeed: 9
   ableClimbHeight: 1

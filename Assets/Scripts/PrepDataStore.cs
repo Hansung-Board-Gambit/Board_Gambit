@@ -27,6 +27,7 @@ public class PrepDataStore : MonoBehaviour
     [Header("Saved Data")]
     public List<PlacedObjectData> placedObjects = new List<PlacedObjectData>();
     public SpawnPointData spawnData = new SpawnPointData();
+    public int selectedEquipmentIndex = -1;
 
     private void Awake()
     {
@@ -38,6 +39,12 @@ public class PrepDataStore : MonoBehaviour
         remainingPoints = maxPoints;
         placedObjects.Clear();
         spawnData = new SpawnPointData();
+        selectedEquipmentIndex = -1;
+    }
+
+    public void ResetRoundPlacementPoints()
+    {
+        remainingPoints = maxPoints;
     }
 
     public bool CanSpendPoint()
@@ -70,5 +77,10 @@ public class PrepDataStore : MonoBehaviour
     {
         spawnData.hasOpponentSpawn = true;
         spawnData.opponentSpawnPosition = position;
+    }
+
+    public void SaveEquipmentSelection(int equipmentIndex)
+    {
+        selectedEquipmentIndex = equipmentIndex;
     }
 }

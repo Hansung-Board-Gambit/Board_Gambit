@@ -10,6 +10,7 @@ public class PlayerWeapon : NetworkBehaviour
 
     [Header("해당 so삽입")]
     [SerializeField] WeaponData weaponData;
+    [SerializeField] WeaponData[] weaponCatalog;
     //나중에 다양한 무기들을 어떻게 교환 할 지 생각
 
     [Header("줌 카메라 세팅")]
@@ -50,10 +51,21 @@ public class PlayerWeapon : NetworkBehaviour
     }
     public void EquipWeapon(WeaponData newWeaponData)
     {
+        if (newWeaponData == null || newWeaponData.weaponPrefab == null)
+            return;
+
+        weaponData = newWeaponData;
+
         if(currentWeapon != null)
         {
             Runner.Despawn(currentWeapon.Object);
+            currentWeapon = null;
         }
+        else if(NetWeaponObj != null && NetWeaponObj.IsValid)
+        {
+            Runner.Despawn(NetWeaponObj);
+        }
+
         NetworkObject newWeaponObj = Runner.Spawn(
             newWeaponData.weaponPrefab,
             handPosition.position,
@@ -62,7 +74,15 @@ public class PlayerWeapon : NetworkBehaviour
         );
         //소환된 무기를 모든 클라이언트에게 알림
         NetWeaponObj = newWeaponObj;
-       
+        OnWeaponChanged();       
+    }
+
+    public void SetWeaponDataAndEquip(WeaponData newWeaponData)
+    {
+        if (!HasStateAuthority)
+            return;
+
+        EquipWeapon(newWeaponData);
     }
 
     public override void Render()
@@ -88,15 +108,75 @@ public class PlayerWeapon : NetworkBehaviour
             NetWeaponObj.transform.localRotation = Quaternion.identity;
 
             currentWeapon = NetWeaponObj.GetComponent<WeaponBase>();
-            currentWeapon.Init(this, weaponData);
+            WeaponData resolvedData = ResolveWeaponDataForCurrentWeapon();
+            if (resolvedData != null)
+                weaponData = resolvedData;
 
-            Debug.Log($"무기 장착 완료 : {NetWeaponObj.name}");
+            if (currentWeapon != null && weaponData != null)
+            {
+                currentWeapon.Init(this, weaponData);
+                Debug.Log($"무기 장착 완료 : {NetWeaponObj.name} / Data : {weaponData.name}");
+            }
+            else
+            {
+                Debug.LogWarning("무기 장착 실패: WeaponBase 또는 WeaponData가 없습니다. " + NetWeaponObj.name);
+            }
         }
     }
 
+    private WeaponData ResolveWeaponDataForCurrentWeapon()
+    {
+        if (NetWeaponObj == null)
+            return weaponData;
+
+        WeaponBase netWeapon = NetWeaponObj.GetComponent<WeaponBase>();
+        if (netWeapon == null)
+            return weaponData;
+
+        if (DoesWeaponDataMatch(weaponData, netWeapon))
+            return weaponData;
+
+        if (weaponCatalog != null)
+        {
+            for (int i = 0; i < weaponCatalog.Length; i++)
+            {
+                WeaponData candidate = weaponCatalog[i];
+                if (DoesWeaponDataMatch(candidate, netWeapon))
+                    return candidate;
+            }
+        }
+
+        PrepPhaseFlowUI prepFlow = FindObjectOfType<PrepPhaseFlowUI>();
+        if (prepFlow == null || prepFlow.equipmentPool == null)
+            return weaponData;
+
+        for (int i = 0; i < prepFlow.equipmentPool.Length; i++)
+        {
+            WeaponData candidate = prepFlow.equipmentPool[i];
+            if (DoesWeaponDataMatch(candidate, netWeapon))
+                return candidate;
+        }
+
+        return weaponData;
+    }
+
+    private bool DoesWeaponDataMatch(WeaponData data, WeaponBase netWeapon)
+    {
+        if (data == null || data.weaponPrefab == null || netWeapon == null)
+            return false;
+
+        WeaponBase prefabWeapon = data.weaponPrefab.GetComponent<WeaponBase>();
+        return prefabWeapon != null && prefabWeapon.GetType() == netWeapon.GetType();
+    }
 
     public override void FixedUpdateNetwork()
     {
+        if (myPlayer == null)
+            myPlayer = GetComponentInParent<Player>();
+
+        if (myPlayer != null && !myPlayer.IsBattleControlActive())
+            return;
+
         if(currentWeapon != null)
         {
             currentWeapon.OnFixedUpdateNetwork();

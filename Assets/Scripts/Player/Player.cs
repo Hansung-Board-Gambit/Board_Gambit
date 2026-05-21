@@ -44,6 +44,7 @@ public class Player : NetworkBehaviour
     //카메라 위치 변화시킬 수 있게 하는 변수
     public Vector3 weaponCameraOffset = Vector3.zero;
     private bool isCameraLocked = false;
+    private bool battleControlActive;
     public bool isDashing = false;
 
     public float currentHeight = 2f;
@@ -62,6 +63,8 @@ public class Player : NetworkBehaviour
 
     public override void Spawned()
     {
+        Debug.Log("Player Spawned. InputAuthority=" + Object.InputAuthority + ", HasInputAuthority=" + HasInputAuthority + ", HasStateAuthority=" + HasStateAuthority);
+
         rend = GetComponent<Renderer>();
         controller = GetComponent<NetworkCharacterController>();
 
@@ -82,33 +85,78 @@ public class Player : NetworkBehaviour
                 rend.material.color = Color.green;
         }
 
-        if (HasInputAuthority) //해당 플레이어의 화면인지
-        {
-            
-            fpsCamera.enabled = true;
-            if (audioListener != null) audioListener.enabled = true;
-            if (Camera.main != null)
-            {
-                Camera.main.gameObject.SetActive(false);
-            }
-            //마우스 커서 숨기기
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+        SetBattleControlActive(ShouldStartVisibleInBattle());
+    }
 
+    private bool ShouldStartVisibleInBattle()
+    {
+        GameRoundFlowController flow = FindObjectOfType<GameRoundFlowController>();
+        return flow != null && flow.CurrentPhase == GameRoundPhase.Battle;
+    }
+    public bool IsBattleControlActive()
+    {
+        return battleControlActive;
+    }
+
+    public void SetBattleControlActive(bool active)
+    {
+        battleControlActive = active;
+        SetBattlePresentationActive(active);
+
+        if (!HasInputAuthority)
+        {
+            if (fpsCamera != null) fpsCamera.enabled = false;
+            if (audioListener != null) audioListener.enabled = false;
+            return;
+        }
+
+        if (fpsCamera != null) fpsCamera.enabled = active;
+        if (audioListener != null) audioListener.enabled = active;
+
+        Cursor.lockState = active ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !active;
+
+        if (active)
+        {
             playerYaw = transform.eulerAngles.y;
             NetworkedYaw = playerYaw;
-            
+        }
+    }
+
+    private void SetBattlePresentationActive(bool active)
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].enabled = active;
+
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+            colliders[i].enabled = active;
+    }
+
+    public void TeleportForBattle(Vector3 position, Quaternion rotation)
+    {
+        KnockbackTimer = TickTimer.None;
+        TrailDebuffTimer = TickTimer.None;
+        KnockbackVelocity = Vector3.zero;
+        isDashing = false;
+        currentHeight = standHeight;
+        weaponCameraOffset = Vector3.zero;
+
+        if (controller != null)
+        {
+            controller.Velocity = Vector3.zero;
+            controller.Teleport(position, rotation);
         }
         else
         {
-            //상대 캐릭터 카메라 차단
-            fpsCamera.enabled = false;
-            if (audioListener != null) audioListener.enabled = false;
+            transform.SetPositionAndRotation(position, rotation);
         }
     }
+
     private void Update()
     {
-        if (!HasInputAuthority) return;
+        if (!HasInputAuthority || !battleControlActive) return;
 
         bool isStunned = false;
         PlayerHealth health = GetComponent<PlayerHealth>();
@@ -169,6 +217,9 @@ public class Player : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (!battleControlActive)
+            return;
+
         /*
         if (!GetInput(out NetworkInputData data))
             return;

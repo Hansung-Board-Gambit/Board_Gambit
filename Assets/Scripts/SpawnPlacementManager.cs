@@ -33,15 +33,29 @@ public class SpawnPlacementManager : MonoBehaviour
 
     private SpawnMode currentMode = SpawnMode.None;
 
+    private void OnEnable()
+    {
+        LobbyState.PrepSpawnPlaced += HandleNetworkSpawnPlaced;
+    }
+
+    private void OnDisable()
+    {
+        LobbyState.PrepSpawnPlaced -= HandleNetworkSpawnPlaced;
+    }
+
     private void Start()
     {
         EnsureSpawnButtonsCanReceiveClicks();
+        DisableMarkerColliders();
         RestoreSavedMarkers();
     }
 
     private void Update()
     {
         if (spawnPlacementPanel == null || !spawnPlacementPanel.activeInHierarchy)
+            return;
+
+        if (!CanLocalControlSpawnPlacement())
             return;
 
         if (currentMode == SpawnMode.None)
@@ -62,35 +76,66 @@ public class SpawnPlacementManager : MonoBehaviour
 
         if (currentMode == SpawnMode.MySpawn)
         {
-            if (dataStore == null)
-                return;
-
-            dataStore.SaveMySpawn(snappedPosition);
-            UpdateMarker(mySpawnMarker, snappedPosition);
+            RequestSpawnPlacement(true, snappedPosition);
         }
         else if (currentMode == SpawnMode.OpponentSpawn)
         {
-            if (dataStore == null)
-                return;
-
-            dataStore.SaveOpponentSpawn(snappedPosition);
-            UpdateMarker(opponentSpawnMarker, snappedPosition);
+            RequestSpawnPlacement(false, snappedPosition);
         }
     }
 
     public void SetMySpawnMode()
     {
+        if (!CanLocalControlSpawnPlacement())
+            return;
+
         currentMode = SpawnMode.MySpawn;
     }
 
     public void SetOpponentSpawnMode()
     {
+        if (!CanLocalControlSpawnPlacement())
+            return;
+
         currentMode = SpawnMode.OpponentSpawn;
     }
 
     public void ClearMode()
     {
         currentMode = SpawnMode.None;
+    }
+
+    private void RequestSpawnPlacement(bool isMySpawn, Vector3 position)
+    {
+        if (LobbyState.Instance != null)
+        {
+            LobbyState.Instance.RequestPlacePrepSpawn(isMySpawn, position);
+            return;
+        }
+
+        ApplySpawnPlacement(isMySpawn, position);
+    }
+
+    private void HandleNetworkSpawnPlaced(bool isMySpawn, Vector3 position)
+    {
+        ApplySpawnPlacement(isMySpawn, position);
+    }
+
+    private void ApplySpawnPlacement(bool isMySpawn, Vector3 position)
+    {
+        if (dataStore == null)
+            return;
+
+        if (isMySpawn)
+        {
+            dataStore.SaveMySpawn(position);
+            UpdateMarker(mySpawnMarker, position);
+        }
+        else
+        {
+            dataStore.SaveOpponentSpawn(position);
+            UpdateMarker(opponentSpawnMarker, position);
+        }
     }
 
     private bool TryGetSnappedBoardPoint(out Vector3 snappedPosition)
@@ -150,6 +195,16 @@ public class SpawnPlacementManager : MonoBehaviour
 
         marker.SetActive(true);
         marker.transform.position = position;
+        SetCollidersEnabled(marker, false);
+    }
+
+    public void SetMarkersVisible(bool visible)
+    {
+        if (mySpawnMarker != null)
+            mySpawnMarker.SetActive(visible && dataStore != null && dataStore.spawnData != null && dataStore.spawnData.hasMySpawn);
+
+        if (opponentSpawnMarker != null)
+            opponentSpawnMarker.SetActive(visible && dataStore != null && dataStore.spawnData != null && dataStore.spawnData.hasOpponentSpawn);
     }
 
     private bool TryRaycastBoard(Ray ray, out RaycastHit hit)
@@ -162,6 +217,11 @@ public class SpawnPlacementManager : MonoBehaviour
 
         hit = new RaycastHit();
         return false;
+    }
+
+    private bool CanLocalControlSpawnPlacement()
+    {
+        return LobbyState.Instance != null && LobbyState.Instance.LocalHasSpawnPlacementAuthority();
     }
 
     private float GetBoardTopY()
@@ -232,5 +292,21 @@ public class SpawnPlacementManager : MonoBehaviour
 
         if (dataStore.spawnData.hasOpponentSpawn)
             UpdateMarker(opponentSpawnMarker, dataStore.spawnData.opponentSpawnPosition);
+    }
+
+    private void DisableMarkerColliders()
+    {
+        SetCollidersEnabled(mySpawnMarker, false);
+        SetCollidersEnabled(opponentSpawnMarker, false);
+    }
+
+    private void SetCollidersEnabled(GameObject target, bool enabled)
+    {
+        if (target == null)
+            return;
+
+        Collider[] colliders = target.GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+            colliders[i].enabled = enabled;
     }
 }

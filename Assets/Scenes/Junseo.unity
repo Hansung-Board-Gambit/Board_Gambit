@@ -3091,6 +3091,7 @@ GameObject:
   - component: {fileID: 1024786532}
   - component: {fileID: 1024786533}
   - component: {fileID: 1024786534}
+  - component: {fileID: 1024786535}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -3125,6 +3126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b853b864d49c446bf1806a6f7ac973, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrepPhaseFlowUI
+  playOnStart: 1
   turnIntroCanvasGroup: {fileID: 1271981652}
   turnIntroText: {fileID: 768368441}
   turnIntroFadeDuration: 3
@@ -3143,6 +3145,17 @@ MonoBehaviour:
   spawnPlacementFinishButton: {fileID: 2014754788}
   equipmentSelectionFinishButton: {fileID: 0}
   equipmentSkipButton: {fileID: 1328682256}
+  dataStore: {fileID: 1024786534}
+  equipmentPool:
+  - {fileID: 11400000, guid: e7f4c1aa6037e584a95bee9160d8ce43, type: 2}
+  - {fileID: 11400000, guid: 789aaf116057ed74a99357c36d4026bc, type: 2}
+  - {fileID: 11400000, guid: 09e286c73d477534f885bda3baf02d65, type: 2}
+  equipmentCards:
+  - {fileID: 1120529832}
+  - {fileID: 921387619}
+  - {fileID: 846659206}
+  equipmentCardNormalColor: {r: 0, g: 0, b: 0, a: 0.392}
+  equipmentCardSelectedColor: {r: 0.15, g: 0.45, b: 0.85, a: 0.75}
 --- !u!114 &1024786534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3163,6 +3176,46 @@ MonoBehaviour:
     hasOpponentSpawn: 0
     mySpawnPosition: {x: 0, y: 0, z: 0}
     opponentSpawnPosition: {x: 0, y: 0, z: 0}
+  selectedEquipmentIndex: -1
+--- !u!114 &1024786535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024786531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e463cc54e843cd821a2a9688b8ed7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameRoundFlowController
+  prepFlow: {fileID: 1024786533}
+  prepDataStore: {fileID: 1024786534}
+  spawnPlacementManager: {fileID: 1209979573}
+  roundIndex: 1
+  countdownDuration: 3
+  roundDuration: 60
+  roundResultDuration: 3
+  matchResultDuration: 5
+  autoStartNextRoundOnTimer: 1
+  returnToLobbyAfterMatch: 1
+  showDebugOverlay: 1
+  preparationCamera: {fileID: 0}
+  playerPrefabObject: {fileID: 3323580841963928926, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
+  playerPrefab:
+    RawGuidValue: 0ccb10e9c269ce8408b0286dccb14931
+  playerSpawnYOffset: 1
+  fallbackHostSpawn: {x: -2, y: 1, z: 0}
+  fallbackGuestSpawn: {x: 2, y: 1, z: 0}
+  preparationRoot: {fileID: 1554805322}
+  battleHudRoot: {fileID: 1223479462}
+  countdownCanvasGroup: {fileID: 0}
+  countdownText: {fileID: 0}
+  phaseText: {fileID: 0}
+  battleTimerFill: {fileID: 0}
+  battleTimerText: {fileID: 0}
+  roundResultText: {fileID: 0}
+  matchScoreText: {fileID: 0}
 --- !u!1 &1066543597
 GameObject:
   m_ObjectHideFlags: 0

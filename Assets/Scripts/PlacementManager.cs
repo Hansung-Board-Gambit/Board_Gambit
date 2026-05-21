@@ -25,6 +25,16 @@ public class PlacementManager : MonoBehaviour
     private int selectedIndex = -1;
     private GameObject previewObject;
 
+    private void OnEnable()
+    {
+        LobbyState.PrepObjectPlaced += HandleNetworkObjectPlaced;
+    }
+
+    private void OnDisable()
+    {
+        LobbyState.PrepObjectPlaced -= HandleNetworkObjectPlaced;
+    }
+
     private void Start()
     {
         EnsureObjectSlotButtonsMatchPrefabs();
@@ -34,6 +44,14 @@ public class PlacementManager : MonoBehaviour
     private void Update()
     {
         if (objectPlacementPanel == null || !objectPlacementPanel.activeInHierarchy)
+        {
+            SetPreviewActive(false);
+            return;
+        }
+
+        UpdatePointText();
+
+        if (!CanLocalControlPlacement())
         {
             SetPreviewActive(false);
             return;
@@ -81,6 +99,9 @@ public class PlacementManager : MonoBehaviour
 
     public void SelectObject(int index)
     {
+        if (!CanLocalControlPlacement())
+            return;
+
         Debug.Log("SelectObject called, index = " + index);
 
         if (!IsValidPrefabIndex(index))
@@ -182,7 +203,29 @@ public class PlacementManager : MonoBehaviour
         if (dataStore == null || !HasValidSelection())
             return;
 
-        GameObject prefab = placeablePrefabs[selectedIndex];
+        int prefabIndex = selectedIndex;
+        CancelSelection();
+
+        if (LobbyState.Instance != null)
+        {
+            LobbyState.Instance.RequestPlacePrepObject(prefabIndex, position, Quaternion.identity);
+            return;
+        }
+
+        CreatePlacedObject(prefabIndex, position, Quaternion.identity);
+    }
+
+    private void HandleNetworkObjectPlaced(int prefabIndex, Vector3 position, Quaternion rotation)
+    {
+        CreatePlacedObject(prefabIndex, position, rotation);
+    }
+
+    private void CreatePlacedObject(int prefabIndex, Vector3 position, Quaternion rotation)
+    {
+        if (dataStore == null || !IsValidPrefabIndex(prefabIndex))
+            return;
+
+        GameObject prefab = placeablePrefabs[prefabIndex];
         GameObject placed = Instantiate(prefab);
         if (placed == null)
             return;
@@ -194,7 +237,7 @@ public class PlacementManager : MonoBehaviour
             placed.transform.SetParent(placedParent, true);
 
         placed.transform.position = position;
-        placed.transform.rotation = Quaternion.identity;
+        placed.transform.rotation = rotation;
         placed.transform.localScale = prefab.transform.localScale;
         placed.SetActive(true);
 
@@ -234,9 +277,6 @@ public class PlacementManager : MonoBehaviour
         );
 
         SetPreviewActive(false);
-
-        if (!dataStore.CanSpendPoint())
-            CancelSelection();
     }
 
     private void UpdatePointText()
@@ -340,6 +380,11 @@ public class PlacementManager : MonoBehaviour
     private bool HasValidSelection()
     {
         return IsValidPrefabIndex(selectedIndex);
+    }
+
+    private bool CanLocalControlPlacement()
+    {
+        return LobbyState.Instance != null && LobbyState.Instance.LocalHasObjectPlacementAuthority();
     }
 
     private bool IsValidPrefabIndex(int index)

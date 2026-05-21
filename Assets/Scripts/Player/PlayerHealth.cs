@@ -22,14 +22,27 @@ public class PlayerHealth : NetworkBehaviour
             CurrentHP = maxHP;
         }
 
-        if(HasInputAuthority)
+        if(HasInputAuthority && PlayerUI.instance != null)
         {
-            PlayerUI.instance.UpdateHPText(maxHP, CurrentHP);
+            PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
         }
 
 
     }
 
+    public void ResetForRound()
+    {
+        if (HasStateAuthority)
+        {
+            CurrentHP = maxHP;
+            StunTimer = TickTimer.None;
+        }
+
+        if (HasInputAuthority && PlayerUI.instance != null)
+        {
+            PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
+        }
+    }
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_TakeDamage(int damage, string attackerName)
     {
@@ -53,7 +66,7 @@ public class PlayerHealth : NetworkBehaviour
 
     public void OnHPChanged()
     {
-        if(HasInputAuthority)
+        if(HasInputAuthority && PlayerUI.instance != null)
         {
             PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
         }

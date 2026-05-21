@@ -64,7 +64,8 @@ public class Grappling : WeaponBase
        {
             Vector3 camPos = myPlayer.fpsCamera.transform.position;
             Vector3 camDir = myPlayer.fpsCamera.transform.forward;
-            if (Physics.Raycast(camPos, camDir, out RaycastHit hit, grappleRange, environmentLayer))
+            int grappleMask = environmentLayer.value | LayerMask.GetMask("Default", "Board", "PlacedObject");
+            if (Physics.Raycast(camPos, camDir, out RaycastHit hit, grappleRange, grappleMask))
             {
                 Vector3 finalTarget = hit.point;
                 NeedsVault = false;
@@ -73,7 +74,7 @@ public class Grappling : WeaponBase
                 if (Mathf.Abs(hit.normal.y) < 0.3f)
                 {
                     Vector3 roofCheckOrigin = hit.point + (Vector3.up * 2f) + (camDir * 0.05f);
-                    if (Physics.Raycast(roofCheckOrigin, Vector3.down, out RaycastHit roofHit, 3f, environmentLayer))
+                    if (Physics.Raycast(roofCheckOrigin, Vector3.down, out RaycastHit roofHit, 3f, grappleMask))
                     {
                         finalTarget = roofHit.point;
                         NeedsVault = true;
@@ -93,6 +94,10 @@ public class Grappling : WeaponBase
 
                 GrappleCharges--;
                 RightClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.rightClickCoolTime);
+            }
+            else
+            {
+                Debug.Log("Grappling missed environment. Mask=" + grappleMask);
             }
         }
     }

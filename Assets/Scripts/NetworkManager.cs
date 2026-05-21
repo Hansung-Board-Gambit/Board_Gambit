@@ -6,6 +6,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 
 public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
@@ -56,6 +57,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
 
     bool gameStarted = false;
+    bool isExitingRoom = false;
 
     List<SessionInfo> sessionList = new List<SessionInfo>();
 
@@ -92,6 +94,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
     void Awake()
     {
+        DontDestroyOnLoad(gameObject);
         sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
         nameInput.onValueChanged.AddListener(OnNameChanged);
         LobbyCanvas.SetActive(false);
@@ -143,6 +146,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         ResetRunner();
 
         runner = new GameObject("NetworkRunner").AddComponent<NetworkRunner>();
+        DontDestroyOnLoad(runner.gameObject);
         //hibox 컴포넌트 추가
         runner.gameObject.AddComponent<HitboxManager>();
         runner.ProvideInput = true;
@@ -168,6 +172,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         NetworkObject obj = runner.Spawn(lobbyStatePrefab, Vector3.zero, Quaternion.identity);
+        DontDestroyOnLoad(obj.gameObject);
         lobbystate = obj.GetComponent<LobbyState>();
 
         StartCoroutine(SetHostNameAfterSpawn());
@@ -200,6 +205,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         ResetRunner();
 
         runner = new GameObject("NetworkRunner").AddComponent<NetworkRunner>();
+        DontDestroyOnLoad(runner.gameObject);
         //hitbox컴포넌트 추가 
         runner.gameObject.AddComponent<HitboxManager>();
         runner.ProvideInput = true;
@@ -271,37 +277,97 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     // Exit 버튼
+
+    public void ReturnToLobbyAfterMatch(float delaySeconds)
+    {
+        if (isExitingRoom)
+            return;
+
+        StartCoroutine(ReturnToLobbyAfterMatchRoutine(delaySeconds));
+    }
+
+    private IEnumerator ReturnToLobbyAfterMatchRoutine(float delaySeconds)
+    {
+        isExitingRoom = true;
+
+        if (delaySeconds > 0f)
+            yield return new WaitForSeconds(delaySeconds);
+
+        NetworkRunner currentRunner = runner;
+        if (currentRunner != null && currentRunner.IsRunning)
+        {
+            currentRunner.RemoveCallbacks(this);
+            var shutdownTask = currentRunner.Shutdown();
+            while (!shutdownTask.IsCompleted)
+                yield return null;
+        }
+
+        if (currentRunner != null)
+            Destroy(currentRunner.gameObject);
+
+        runner = null;
+        lobbystate = null;
+
+        if (LobbyState.Instance != null)
+            Destroy(LobbyState.Instance.gameObject);
+
+        GameInputGate.Unlock();
+        SceneManager.LoadScene("Jinsoo2");
+        Destroy(gameObject);
+    }
     public async void ExitRoom()
     {
-        if (runner != null && runner.IsRunning)
+        if (isExitingRoom)
+            return;
+
+        isExitingRoom = true;
+
+        try
         {
-            await runner.Shutdown();
-            Destroy(runner.gameObject);
-            runner = null;
+            NetworkRunner currentRunner = runner;
+            if (currentRunner != null && currentRunner.IsRunning)
+            {
+                currentRunner.RemoveCallbacks(this);
+                await currentRunner.Shutdown();
+            }
+
+            if (currentRunner != null)
+                Destroy(currentRunner.gameObject);
+
+            if (runner == currentRunner)
+                runner = null;
+
+            SetCanvasGroupInteractable(sharingUI, true);
+            SetCanvasGroupInteractable(hostUI, true);
+            SetCanvasGroupInteractable(guestUI, true);
+
+            SetActiveIfExists(LobbyCanvas, false);
+            SetActiveIfExists(InitCanvas, true);
+            SetActiveIfExists(WarningPanel, false);
+
+            if (roomCode != null)
+                roomCode.text = "Room Code : ";
+
+            if (roomInput != null)
+                roomInput.text = "";
+
+            ResetLobbyUI();
+
+            Debug.Log("방에서 나감");
         }
-        sharingUI.interactable = true;
-        sharingUI.blocksRaycasts = true;
-        hostUI.interactable = true;
-        hostUI.blocksRaycasts = true;
-        guestUI.interactable = true;
-        guestUI.blocksRaycasts = true;
-
-        LobbyCanvas.SetActive(false);
-        InitCanvas.SetActive(true);
-        WarningPanel.SetActive(false);
-
-        roomCode.text = "Room Code : ";
-        roomInput.text = "";
-
-        ResetLobbyUI();   // 추가
-
-        Debug.Log("방에서 나감");
+        finally
+        {
+            isExitingRoom = false;
+        }
     }
 
     void ResetLobbyUI()
     {
-        hostName.text = "Host name";
-        guestName.text = "";
+        if (hostName != null)
+            hostName.text = "Host name";
+
+        if (guestName != null)
+            guestName.text = "";
 
         if (readyButton != null)
             readyButton.interactable = false;
@@ -310,11 +376,27 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             startButton.interactable = false;
     }
 
+    void SetCanvasGroupInteractable(CanvasGroup group, bool interactable)
+    {
+        if (group == null)
+            return;
+
+        group.interactable = interactable;
+        group.blocksRaycasts = interactable;
+    }
+
+    void SetActiveIfExists(GameObject target, bool active)
+    {
+        if (target != null)
+            target.SetActive(active);
+    }
+
     // Runner 초기화
     void ResetRunner()
     {
         if (runner != null)
         {
+            runner.RemoveCallbacks(this);
             Destroy(runner.gameObject);
             runner = null;
         }
@@ -323,10 +405,11 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     // Host 종료 감지
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        Debug.Log("Host 종료됨");
-        ExitRoom();
-    }
+        Debug.Log("Host 종료됨: " + shutdownReason);
 
+        if (!isExitingRoom)
+            ExitRoom();
+    }
     public void OnIncreaseButton()
     {
         if (!runner.IsServer) return;
@@ -452,6 +535,12 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnInput(NetworkRunner runner, NetworkInput input) 
     {
         var data = new NetworkInputData();
+
+        if (!GameInputGate.AllowPlayerInput)
+        {
+            input.Set(data);
+            return;
+        }
 
         if (Input.GetKey(KeyCode.W))
             data.direction += Vector3.forward;
