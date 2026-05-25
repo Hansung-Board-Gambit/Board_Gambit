@@ -90,7 +90,7 @@ public class Player : NetworkBehaviour
 
     private bool ShouldStartVisibleInBattle()
     {
-        GameRoundFlowController flow = FindObjectOfType<GameRoundFlowController>();
+        GameRoundFlowController flow = FindFirstObjectByType<GameRoundFlowController>();
         return flow != null && flow.CurrentPhase == GameRoundPhase.Battle;
     }
     public bool IsBattleControlActive()

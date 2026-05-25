@@ -44,12 +44,14 @@ public class GameRoundFlowController : MonoBehaviour
     public GameObject preparationRoot;
     public GameObject battleHudRoot;
     public CanvasGroup countdownCanvasGroup;
-    public Text countdownText;
-    public Text phaseText;
+    public TextMeshProUGUI countdownText;
+    public TextMeshProUGUI phaseText;
     public Image battleTimerFill;
     public TextMeshProUGUI battleTimerText;
     public TextMeshProUGUI roundResultText;
     public TextMeshProUGUI matchScoreText;
+    public TextMeshProUGUI hostScoreText;
+    public TextMeshProUGUI guestScoreText;
 
     public GameRoundPhase CurrentPhase { get; private set; } = GameRoundPhase.Preparation;
 
@@ -73,7 +75,7 @@ public class GameRoundFlowController : MonoBehaviour
             prepDataStore = GetComponent<PrepDataStore>();
 
         if (spawnPlacementManager == null)
-            spawnPlacementManager = FindObjectOfType<SpawnPlacementManager>();
+            spawnPlacementManager = FindFirstObjectByType<SpawnPlacementManager>();
 
         if (preparationCamera == null)
             preparationCamera = Camera.main;
@@ -171,7 +173,7 @@ public class GameRoundFlowController : MonoBehaviour
         if (preparationRoot != null)
             preparationRoot.SetActive(false);
 
-        SetBattleHudVisible(true);
+        SetBattleHudVisible(false);
         SetSpawnMarkersVisible(false);
         SetCountdownVisible(true);
 
@@ -196,6 +198,7 @@ public class GameRoundFlowController : MonoBehaviour
         RequestBattlePlayerSpawn();
         SetPreparationCameraVisible(false);
         SetLocalBattleControlActive(true);
+        SetBattleHudVisible(true);
         SetCountdownVisible(false);
         GameInputGate.Unlock();
         Debug.Log("Battle phase started. Player input unlocked.");
@@ -419,7 +422,7 @@ public class GameRoundFlowController : MonoBehaviour
 
     private void SetLocalBattleControlActive(bool active)
     {
-        Player[] players = FindObjectsOfType<Player>(true);
+        Player[] players = FindObjectsByType<Player>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < players.Length; i++)
             players[i].SetBattleControlActive(active);
     }
@@ -442,6 +445,8 @@ public class GameRoundFlowController : MonoBehaviour
 
         if (matchScoreText != null)
             matchScoreText.text = "Round " + roundIndex + " / Score " + latestHostScore + " - " + latestGuestScore;
+
+        UpdateScoreTexts();
     }
 
     private bool ShouldEndRoundByHealth()
@@ -498,6 +503,7 @@ public class GameRoundFlowController : MonoBehaviour
         latestRoundWinnerSide = winnerSide;
         latestHostScore = hostScore;
         latestGuestScore = guestScore;
+        UpdateScoreTexts();
 
         if (roundResultRoutine != null)
             StopCoroutine(roundResultRoutine);
@@ -534,6 +540,16 @@ public class GameRoundFlowController : MonoBehaviour
 
         roundResultText.text = winnerText;
         roundResultText.gameObject.SetActive(CurrentPhase == GameRoundPhase.RoundResult || CurrentPhase == GameRoundPhase.MatchResult);
+        UpdateScoreTexts();
+    }
+
+    private void UpdateScoreTexts()
+    {
+        if (hostScoreText != null)
+            hostScoreText.text = latestHostScore.ToString();
+
+        if (guestScoreText != null)
+            guestScoreText.text = latestGuestScore.ToString();
     }
 
     private bool CanResolveRound()
@@ -545,7 +561,7 @@ public class GameRoundFlowController : MonoBehaviour
 
     private void ReturnToLobbyAfterMatchDelay()
     {
-        NetworkManager networkManager = FindObjectOfType<NetworkManager>();
+        NetworkManager networkManager = FindFirstObjectByType<NetworkManager>();
         if (networkManager != null)
             networkManager.ReturnToLobbyAfterMatch(matchResultDuration);
         else
@@ -708,7 +724,7 @@ public class GameRoundFlowController : MonoBehaviour
         if (PlayerUI.instance == null)
             return;
 
-        PlayerHealth[] healths = FindObjectsOfType<PlayerHealth>(true);
+        PlayerHealth[] healths = FindObjectsByType<PlayerHealth>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < healths.Length; i++)
         {
             PlayerHealth health = healths[i];
@@ -716,7 +732,7 @@ public class GameRoundFlowController : MonoBehaviour
                 PlayerUI.instance.UpdateHPText(health.CurrentHP, health.maxHP);
         }
 
-        WeaponBase[] weapons = FindObjectsOfType<WeaponBase>(true);
+        WeaponBase[] weapons = FindObjectsByType<WeaponBase>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < weapons.Length; i++)
         {
             WeaponBase weapon = weapons[i];

@@ -137,10 +137,11 @@ public class PrepPhaseFlowUI : MonoBehaviour
         ShowOnlyPanel(objectPlacementPanel);
 
         // 그 위에 턴 소개 오버레이
-        yield return ShowTurnIntroRoutine(objectPlacementPlayerName);
+        yield return ShowTurnIntroRoutine(GetObjectPlacementPlayerName());
 
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(
+            currentPhaseIndex,
             objectPlacementDuration,
             objectPlacementTimerFill
         );
@@ -150,10 +151,11 @@ public class PrepPhaseFlowUI : MonoBehaviour
         ShowOnlyPanel(spawnPlacementPanel);
 
         // 그 위에 턴 소개 오버레이
-        yield return ShowTurnIntroRoutine(spawnPlacementPlayerName);
+        yield return ShowTurnIntroRoutine(GetSpawnPlacementPlayerName());
 
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(
+            currentPhaseIndex,
             spawnPlacementDuration,
             spawnPlacementTimerFill
         );
@@ -165,6 +167,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         // 3단계는 바로 타이머 진행
         yield return RunPhaseTimerRoutine(
+            currentPhaseIndex,
             equipmentSelectionDuration,
             equipmentSelectionTimerFill
         );
@@ -210,12 +213,51 @@ public class PrepPhaseFlowUI : MonoBehaviour
         turnIntroCanvasGroup.gameObject.SetActive(false);
     }
 
-    private IEnumerator RunPhaseTimerRoutine(float duration, Image timerFill)
+    private string GetObjectPlacementPlayerName()
+    {
+        if (LobbyState.Instance == null)
+            return objectPlacementPlayerName;
+
+        return LobbyState.Instance.objectPlacementAuthorityIsHost ? "Host" : "Guest";
+    }
+
+    private string GetSpawnPlacementPlayerName()
+    {
+        if (LobbyState.Instance == null)
+            return spawnPlacementPlayerName;
+
+        return LobbyState.Instance.objectPlacementAuthorityIsHost ? "Guest" : "Host";
+    }
+
+    private IEnumerator RunPhaseTimerRoutine(int phaseIndex, float duration, Image timerFill)
     {
         skipRequested = false;
 
         if (timerFill != null)
             timerFill.fillAmount = 1f;
+
+        LobbyState state = LobbyState.Instance;
+        if (state != null && state.Runner != null)
+        {
+            state.StartPrepPhaseTimer(phaseIndex, duration);
+            yield return WaitForNetworkPhaseTimerReady(state, phaseIndex);
+
+            if (state.IsPrepPhaseTimerReady(phaseIndex))
+            {
+                while (!skipRequested && !state.IsPrepPhaseTimerExpired(phaseIndex))
+                {
+                    if (timerFill != null)
+                        timerFill.fillAmount = state.GetPrepPhaseTimerRatio(phaseIndex, duration);
+
+                    yield return null;
+                }
+
+                if (timerFill != null)
+                    timerFill.fillAmount = 0f;
+
+                yield break;
+            }
+        }
 
         float remain = duration;
 
@@ -231,6 +273,18 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         if (timerFill != null)
             timerFill.fillAmount = 0f;
+    }
+
+    private IEnumerator WaitForNetworkPhaseTimerReady(LobbyState state, int phaseIndex)
+    {
+        const float maxWaitSeconds = 2f;
+        float elapsed = 0f;
+
+        while (!skipRequested && state != null && !state.IsPrepPhaseTimerReady(phaseIndex) && elapsed < maxWaitSeconds)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 
     private IEnumerator WaitForBothEquipmentSelectionsRoutine()

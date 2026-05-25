@@ -24,12 +24,14 @@ public class LobbyState : NetworkBehaviour
     [Networked] public int guestSelectedEquipmentIndex { get; set; }
     [Networked] public int hostRoundScore { get; set; }
     [Networked] public int guestRoundScore { get; set; }
+    [Networked] public int prepPhaseIndex { get; set; }
+    [Networked] public TickTimer prepPhaseTimer { get; set; }
 
     void OnGuestReadyUpdated()
     {
         Debug.Log("Guest Ready state changed: " + guestReady);
 
-        NetworkManager manager = FindObjectOfType<NetworkManager>();
+        NetworkManager manager = FindFirstObjectByType<NetworkManager>();
         if (manager != null)
             manager.UpdateGuestUI(guestReady);
     }
@@ -49,6 +51,8 @@ public class LobbyState : NetworkBehaviour
             guestSelectedEquipmentIndex = -1;
             hostRoundScore = 0;
             guestRoundScore = 0;
+            prepPhaseIndex = -1;
+            prepPhaseTimer = TickTimer.None;
             ResetEquipmentReadyState();
         }
     }
@@ -198,6 +202,34 @@ public class LobbyState : NetworkBehaviour
     private void RPC_BroadcastSkipPrepPhase(int phaseIndex)
     {
         PrepPhaseSkipRequested?.Invoke(phaseIndex);
+    }
+
+    public void StartPrepPhaseTimer(int phaseIndex, float duration)
+    {
+        if (!Object.HasStateAuthority || Runner == null)
+            return;
+
+        prepPhaseIndex = phaseIndex;
+        prepPhaseTimer = TickTimer.CreateFromSeconds(Runner, Mathf.Max(0.1f, duration));
+    }
+
+    public bool IsPrepPhaseTimerReady(int phaseIndex)
+    {
+        return Runner != null && prepPhaseIndex == phaseIndex && prepPhaseTimer.IsRunning;
+    }
+
+    public bool IsPrepPhaseTimerExpired(int phaseIndex)
+    {
+        return IsPrepPhaseTimerReady(phaseIndex) && prepPhaseTimer.Expired(Runner);
+    }
+
+    public float GetPrepPhaseTimerRatio(int phaseIndex, float duration)
+    {
+        if (!IsPrepPhaseTimerReady(phaseIndex))
+            return 1f;
+
+        float remaining = prepPhaseTimer.RemainingTime(Runner) ?? 0f;
+        return Mathf.Clamp01(remaining / Mathf.Max(0.1f, duration));
     }
 
     public void RequestPlacePrepObject(int prefabIndex, Vector3 position, Quaternion rotation)

@@ -146,7 +146,7 @@ public class PlayerWeapon : NetworkBehaviour
             }
         }
 
-        PrepPhaseFlowUI prepFlow = FindObjectOfType<PrepPhaseFlowUI>();
+        PrepPhaseFlowUI prepFlow = FindFirstObjectByType<PrepPhaseFlowUI>();
         if (prepFlow == null || prepFlow.equipmentPool == null)
             return weaponData;
 

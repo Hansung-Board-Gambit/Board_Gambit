@@ -56,7 +56,6 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public CanvasGroup guestUI;
 
 
-    bool gameStarted = false;
     bool isExitingRoom = false;
 
     List<SessionInfo> sessionList = new List<SessionInfo>();
@@ -509,18 +508,11 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         if (runner.IsServer)
         {
             LobbyState.Instance.guestName = "";
+            LobbyState.Instance.ResetGuestReady();
         }
 
-        var lobbyState = runner.GetComponent<LobbyState>();
-        if (lobbyState != null)
-            lobbyState.guestReady = false;
-
-        startButton.interactable = false;
-
-        if (runner.IsServer && lobbystate != null)
-        {
-            lobbystate.ResetGuestReady();
-        }
+        if (startButton != null)
+            startButton.interactable = false;
     }
 
     public void OnNameChanged(string name)

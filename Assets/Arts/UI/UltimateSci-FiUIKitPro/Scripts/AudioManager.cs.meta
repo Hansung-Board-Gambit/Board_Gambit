@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 88658f6f972017b44a7a26a49f8a8692
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: -500
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201430
+  packageName: Ultimate Sci-Fi UI Kit Pro
+  packageVersion: 1.1.2
+  assetPath: Assets/UltimateSci-FiUIKitPro/Scripts/AudioManager.cs
+  uploadId: 734682

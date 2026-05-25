@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 543a20e51fb215046a80824e92069c5c
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201430
+  packageName: Ultimate Sci-Fi UI Kit Pro
+  packageVersion: 1.1.2
+  assetPath: Assets/UltimateSci-FiUIKitPro/Scripts/HoverButtonTitleMenuScript.cs
+  uploadId: 734682

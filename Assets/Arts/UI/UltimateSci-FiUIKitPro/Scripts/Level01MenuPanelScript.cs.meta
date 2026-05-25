@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b74f1b57b072f1940b17e583c10a5efd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201430
+  packageName: Ultimate Sci-Fi UI Kit Pro
+  packageVersion: 1.1.2
+  assetPath: Assets/UltimateSci-FiUIKitPro/Scripts/Level01MenuPanelScript.cs
+  uploadId: 734682

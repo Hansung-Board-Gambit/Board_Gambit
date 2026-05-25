@@ -176,7 +176,7 @@ public static class GameSceneFrameBuilder
 
     private static GameObject EnsureCanvas()
     {
-        Canvas found = Object.FindObjectOfType<Canvas>();
+        Canvas found = Object.FindFirstObjectByType<Canvas>();
         if (found != null)
         {
             ConfigureCanvas(found.gameObject);
@@ -210,7 +210,7 @@ public static class GameSceneFrameBuilder
 
     private static void EnsureEventSystem()
     {
-        if (Object.FindObjectOfType<EventSystem>() != null)
+        if (Object.FindFirstObjectByType<EventSystem>() != null)
             return;
 
         GameObject go = new GameObject(

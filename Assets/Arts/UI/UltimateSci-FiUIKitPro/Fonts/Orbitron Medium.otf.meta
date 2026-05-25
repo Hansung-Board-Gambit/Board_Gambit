@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: 2c88c7d9ac172484e94bbb229cee62f7
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Orbitron
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 70c7abc45c7c9494a9f080cc17788126, type: 3}
+  - {fileID: 12800000, guid: 203521eebb37a8247a7195fa7a653a6e, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201430
+  packageName: Ultimate Sci-Fi UI Kit Pro
+  packageVersion: 1.1.2
+  assetPath: Assets/UltimateSci-FiUIKitPro/Fonts/Orbitron Medium.otf
+  uploadId: 734682
