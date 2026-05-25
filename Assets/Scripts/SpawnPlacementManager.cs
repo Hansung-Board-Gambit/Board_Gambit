@@ -31,7 +31,12 @@ public class SpawnPlacementManager : MonoBehaviour
     public float markerYOffset = 0.3f;
     public Vector3 spawnCheckHalfExtents = new Vector3(0.4f, 1f, 0.4f);
 
+    [Header("Editor Test")]
+    public bool allowEditorLocalTest = false;
+
     private SpawnMode currentMode = SpawnMode.None;
+    private GameObject previewMarker;
+    private SpawnMode previewMarkerMode = SpawnMode.None;
 
     private void OnEnable()
     {
@@ -41,6 +46,7 @@ public class SpawnPlacementManager : MonoBehaviour
     private void OnDisable()
     {
         LobbyState.PrepSpawnPlaced -= HandleNetworkSpawnPlaced;
+        DestroyPreviewMarker();
     }
 
     private void Start()
@@ -53,25 +59,45 @@ public class SpawnPlacementManager : MonoBehaviour
     private void Update()
     {
         if (spawnPlacementPanel == null || !spawnPlacementPanel.activeInHierarchy)
+        {
+            SetPreviewMarkerActive(false);
             return;
+        }
 
         if (!CanLocalControlSpawnPlacement())
+        {
+            SetPreviewMarkerActive(false);
             return;
+        }
 
         if (currentMode == SpawnMode.None)
+        {
+            SetPreviewMarkerActive(false);
             return;
+        }
 
         if (IsPointerBlockedByUi())
+        {
+            SetPreviewMarkerActive(false);
             return;
-
-        if (!Input.GetMouseButtonDown(0))
-            return;
+        }
 
         Vector3 snappedPosition;
         if (!TryGetSnappedBoardPoint(out snappedPosition))
+        {
+            SetPreviewMarkerActive(false);
             return;
+        }
 
         if (!CanPlaceSpawn(snappedPosition))
+        {
+            SetPreviewMarkerActive(false);
+            return;
+        }
+
+        UpdatePreviewMarker(snappedPosition);
+
+        if (!Input.GetMouseButtonDown(0))
             return;
 
         if (currentMode == SpawnMode.MySpawn)
@@ -82,6 +108,8 @@ public class SpawnPlacementManager : MonoBehaviour
         {
             RequestSpawnPlacement(false, snappedPosition);
         }
+
+        SetPreviewMarkerActive(false);
     }
 
     public void SetMySpawnMode()
@@ -103,6 +131,7 @@ public class SpawnPlacementManager : MonoBehaviour
     public void ClearMode()
     {
         currentMode = SpawnMode.None;
+        SetPreviewMarkerActive(false);
     }
 
     private void RequestSpawnPlacement(bool isMySpawn, Vector3 position)
@@ -198,6 +227,68 @@ public class SpawnPlacementManager : MonoBehaviour
         SetCollidersEnabled(marker, false);
     }
 
+    private void UpdatePreviewMarker(Vector3 position)
+    {
+        GameObject sourceMarker = GetCurrentModeMarker();
+        if (sourceMarker == null)
+        {
+            SetPreviewMarkerActive(false);
+            return;
+        }
+
+        EnsurePreviewMarker(sourceMarker);
+        if (previewMarker == null)
+            return;
+
+        previewMarker.transform.position = position;
+        previewMarker.transform.rotation = sourceMarker.transform.rotation;
+        previewMarker.transform.localScale = sourceMarker.transform.localScale;
+        previewMarker.SetActive(true);
+        SetCollidersEnabled(previewMarker, false);
+    }
+
+    private void EnsurePreviewMarker(GameObject sourceMarker)
+    {
+        if (previewMarker != null && previewMarkerMode == currentMode)
+            return;
+
+        DestroyPreviewMarker();
+
+        previewMarker = Instantiate(sourceMarker, sourceMarker.transform.parent);
+        previewMarker.name = sourceMarker.name + "_Preview";
+        previewMarkerMode = currentMode;
+        previewMarker.SetActive(false);
+        SetCollidersEnabled(previewMarker, false);
+        SetLayerRecursively(previewMarker, LayerMask.NameToLayer("Ignore Raycast"));
+    }
+
+    private GameObject GetCurrentModeMarker()
+    {
+        if (currentMode == SpawnMode.MySpawn)
+            return mySpawnMarker;
+
+        if (currentMode == SpawnMode.OpponentSpawn)
+            return opponentSpawnMarker;
+
+        return null;
+    }
+
+    private void SetPreviewMarkerActive(bool active)
+    {
+        if (previewMarker != null)
+            previewMarker.SetActive(active);
+    }
+
+    private void DestroyPreviewMarker()
+    {
+        if (previewMarker == null)
+            return;
+
+        Destroy(previewMarker);
+        previewMarker = null;
+        previewMarkerMode = SpawnMode.None;
+    }
+
     public void SetMarkersVisible(bool visible)
     {
         if (mySpawnMarker != null)
@@ -221,7 +312,14 @@ public class SpawnPlacementManager : MonoBehaviour
 
     private bool CanLocalControlSpawnPlacement()
     {
-        return LobbyState.Instance != null && LobbyState.Instance.LocalHasSpawnPlacementAuthority();
+        if (LobbyState.Instance != null)
+            return LobbyState.Instance.LocalHasSpawnPlacementAuthority();
+
+#if UNITY_EDITOR
+        return allowEditorLocalTest;
+#else
+        return false;
+#endif
     }
 
     private float GetBoardTopY()
@@ -308,5 +406,15 @@ public class SpawnPlacementManager : MonoBehaviour
         Collider[] colliders = target.GetComponentsInChildren<Collider>(true);
         for (int i = 0; i < colliders.Length; i++)
             colliders[i].enabled = enabled;
+    }
+
+    private void SetLayerRecursively(GameObject target, int layer)
+    {
+        if (target == null || layer == -1)
+            return;
+
+        target.layer = layer;
+        foreach (Transform child in target.transform)
+            SetLayerRecursively(child.gameObject, layer);
     }
 }

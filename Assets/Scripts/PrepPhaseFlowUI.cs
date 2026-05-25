@@ -11,6 +11,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
     [Header("Flow")]
     public bool playOnStart = true;
 
+    [Header("Editor Test")]
+    public bool allowEditorLocalTest = false;
+
     [Header("Turn Intro Overlay")]
     public CanvasGroup turnIntroCanvasGroup;
     public Text turnIntroText;
@@ -145,6 +148,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             objectPlacementDuration,
             objectPlacementTimerFill
         );
+        yield return WaitForObjectPlacementCompleteRoutine();
 
         currentPhaseIndex = 1;
         // 2단계 화면 먼저 띄우기
@@ -159,6 +163,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             spawnPlacementDuration,
             spawnPlacementTimerFill
         );
+        yield return WaitForSpawnPlacementCompleteRoutine();
 
         currentPhaseIndex = 2;
         // 3단계 화면으로 전환
@@ -319,6 +324,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
         if (!CanLocalSkipCurrentPhase())
             return;
 
+        if (!CanFinishCurrentPhase())
+            return;
+
         if (currentPhaseIndex == 2)
             EnsureEquipmentSelection();
 
@@ -337,12 +345,96 @@ public class PrepPhaseFlowUI : MonoBehaviour
     private bool CanLocalSkipCurrentPhase()
     {
         if (currentPhaseIndex == 0)
-            return LobbyState.Instance != null && LobbyState.Instance.LocalHasObjectPlacementAuthority();
+            return CanLocalControlObjectPlacement();
 
         if (currentPhaseIndex == 1)
-            return LobbyState.Instance != null && LobbyState.Instance.LocalHasSpawnPlacementAuthority();
+            return CanLocalControlSpawnPlacement();
 
         return true;
+    }
+
+    private bool CanLocalControlObjectPlacement()
+    {
+        if (LobbyState.Instance != null)
+            return LobbyState.Instance.LocalHasObjectPlacementAuthority();
+
+#if UNITY_EDITOR
+        return allowEditorLocalTest;
+#else
+        return false;
+#endif
+    }
+
+    private bool CanLocalControlSpawnPlacement()
+    {
+        if (LobbyState.Instance != null)
+            return LobbyState.Instance.LocalHasSpawnPlacementAuthority();
+
+#if UNITY_EDITOR
+        return allowEditorLocalTest;
+#else
+        return false;
+#endif
+    }
+
+    private IEnumerator WaitForObjectPlacementCompleteRoutine()
+    {
+        if (HasPlacedObject())
+            yield break;
+
+        Debug.LogWarning("Object placement phase is waiting for at least one placed object.");
+
+        while (!HasPlacedObject())
+            yield return null;
+    }
+
+    private IEnumerator WaitForSpawnPlacementCompleteRoutine()
+    {
+        if (HasBothSpawnPoints())
+            yield break;
+
+        Debug.LogWarning("Spawn placement phase is waiting for both spawn points.");
+
+        while (!HasBothSpawnPoints())
+            yield return null;
+    }
+
+    private bool CanFinishCurrentPhase()
+    {
+        if (currentPhaseIndex == 0)
+        {
+            if (HasPlacedObject())
+                return true;
+
+            Debug.LogWarning("Place at least one object before finishing object placement.");
+            return false;
+        }
+
+        if (currentPhaseIndex == 1)
+        {
+            if (HasBothSpawnPoints())
+                return true;
+
+            Debug.LogWarning("Place both spawn points before finishing spawn placement.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool HasPlacedObject()
+    {
+        return dataStore != null &&
+               dataStore.placedObjects != null &&
+               dataStore.placedObjects.Count > 0;
+    }
+
+    private bool HasBothSpawnPoints()
+    {
+        return dataStore != null &&
+               dataStore.spawnData != null &&
+               dataStore.spawnData.hasMySpawn &&
+               dataStore.spawnData.hasOpponentSpawn;
     }
 
     private void HandleNetworkSkipRequested(int phaseIndex)

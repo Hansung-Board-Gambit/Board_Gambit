@@ -22,6 +22,9 @@ public class PlacementManager : MonoBehaviour
     public float gridSize = 1f;
     public GameObject[] placeablePrefabs;
 
+    [Header("Editor Test")]
+    public bool allowEditorLocalTest = false;
+
     private int selectedIndex = -1;
     private GameObject previewObject;
 
@@ -384,7 +387,14 @@ public class PlacementManager : MonoBehaviour
 
     private bool CanLocalControlPlacement()
     {
-        return LobbyState.Instance != null && LobbyState.Instance.LocalHasObjectPlacementAuthority();
+        if (LobbyState.Instance != null)
+            return LobbyState.Instance.LocalHasObjectPlacementAuthority();
+
+#if UNITY_EDITOR
+        return allowEditorLocalTest;
+#else
+        return false;
+#endif
     }
 
     private bool IsValidPrefabIndex(int index)
