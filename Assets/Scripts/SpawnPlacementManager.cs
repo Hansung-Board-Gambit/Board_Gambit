@@ -28,6 +28,7 @@ public class SpawnPlacementManager : MonoBehaviour
 
     [Header("Settings")]
     public float gridSize = 1f;
+    public int blockedEdgeCellCount = 0;
     public float markerYOffset = 0.3f;
     public Vector3 spawnCheckHalfExtents = new Vector3(0.4f, 1f, 0.4f);
 
@@ -198,11 +199,12 @@ public class SpawnPlacementManager : MonoBehaviour
             return false;
 
         Bounds bounds = boardCollider.bounds;
+        float edgeMargin = GetBlockedEdgeMargin();
         bool insideBoard =
-            position.x >= bounds.min.x &&
-            position.x <= bounds.max.x &&
-            position.z >= bounds.min.z &&
-            position.z <= bounds.max.z;
+            position.x - spawnCheckHalfExtents.x >= bounds.min.x + edgeMargin &&
+            position.x + spawnCheckHalfExtents.x <= bounds.max.x - edgeMargin &&
+            position.z - spawnCheckHalfExtents.z >= bounds.min.z + edgeMargin &&
+            position.z + spawnCheckHalfExtents.z <= bounds.max.z - edgeMargin;
 
         if (!insideBoard)
             return false;
@@ -325,6 +327,12 @@ public class SpawnPlacementManager : MonoBehaviour
     private float GetBoardTopY()
     {
         return boardCollider != null ? boardCollider.bounds.max.y : 0f;
+    }
+
+    private float GetBlockedEdgeMargin()
+    {
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        return Mathf.Max(0, blockedEdgeCellCount) * safeGridSize;
     }
 
     private bool IsPointerBlockedByUi()

@@ -389,10 +389,19 @@ MonoBehaviour:
     m_Bits: 512
   placedObjectLayerName: PlacedObject
   gridSize: 1
+  blockedEdgeCellCount: 0
   placeablePrefabs:
   - {fileID: 718573410}
   - {fileID: 757090327}
   - {fileID: 927758363}
+  randomizeSlotsOnStart: 1
+  repeatPrefabsForExtraSlots: 1
+  emptySlotLabel: Empty
+  showSlotPrefabPreview: 1
+  slotPreviewTextureSize: 128
+  slotPreviewPadding: 10
+  slotPreviewBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  slotPreviewWorldOrigin: {x: 5000, y: 5000, z: 5000}
   allowEditorLocalTest: 1
 --- !u!1 &226455311
 GameObject:
@@ -5756,6 +5765,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   gridSize: 1
+  blockedEdgeCellCount: 0
   markerYOffset: 0.3
   spawnCheckHalfExtents: {x: 0.4, y: 1, z: 0.4}
   allowEditorLocalTest: 1
@@ -6146,6 +6156,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1303445898}
+  - component: {fileID: 910005001}
   m_Layer: 0
   m_Name: BoardRoot
   m_TagString: Untagged
@@ -6173,6 +6184,33 @@ Transform:
   - {fileID: 910004002}
   m_Father: {fileID: 703014795}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910005001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303445897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a3c9b1081f4b1c9a8f7dd204ef3221, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::BoardGridRenderer
+  boardCollider: {fileID: 2051830065}
+  visibleWhilePanelsActive:
+  - {fileID: 1832151630}
+  - {fileID: 1012031851}
+  visibleWhenNoPanelsAssigned: 1
+  gridSize: 1
+  yOffset: 0.03
+  lineColor: {r: 1, g: 1, b: 1, a: 0.35}
+  lineWidth: 0.03
+  lineHeight: 0.02
+  drawCenterLines: 1
+  centerLineColor: {r: 1, g: 1, b: 1, a: 0.35}
+  centerLineWidthMultiplier: 2
+  centerLineYOffset: 0.12
+  gridRootName: BoardGridLines
 --- !u!1 &1328682254
 GameObject:
   m_ObjectHideFlags: 0

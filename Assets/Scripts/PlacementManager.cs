@@ -5,6 +5,13 @@ using UnityEngine.UI;
 
 public class PlacementManager : MonoBehaviour
 {
+    private class SlotPreviewBinding
+    {
+        public RawImage image;
+        public RenderTexture texture;
+        public GameObject worldObject;
+    }
+
     [Header("References")]
     public Camera mainCamera;
     public GameObject objectPlacementPanel;
@@ -20,13 +27,29 @@ public class PlacementManager : MonoBehaviour
 
     [Header("Placement Settings")]
     public float gridSize = 1f;
+    public int blockedEdgeCellCount = 0;
     public GameObject[] placeablePrefabs;
+
+    [Header("Slot UI")]
+    public bool randomizeSlotsOnStart = true;
+    public bool repeatPrefabsForExtraSlots = true;
+    public string emptySlotLabel = "Empty";
+
+    [Header("Slot Preview")]
+    public bool showSlotPrefabPreview = true;
+    public int slotPreviewTextureSize = 128;
+    public float slotPreviewPadding = 10f;
+    public Color slotPreviewBackgroundColor = new Color(0f, 0f, 0f, 0f);
+    public Vector3 slotPreviewWorldOrigin = new Vector3(5000f, 5000f, 5000f);
 
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
 
     private int selectedIndex = -1;
     private GameObject previewObject;
+    private int[] slotPrefabIndices;
+    private GameObject slotPreviewRoot;
+    private readonly List<SlotPreviewBinding> slotPreviewBindings = new List<SlotPreviewBinding>();
 
     private void OnEnable()
     {
@@ -38,9 +61,14 @@ public class PlacementManager : MonoBehaviour
         LobbyState.PrepObjectPlaced -= HandleNetworkObjectPlaced;
     }
 
+    private void OnDestroy()
+    {
+        DestroySlotPreviews();
+    }
+
     private void Start()
     {
-        EnsureObjectSlotButtonsMatchPrefabs();
+        RefreshObjectSlots();
         UpdatePointText();
     }
 
@@ -105,16 +133,20 @@ public class PlacementManager : MonoBehaviour
         if (!CanLocalControlPlacement())
             return;
 
-        Debug.Log("SelectObject called, index = " + index);
+        if (slotPrefabIndices == null || slotPrefabIndices.Length == 0)
+            SetupObjectSlots();
 
-        if (!IsValidPrefabIndex(index))
+        int prefabIndex;
+        if (!TryGetPrefabIndexForSlotIndex(index, out prefabIndex))
         {
             CancelSelection();
-            Debug.LogWarning("SelectObject ignored because no prefab is assigned at index = " + index);
+            Debug.LogWarning("SelectObject ignored because no prefab is assigned for slot index = " + index);
             return;
         }
 
-        selectedIndex = index;
+        Debug.Log("SelectObject called, slot index = " + index + ", prefab index = " + prefabIndex);
+
+        selectedIndex = prefabIndex;
         DestroyPreview();
         EnsurePreviewExists();
     }
@@ -123,6 +155,11 @@ public class PlacementManager : MonoBehaviour
     {
         selectedIndex = -1;
         DestroyPreview();
+    }
+
+    public void RefreshObjectSlots()
+    {
+        SetupObjectSlots();
     }
 
     private bool TryGetSnappedBoardPoint(out Vector3 snappedPosition)
@@ -181,11 +218,12 @@ public class PlacementManager : MonoBehaviour
         float halfX = footprint.x * 0.5f;
         float halfZ = footprint.y * 0.5f;
 
+        float edgeMargin = GetBlockedEdgeMargin();
         bool insideBoard =
-            position.x - halfX >= bounds.min.x &&
-            position.x + halfX <= bounds.max.x &&
-            position.z - halfZ >= bounds.min.z &&
-            position.z + halfZ <= bounds.max.z;
+            position.x - halfX >= bounds.min.x + edgeMargin &&
+            position.x + halfX <= bounds.max.x - edgeMargin &&
+            position.z - halfZ >= bounds.min.z + edgeMargin &&
+            position.z + halfZ <= bounds.max.z - edgeMargin;
 
         if (!insideBoard)
             return false;
@@ -422,6 +460,12 @@ public class PlacementManager : MonoBehaviour
         return boardCollider != null ? boardCollider.bounds.max.y : 0f;
     }
 
+    private float GetBlockedEdgeMargin()
+    {
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        return Mathf.Max(0, blockedEdgeCellCount) * safeGridSize;
+    }
+
     private void EnsureMainCameraRendersLayer(int layer)
     {
         if (mainCamera == null)
@@ -471,25 +515,342 @@ public class PlacementManager : MonoBehaviour
         return false;
     }
 
-    private void EnsureObjectSlotButtonsMatchPrefabs()
+    private void SetupObjectSlots()
     {
         if (objectPlacementPanel == null)
             return;
 
+        DestroySlotPreviews();
+
         Button[] buttons = objectPlacementPanel.GetComponentsInChildren<Button>(true);
+        slotPrefabIndices = CreateSlotPrefabAssignments(buttons);
+
         for (int i = 0; i < buttons.Length; i++)
         {
-            int prefabIndex;
-            if (!TryGetObjectSlotPrefabIndex(buttons[i].gameObject, out prefabIndex))
+            int slotIndex;
+            if (!TryGetObjectSlotIndex(buttons[i].gameObject, out slotIndex))
                 continue;
 
-            buttons[i].interactable = IsValidPrefabIndex(prefabIndex);
+            int prefabIndex;
+            bool hasPrefab = TryGetPrefabIndexForSlotIndex(slotIndex, out prefabIndex);
+            buttons[i].interactable = hasPrefab;
+            UpdateObjectSlotPreview(buttons[i].gameObject, slotIndex, prefabIndex, hasPrefab);
         }
     }
 
-    private bool TryGetObjectSlotPrefabIndex(GameObject target, out int prefabIndex)
+    private int[] CreateSlotPrefabAssignments(Button[] buttons)
+    {
+        int slotCount = GetObjectSlotCount(buttons);
+        int[] assignments = new int[slotCount];
+        for (int i = 0; i < assignments.Length; i++)
+            assignments[i] = -1;
+
+        List<int> validPrefabIndices = GetValidPrefabIndices();
+        if (validPrefabIndices.Count == 0)
+            return assignments;
+
+        List<int> randomBag = new List<int>(validPrefabIndices);
+        for (int slotIndex = 0; slotIndex < assignments.Length; slotIndex++)
+        {
+            if (!randomizeSlotsOnStart)
+            {
+                int prefabIndex;
+                if (TryGetFallbackPrefabIndexForSlotIndex(slotIndex, out prefabIndex))
+                    assignments[slotIndex] = prefabIndex;
+                continue;
+            }
+
+            if (randomBag.Count == 0)
+            {
+                if (!repeatPrefabsForExtraSlots)
+                    break;
+
+                randomBag.AddRange(validPrefabIndices);
+            }
+
+            int randomBagIndex = Random.Range(0, randomBag.Count);
+            assignments[slotIndex] = randomBag[randomBagIndex];
+            randomBag.RemoveAt(randomBagIndex);
+        }
+
+        return assignments;
+    }
+
+    private int GetObjectSlotCount(Button[] buttons)
+    {
+        int maxSlotIndex = -1;
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            int slotIndex;
+            if (TryGetObjectSlotIndex(buttons[i].gameObject, out slotIndex))
+                maxSlotIndex = Mathf.Max(maxSlotIndex, slotIndex);
+        }
+
+        return maxSlotIndex + 1;
+    }
+
+    private List<int> GetValidPrefabIndices()
+    {
+        List<int> validPrefabIndices = new List<int>();
+        if (placeablePrefabs == null)
+            return validPrefabIndices;
+
+        for (int i = 0; i < placeablePrefabs.Length; i++)
+        {
+            if (IsValidPrefabIndex(i))
+                validPrefabIndices.Add(i);
+        }
+
+        return validPrefabIndices;
+    }
+
+    private bool TryGetPrefabIndexForSlotIndex(int slotIndex, out int prefabIndex)
     {
         prefabIndex = -1;
+
+        if (slotIndex < 0 || placeablePrefabs == null || placeablePrefabs.Length == 0)
+            return false;
+
+        if (slotPrefabIndices != null &&
+            slotIndex < slotPrefabIndices.Length &&
+            IsValidPrefabIndex(slotPrefabIndices[slotIndex]))
+        {
+            prefabIndex = slotPrefabIndices[slotIndex];
+            return true;
+        }
+
+        return TryGetFallbackPrefabIndexForSlotIndex(slotIndex, out prefabIndex);
+    }
+
+    private bool TryGetFallbackPrefabIndexForSlotIndex(int slotIndex, out int prefabIndex)
+    {
+        prefabIndex = -1;
+
+        if (IsValidPrefabIndex(slotIndex))
+        {
+            prefabIndex = slotIndex;
+            return true;
+        }
+
+        if (!repeatPrefabsForExtraSlots)
+            return false;
+
+        for (int i = 0; i < placeablePrefabs.Length; i++)
+        {
+            int candidateIndex = (slotIndex + i) % placeablePrefabs.Length;
+            if (IsValidPrefabIndex(candidateIndex))
+            {
+                prefabIndex = candidateIndex;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void UpdateObjectSlotPreview(GameObject slot, int slotIndex, int prefabIndex, bool hasPrefab)
+    {
+        if (slot == null)
+            return;
+
+        HideObjectSlotText(slot);
+
+        if (!hasPrefab || !showSlotPrefabPreview)
+            return;
+
+        RawImage previewImage = EnsureSlotPreviewImage(slot);
+        if (previewImage == null)
+            return;
+
+        int textureSize = Mathf.Max(32, slotPreviewTextureSize);
+        RenderTexture texture = new RenderTexture(textureSize, textureSize, 16, RenderTextureFormat.ARGB32);
+        texture.name = slot.name + "_PreviewTexture";
+        texture.Create();
+        previewImage.texture = texture;
+
+        GameObject worldObject = CreateSlotPreviewWorldObject(slotIndex, prefabIndex, texture);
+        if (worldObject == null)
+        {
+            previewImage.texture = null;
+            texture.Release();
+            DestroySlotPreviewObject(texture);
+            return;
+        }
+
+        slotPreviewBindings.Add(new SlotPreviewBinding
+        {
+            image = previewImage,
+            texture = texture,
+            worldObject = worldObject
+        });
+    }
+
+    private void HideObjectSlotText(GameObject slot)
+    {
+        Text[] labels = slot.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < labels.Length; i++)
+        {
+            labels[i].text = string.Empty;
+            labels[i].gameObject.SetActive(false);
+        }
+    }
+
+    private RawImage EnsureSlotPreviewImage(GameObject slot)
+    {
+        const string previewImageName = "ObjectSlotPrefabPreview";
+
+        Transform existingPreview = slot.transform.Find(previewImageName);
+        RawImage previewImage = existingPreview != null ? existingPreview.GetComponent<RawImage>() : null;
+
+        if (previewImage == null)
+        {
+            GameObject previewObject = new GameObject(previewImageName);
+            previewObject.transform.SetParent(slot.transform, false);
+            previewImage = previewObject.AddComponent<RawImage>();
+        }
+
+        previewImage.raycastTarget = false;
+        previewImage.color = Color.white;
+
+        RectTransform rectTransform = previewImage.rectTransform;
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = new Vector2(slotPreviewPadding, slotPreviewPadding);
+        rectTransform.offsetMax = new Vector2(-slotPreviewPadding, -slotPreviewPadding);
+        rectTransform.localScale = Vector3.one;
+        rectTransform.SetAsLastSibling();
+
+        AspectRatioFitter aspectRatioFitter = previewImage.GetComponent<AspectRatioFitter>();
+        if (aspectRatioFitter == null)
+            aspectRatioFitter = previewImage.gameObject.AddComponent<AspectRatioFitter>();
+
+        aspectRatioFitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+        aspectRatioFitter.aspectRatio = 1f;
+
+        return previewImage;
+    }
+
+    private GameObject CreateSlotPreviewWorldObject(int slotIndex, int prefabIndex, RenderTexture texture)
+    {
+        if (!IsValidPrefabIndex(prefabIndex))
+            return null;
+
+        if (slotPreviewRoot == null)
+            slotPreviewRoot = new GameObject("ObjectSlotPreviewRoot");
+
+        Vector3 previewCenter = slotPreviewWorldOrigin + new Vector3(slotIndex * 8f, 0f, 0f);
+        GameObject worldObject = new GameObject("ObjectSlotPreview_" + slotIndex);
+        worldObject.transform.SetParent(slotPreviewRoot.transform, false);
+        worldObject.transform.position = previewCenter;
+
+        GameObject model = Instantiate(placeablePrefabs[prefabIndex], worldObject.transform);
+        model.name = placeablePrefabs[prefabIndex].name + "_SlotPreview";
+        model.transform.localPosition = Vector3.zero;
+        model.transform.localRotation = Quaternion.Euler(20f, -35f, 0f);
+        model.transform.localScale = placeablePrefabs[prefabIndex].transform.localScale;
+        model.SetActive(true);
+        DisableColliders(model);
+        EnableRenderers(model);
+        SetLayerRecursively(model, LayerMask.NameToLayer("Ignore Raycast"));
+
+        Bounds bounds;
+        if (!TryGetRendererBounds(model, out bounds))
+        {
+            DestroySlotPreviewObject(worldObject);
+            return null;
+        }
+
+        float maxSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+        maxSize = Mathf.Max(0.5f, maxSize);
+
+        Camera previewCamera = CreateSlotPreviewCamera(worldObject.transform, bounds, maxSize, texture);
+        GameObject lightObject = new GameObject("SlotPreviewLight");
+        lightObject.transform.SetParent(worldObject.transform, false);
+        lightObject.transform.rotation = Quaternion.Euler(35f, -35f, 0f);
+
+        Light previewLight = lightObject.AddComponent<Light>();
+        previewLight.type = LightType.Directional;
+        previewLight.intensity = 1.2f;
+
+        previewCamera.Render();
+        previewCamera.enabled = false;
+        worldObject.SetActive(false);
+        return worldObject;
+    }
+
+    private Camera CreateSlotPreviewCamera(Transform parent, Bounds bounds, float maxSize, RenderTexture texture)
+    {
+        GameObject cameraObject = new GameObject("SlotPreviewCamera");
+        cameraObject.transform.SetParent(parent, false);
+
+        Camera previewCamera = cameraObject.AddComponent<Camera>();
+        previewCamera.clearFlags = CameraClearFlags.SolidColor;
+        previewCamera.backgroundColor = slotPreviewBackgroundColor;
+        previewCamera.orthographic = true;
+        previewCamera.orthographicSize = maxSize * 0.8f;
+        previewCamera.nearClipPlane = 0.01f;
+        previewCamera.farClipPlane = maxSize * 10f;
+        previewCamera.targetTexture = texture;
+        previewCamera.enabled = true;
+
+        cameraObject.transform.position = bounds.center + new Vector3(0f, maxSize * 0.45f, -maxSize * 3f);
+        cameraObject.transform.LookAt(bounds.center);
+        return previewCamera;
+    }
+
+    private bool TryGetRendererBounds(GameObject target, out Bounds bounds)
+    {
+        bounds = new Bounds(target.transform.position, Vector3.one);
+
+        Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return false;
+
+        bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+            bounds.Encapsulate(renderers[i].bounds);
+
+        return true;
+    }
+
+    private void DestroySlotPreviews()
+    {
+        for (int i = 0; i < slotPreviewBindings.Count; i++)
+        {
+            SlotPreviewBinding binding = slotPreviewBindings[i];
+            if (binding.image != null)
+                binding.image.texture = null;
+
+            if (binding.texture != null)
+            {
+                binding.texture.Release();
+                DestroySlotPreviewObject(binding.texture);
+            }
+        }
+
+        slotPreviewBindings.Clear();
+
+        if (slotPreviewRoot != null)
+        {
+            DestroySlotPreviewObject(slotPreviewRoot);
+            slotPreviewRoot = null;
+        }
+    }
+
+    private void DestroySlotPreviewObject(UnityEngine.Object target)
+    {
+        if (target == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(target);
+        else
+            DestroyImmediate(target);
+    }
+
+    private bool TryGetObjectSlotIndex(GameObject target, out int slotIndex)
+    {
+        slotIndex = -1;
 
         const string slotPrefix = "ObjectSlot_";
         if (target == null || !target.name.StartsWith(slotPrefix))
@@ -499,7 +860,7 @@ public class PlacementManager : MonoBehaviour
         if (!int.TryParse(target.name.Substring(slotPrefix.Length), out slotNumber))
             return false;
 
-        prefabIndex = slotNumber - 1;
+        slotIndex = slotNumber - 1;
         return true;
     }
 
