@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaaa74b2d238794aa0f1db8dc6f5f2e, type: 3}
   m_Name: Hammer
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
-  weaponName: 
+  weaponName: Hammer
   weaponPrefab: {fileID: 1535349502953269601, guid: b435523cd257b39459121b98cb081b37, type: 3}
-  weaponImg: {fileID: 0}
+  weaponImg: {fileID: 21300000, guid: dc0d47e41d10f3e4aa609ddd5cdbe246, type: 3}
   type: 0
   damage: 50
   range: 20
+  weaponIcon: {fileID: 21300000, guid: dc0d47e41d10f3e4aa609ddd5cdbe246, type: 3}
+  weaponDescription: 
   leftClickCoolTime: 1
   rightClickCoolTime: 2
   skillQCoolTime: 2

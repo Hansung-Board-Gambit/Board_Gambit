@@ -3134,6 +3134,7 @@ GameObject:
   - component: {fileID: 846659206}
   - component: {fileID: 846659208}
   - component: {fileID: 846659207}
+  - component: {fileID: 846659209}
   m_Layer: 0
   m_Name: EquipCard_3
   m_TagString: Untagged
@@ -3200,6 +3201,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 846659205}
   m_CullTransparentMesh: 1
+--- !u!114 &846659209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 846659205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcb70e8912ad5314aa6780a4d6bd6050, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentCardUI
+  nameText: {fileID: 278673685}
+  descriptionText: {fileID: 0}
+  weaponIconImage: {fileID: 1138410727}
 --- !u!1 &856437957
 GameObject:
   m_ObjectHideFlags: 0
@@ -3711,6 +3727,7 @@ GameObject:
   - component: {fileID: 921387619}
   - component: {fileID: 921387621}
   - component: {fileID: 921387620}
+  - component: {fileID: 921387622}
   m_Layer: 0
   m_Name: EquipCard_2
   m_TagString: Untagged
@@ -3777,6 +3794,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 921387618}
   m_CullTransparentMesh: 1
+--- !u!114 &921387622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 921387618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcb70e8912ad5314aa6780a4d6bd6050, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentCardUI
+  nameText: {fileID: 443781098}
+  descriptionText: {fileID: 0}
+  weaponIconImage: {fileID: 892066952}
 --- !u!1 &927758363 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 215902890904732148, guid: b9878ebdce732304881fd8dbb3d3a942, type: 3}
@@ -4134,13 +4166,18 @@ MonoBehaviour:
   equipmentSkipButton: {fileID: 1328682256}
   dataStore: {fileID: 1024786534}
   equipmentPool:
-  - {fileID: 11400000, guid: e7f4c1aa6037e584a95bee9160d8ce43, type: 2}
+  - {fileID: 11400000, guid: 26b6f7a797bfdb240831c1cf42b09378, type: 2}
+  - {fileID: 11400000, guid: 2aba618d6438d784d9ff4925cc2a43a7, type: 2}
+  - {fileID: 11400000, guid: f1dd1969fba56654ca55d3604e62eb7e, type: 2}
   - {fileID: 11400000, guid: 789aaf116057ed74a99357c36d4026bc, type: 2}
+  - {fileID: 11400000, guid: e7f4c1aa6037e584a95bee9160d8ce43, type: 2}
+  - {fileID: 11400000, guid: f12122ff40549b1459bb83be63b61de8, type: 2}
   - {fileID: 11400000, guid: 09e286c73d477534f885bda3baf02d65, type: 2}
+  - {fileID: 11400000, guid: 58edc59d1245979469a1177d2f487fba, type: 2}
   equipmentCards:
-  - {fileID: 1120529832}
-  - {fileID: 921387619}
-  - {fileID: 846659206}
+  - {fileID: 1120529835}
+  - {fileID: 921387622}
+  - {fileID: 846659209}
   equipmentCardNormalColor: {r: 0, g: 0, b: 0, a: 0.392}
   equipmentCardSelectedColor: {r: 0.15, g: 0.45, b: 0.85, a: 0.75}
 --- !u!114 &1024786534
@@ -4844,6 +4881,7 @@ GameObject:
   - component: {fileID: 1120529832}
   - component: {fileID: 1120529834}
   - component: {fileID: 1120529833}
+  - component: {fileID: 1120529835}
   m_Layer: 0
   m_Name: EquipCard_1
   m_TagString: Untagged
@@ -4910,6 +4948,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1120529831}
   m_CullTransparentMesh: 1
+--- !u!114 &1120529835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1120529831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcb70e8912ad5314aa6780a4d6bd6050, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EquipmentCardUI
+  nameText: {fileID: 1204728079}
+  descriptionText: {fileID: 0}
+  weaponIconImage: {fileID: 981400035}
 --- !u!1 &1138410725
 GameObject:
   m_ObjectHideFlags: 0

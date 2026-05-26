@@ -44,9 +44,12 @@ public class PrepPhaseFlowUI : MonoBehaviour
     [Header("Equipment Selection")]
     public PrepDataStore dataStore;
     public WeaponData[] equipmentPool;
-    public Transform[] equipmentCards;
+    //public Transform[] equipmentCards;
+    public EquipmentCardUI[] equipmentCards;
     public Color equipmentCardNormalColor = new Color(0f, 0f, 0f, 0.392f);
     public Color equipmentCardSelectedColor = new Color(0.15f, 0.45f, 0.85f, 0.75f);
+    //무작위 3개 담을 임시 리스트
+    private List<WeaponData> currentRandomPool = new List<WeaponData>(); 
 
     private bool skipRequested;
     private bool equipmentAllReady;
@@ -91,10 +94,27 @@ public class PrepPhaseFlowUI : MonoBehaviour
             BeginFlow();
     }
 
+    //겹치지 않게 3개 뽑아내기
+    private void GenerateRandomEquipmentPool()
+    {
+        currentRandomPool.Clear();
+        List<WeaponData> tempPool = new List<WeaponData>(equipmentPool);
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (tempPool.Count == 0) break;
+            int randomIndex = UnityEngine.Random.Range(0, tempPool.Count);
+            currentRandomPool.Add(tempPool[randomIndex]);
+            tempPool.RemoveAt(randomIndex); // 중복 방지
+        }
+    }
+
     public void BeginFlow()
     {
         if (flowRoutine != null)
             StopCoroutine(flowRoutine);
+
+        GenerateRandomEquipmentPool();
 
         skipRequested = false;
         equipmentAllReady = false;
@@ -294,7 +314,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         EnsureEquipmentSelection();
         equipmentAllReady = false;
-        LobbyState.Instance.RequestSelectEquipment(selectedEquipmentIndex);
+       // LobbyState.Instance.RequestSelectEquipment(selectedEquipmentIndex);
         LobbyState.Instance.RequestEquipmentReady();
         Debug.Log("Equipment selection completed locally. Index=" + selectedEquipmentIndex + ". Waiting for the opponent.");
 
@@ -370,9 +390,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
     {
         equipmentButtons.Clear();
 
-        if (equipmentCards == null || equipmentCards.Length == 0)
-            equipmentCards = FindEquipmentCards();
-
+        //if (equipmentCards == null || equipmentCards.Length == 0)
+        //equipmentCards = FindEquipmentCards();
+        /*
         for (int i = 0; i < equipmentCards.Length; i++)
         {
             Transform card = equipmentCards[i];
@@ -386,6 +406,25 @@ public class PrepPhaseFlowUI : MonoBehaviour
             int index = i;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => SelectEquipment(index));
+            equipmentButtons.Add(button);
+        }
+        */
+        if (equipmentCards == null) return;
+
+        for (int i = 0; i < equipmentCards.Length; i++)
+        {
+            EquipmentCardUI card = equipmentCards[i];
+            if (card == null) continue;
+
+            // card는 EquipmentCardUI 스크립트이므로, 그 스크립트가 붙어있는 gameObject에서 버튼을 찾습니다.
+            Button button = card.GetComponent<Button>();
+            if (button == null)
+                button = card.gameObject.AddComponent<Button>();
+
+            int localIndex = i; // 0, 1, 2
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => SelectEquipment(localIndex));
+
             equipmentButtons.Add(button);
         }
     }
@@ -413,22 +452,31 @@ public class PrepPhaseFlowUI : MonoBehaviour
         RefreshEquipmentCardVisuals();
     }
 
-    private void SelectEquipment(int index)
+    private void SelectEquipment(int localIndex)
     {
+        
         if (currentPhaseIndex != 2)
             return;
 
-        if (equipmentPool == null || index < 0 || index >= equipmentPool.Length || equipmentPool[index] == null)
-            return;
+        //if (equipmentPool == null || index < 0 || index >= equipmentPool.Length || equipmentPool[index] == null)
+        //return;
 
-        selectedEquipmentIndex = index;
+        if (localIndex < 0 || localIndex >= currentRandomPool.Count) return;
+
+        selectedEquipmentIndex = localIndex;
+        WeaponData selectedWeapon = currentRandomPool[localIndex];
+
+        int masterIndex = System.Array.IndexOf(equipmentPool, selectedWeapon);
+        if (masterIndex == -1) masterIndex = 0;
+
+        LocalPlayerData.SelectedWeaponMasterIndex = masterIndex;
 
         if (dataStore != null)
-            dataStore.SaveEquipmentSelection(index);
+            dataStore.SaveEquipmentSelection(masterIndex);
 
         RefreshEquipmentCardVisuals();
-        Debug.Log("Selected equipment: " + GetEquipmentDisplayName(equipmentPool[index]) + " (" + index + ")");
-    }
+
+     }
 
     private void EnsureEquipmentSelection()
     {
@@ -464,15 +512,44 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         for (int i = 0; i < equipmentCards.Length; i++)
         {
-            if (equipmentCards[i] == null)
-                continue;
+            // if (equipmentCards[i] == null)
+            //continue;
+            EquipmentCardUI card = equipmentCards[i];
+            //if (equipmentCards[i] == null || i >= currentRandomPool.Count) continue;
+            if (card == null || i >= currentRandomPool.Count) continue;
 
+            WeaponData data = currentRandomPool[i];
+
+            // 1. 이름 적용
+            if (card.nameText != null)
+                card.nameText.text = data != null ? data.weaponName : "Empty";
+
+            // 2. 설명 적용
+            if (card.descriptionText != null)
+                card.descriptionText.text = data != null ? data.weaponDescription : "";
+
+            // 3. 아이콘 이미지 적용
+            if (card.weaponIconImage != null)
+            {
+                if (data != null && data.weaponIcon != null)
+                {
+                    card.weaponIconImage.sprite = data.weaponIcon;
+                    card.weaponIconImage.enabled = true; // 사진 켜기
+                }
+                else
+                {
+                    card.weaponIconImage.enabled = false; // 사진 없으면 깔끔하게 숨기기
+                }
+            }
+
+            /*
             Text label = equipmentCards[i].GetComponentInChildren<Text>(true);
             if (label == null)
                 continue;
 
             WeaponData data = GetEquipmentByIndex(i);
             label.text = data != null ? GetEquipmentDisplayName(data) : "Empty";
+            */
         }
     }
 
@@ -483,12 +560,21 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         for (int i = 0; i < equipmentCards.Length; i++)
         {
+            EquipmentCardUI card = equipmentCards[i];
+            if (card == null) continue;
+            /*
             if (equipmentCards[i] == null)
                 continue;
 
             Image image = equipmentCards[i].GetComponent<Image>();
             if (image != null)
                 image.color = i == selectedEquipmentIndex ? equipmentCardSelectedColor : equipmentCardNormalColor;
+            */
+            Image image = card.GetComponent<Image>();
+            if (image != null)
+            {
+                image.color = (i == selectedEquipmentIndex) ? equipmentCardSelectedColor : equipmentCardNormalColor;
+            }
         }
     }
 

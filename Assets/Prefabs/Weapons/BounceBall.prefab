@@ -132,7 +132,7 @@ MonoBehaviour:
   rangedData: {fileID: 11400000, guid: 26b6f7a797bfdb240831c1cf42b09378, type: 2}
   hitLayer:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 833
   _BounceCount: 0
   _Velocity: {x: 0, y: 0, z: 0}
 --- !u!114 &4349267026242799416

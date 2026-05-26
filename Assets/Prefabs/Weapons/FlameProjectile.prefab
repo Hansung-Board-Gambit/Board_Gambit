@@ -88,7 +88,7 @@ MonoBehaviour:
   flameAreaPrefab: {fileID: 3218589445700857332, guid: 271681980ea43854aacfc2d186b9f704, type: 3}
   hitLayer:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 833
   _Velocity: {x: 0, y: 0, z: 0}
 --- !u!1 &8567200103998601451
 GameObject:

@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
   m_Name: PaintGun
   m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
-  weaponName: 
+  weaponName: PaintGun
   weaponPrefab: {fileID: 4301670011250563236, guid: 27af0b578259fbc449f576cb5598c42b, type: 3}
-  weaponImg: {fileID: 0}
+  weaponImg: {fileID: 21300000, guid: dc5c6aba445a15d4ea8657eca62ed0af, type: 3}
   type: 1
   damage: 5
   range: 200
+  weaponIcon: {fileID: 21300000, guid: dc5c6aba445a15d4ea8657eca62ed0af, type: 3}
+  weaponDescription: 
   MaxAmmo: 50
   leftClickCoolTime: 0.2
   rightClickCoolTime: 0

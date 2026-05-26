@@ -214,16 +214,14 @@ MonoBehaviour:
   handPosition: {fileID: 4240790470487304509}
   weaponData: {fileID: 11400000, guid: 789aaf116057ed74a99357c36d4026bc, type: 2}
   weaponCatalog:
-  - {fileID: 11400000, guid: e7f4c1aa6037e584a95bee9160d8ce43, type: 2}
-  - {fileID: 11400000, guid: 789aaf116057ed74a99357c36d4026bc, type: 2}
-  - {fileID: 11400000, guid: f1dd1969fba56654ca55d3604e62eb7e, type: 2}
-  - {fileID: 11400000, guid: 2aba618d6438d784d9ff4925cc2a43a7, type: 2}
-  - {fileID: 11400000, guid: 09e286c73d477534f885bda3baf02d65, type: 2}
   - {fileID: 11400000, guid: 26b6f7a797bfdb240831c1cf42b09378, type: 2}
+  - {fileID: 11400000, guid: 2aba618d6438d784d9ff4925cc2a43a7, type: 2}
+  - {fileID: 11400000, guid: f1dd1969fba56654ca55d3604e62eb7e, type: 2}
+  - {fileID: 11400000, guid: 789aaf116057ed74a99357c36d4026bc, type: 2}
+  - {fileID: 11400000, guid: e7f4c1aa6037e584a95bee9160d8ce43, type: 2}
   - {fileID: 11400000, guid: f12122ff40549b1459bb83be63b61de8, type: 2}
+  - {fileID: 11400000, guid: 09e286c73d477534f885bda3baf02d65, type: 2}
   - {fileID: 11400000, guid: 58edc59d1245979469a1177d2f487fba, type: 2}
-  - {fileID: 11400000, guid: 3c15d70ef361f8647a41e2ac442ce30c, type: 2}
-  - {fileID: 11400000, guid: abed641b09098454fb9ed4f1502d28f7, type: 2}
   camrea: {fileID: 8890669714986676628}
   defaultFOV: 60
   zoomSpeed: 50

@@ -26,18 +26,40 @@ public class PlayerWeapon : NetworkBehaviour
     [Networked] public NetworkButtons PrevButtons {  get; set; }
 
     //소환한 무기를 모두에게 알려줌
-    [Networked, OnChangedRender(nameof(OnWeaponChanged))] 
+    [Networked, OnChangedRender(nameof(OnWeaponIndexChanged))] 
     public NetworkObject NetWeaponObj { get; set; }
-      
 
-    //추가 및 변경해야 할 부분
-    //키보드 키를 누를때 해당 무기가 나올 수 있게끔
-    //플레이어1과 2가 각각 다른 무기를 소환시킬 수 있게
+    [Networked, OnChangedRender(nameof(OnWeaponIndexChanged))]
+    public int SyncWeaponIndex { get; set; } = -1;
+
+
+
+    private void OnEnable()
+    {
+        LobbyState.PrepEquipmentAllReady += UpdateWeaponForNewRound;
+    }
+
+    private void OnDisable()
+    {
+        LobbyState.PrepEquipmentAllReady -= UpdateWeaponForNewRound;
+    }
+
+    private void UpdateWeaponForNewRound()
+    {
+        // 내 캐릭터가 맞다면, 새로 갱신된 메모장을 읽고 무기를 바꿔달라고 떼를 씁니다.
+        if (HasInputAuthority)
+        {
+            int myNewChoice = LocalPlayerData.SelectedWeaponMasterIndex;
+            RPC_RequestEquipWeapon(myNewChoice);
+            Debug.Log($"<color=cyan><b>[새 라운드 시작] 새로운 무기 번호({myNewChoice})로 교체 요청!</b></color>");
+        }
+    }
+
 
     public override void Spawned()
     {      
         TargetFOV = defaultFOV;
-
+        /*
         if (HasStateAuthority && weaponData != null)
         {
             EquipWeapon(weaponData);
@@ -47,6 +69,27 @@ public class PlayerWeapon : NetworkBehaviour
         if(NetWeaponObj != null)
         {
             OnWeaponChanged();
+        }
+        */
+        if (HasInputAuthority)
+        {
+            // 아까 로컬 메모장에 적어둔 번호를 꺼냅니다.
+            int myChoice = LocalPlayerData.SelectedWeaponMasterIndex;
+
+            // 내 캐릭터가 직접 서버에 무기 달라고 편지(RPC) 보냄!
+            RPC_RequestEquipWeapon(myChoice);
+        }
+
+        OnWeaponIndexChanged();
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_RequestEquipWeapon(int requestIndex)
+    {
+        if (requestIndex >= 0 && requestIndex < weaponCatalog.Length)
+        {
+            SyncWeaponIndex = requestIndex; // 모두에게 공유할 변수에 세팅
+            EquipWeapon(weaponCatalog[requestIndex]); // 찐으로 무기 스폰!
         }
     }
     public void EquipWeapon(WeaponData newWeaponData)
@@ -74,7 +117,7 @@ public class PlayerWeapon : NetworkBehaviour
         );
         //소환된 무기를 모든 클라이언트에게 알림
         NetWeaponObj = newWeaponObj;
-        OnWeaponChanged();       
+        OnWeaponIndexChanged();
     }
 
     public void SetWeaponDataAndEquip(WeaponData newWeaponData)
@@ -98,6 +141,30 @@ public class PlayerWeapon : NetworkBehaviour
         }
     }
 
+    public void OnWeaponIndexChanged()
+    {
+        // 1. 서버가 지정한 도감 번호를 꺼냄
+        if (SyncWeaponIndex >= 0 && SyncWeaponIndex < weaponCatalog.Length)
+        {
+            weaponData = weaponCatalog[SyncWeaponIndex];
+        }
+
+        // 2. 무기 손에 붙이고 초기화
+        if (NetWeaponObj != null)
+        {
+            NetWeaponObj.transform.SetParent(handPosition, false);
+            NetWeaponObj.transform.localPosition = Vector3.zero;
+            NetWeaponObj.transform.localRotation = Quaternion.identity;
+
+            currentWeapon = NetWeaponObj.GetComponent<WeaponBase>();
+            if (currentWeapon != null && weaponData != null)
+            {
+                currentWeapon.Init(this, weaponData);
+                Debug.Log($"<color=green><b>[무기 장착 끝!] {weaponData.name}</b></color>");
+            }
+        }
+    }
+    /*
     //무기가 바뀌면 자동으로 불리는 함수
     public void OnWeaponChanged()
     {
@@ -168,9 +235,19 @@ public class PlayerWeapon : NetworkBehaviour
         WeaponBase prefabWeapon = data.weaponPrefab.GetComponent<WeaponBase>();
         return prefabWeapon != null && prefabWeapon.GetType() == netWeapon.GetType();
     }
-
+    */
     public override void FixedUpdateNetwork()
     {
+        if (HasInputAuthority && SyncWeaponIndex != -1)
+        {
+            // 내 로컬 메모장 번호와, 현재 서버가 인지하는 내 무기 네트워크 번호가 다르다면?
+            if (LocalPlayerData.SelectedWeaponMasterIndex != SyncWeaponIndex)
+            {
+                // 실시간 정정 요청을 강제로 때려 박습니다.
+                RPC_RequestEquipWeapon(LocalPlayerData.SelectedWeaponMasterIndex);
+            }
+        }
+
         if (myPlayer == null)
             myPlayer = GetComponentInParent<Player>();
 

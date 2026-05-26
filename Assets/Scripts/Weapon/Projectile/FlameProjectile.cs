@@ -37,7 +37,7 @@ public class FlameProjectile : NetworkBehaviour
             else if(hit.Collider != null)
             {
                 NetworkObject colNetObj = hit.Collider.GetComponent<NetworkObject>();
-                if(colNetObj != null && colNetObj.InputAuthority == Shooter) { }
+                if(colNetObj != null && colNetObj.InputAuthority == Shooter && colNetObj.GetComponent<PlayerHealth>() != null) { }
                 else
                 {
                     CreateFlameArea(hit.Point, hit.Normal);
