@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
   m_Name: BounceGun
   m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
-  weaponName: 
+  weaponName: BounceGun
   weaponPrefab: {fileID: 265789883608579407, guid: cbf1f793f3015aa4b88d4451aa3e1e04, type: 3}
-  weaponImg: {fileID: 0}
+  weaponImg: {fileID: 21300000, guid: 9d97f8c7757c82346b31af684e970c84, type: 3}
   type: 1
   damage: 20
   range: 500
+  weaponIcon: {fileID: 21300000, guid: 9d97f8c7757c82346b31af684e970c84, type: 3}
+  weaponDescription: 
   MaxAmmo: 30
   leftClickCoolTime: 0.5
   rightClickCoolTime: 0

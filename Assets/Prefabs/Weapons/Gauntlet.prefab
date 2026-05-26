@@ -417,6 +417,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2feac4182e4544148bc3b0ddd8dad542, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Gauntlet
+  firePoint: {fileID: 0}
   _CurrentAmmo: 0
   _IsReloading:
     _value: 0
@@ -424,14 +425,15 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   punchWidth: 2
+  hitRange: 8
   shockwaveRaius: 4
-  shockwaveDistance: 8
+  knockbackDistance: 8
   shockPower: 30
   shockwaveBaseDamage: 0
   wallDamage: 50
   environmentLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 513
 --- !u!114 &1487896013241867688
 MonoBehaviour:
   m_ObjectHideFlags: 0

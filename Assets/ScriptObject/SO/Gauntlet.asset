@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaaa74b2d238794aa0f1db8dc6f5f2e, type: 3}
   m_Name: Gauntlet
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
-  weaponName: 
+  weaponName: Gauntlet
   weaponPrefab: {fileID: 6815286605027893263, guid: 26a9b0e2d0e4f9e41bce041f0dbbf5ae, type: 3}
-  weaponImg: {fileID: 0}
+  weaponImg: {fileID: 21300000, guid: c05fa15ebb1350d4fb7f1858c63fb9fe, type: 3}
   type: 0
   damage: 65
   range: 10
+  weaponIcon: {fileID: 21300000, guid: c05fa15ebb1350d4fb7f1858c63fb9fe, type: 3}
+  weaponDescription: 
   leftClickCoolTime: 1
   rightClickCoolTime: 3
   skillQCoolTime: 0

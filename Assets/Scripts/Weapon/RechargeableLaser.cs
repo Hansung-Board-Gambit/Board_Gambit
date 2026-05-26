@@ -71,6 +71,7 @@ public class RechargeableLaser : WeaponBase
             if (currentGage < 0) currentGage = 0;
         }
         //int displayGage = Mathf.FloorToInt(currentGage); - 실제 정수로 변환
+        CurrentAmmo = Mathf.FloorToInt(currentGage);
     }
 
 
