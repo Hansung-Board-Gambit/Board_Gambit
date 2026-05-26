@@ -95,7 +95,14 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         DontDestroyOnLoad(gameObject);
         sceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>();
-        nameInput.onValueChanged.AddListener(OnNameChanged);
+        playerName = PlayerPrefs.GetString("PlayerName", "Player");
+
+        if (nameInput != null)
+        {
+            nameInput.text = playerName;
+            nameInput.onValueChanged.AddListener(OnNameChanged);
+        }
+
         LobbyCanvas.SetActive(false);
         OptionCanvas.SetActive(false);
         InitCanvas.SetActive(true);
@@ -522,6 +529,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("입력된 이름: " + name);
 
         playerName = name;
+
+        PlayerPrefs.SetString("PlayerName", name);
+        PlayerPrefs.Save();
     }
 
     public void OnInput(NetworkRunner runner, NetworkInput input) 
