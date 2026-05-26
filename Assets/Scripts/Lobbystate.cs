@@ -151,7 +151,7 @@ public class LobbyState : NetworkBehaviour
 
     public int GetSelectedEquipmentIndex(PlayerRef player)
     {
-        return player.PlayerId == 1 ? hostSelectedEquipmentIndex : guestSelectedEquipmentIndex;
+        return Runner != null && player == Runner.LocalPlayer ? hostSelectedEquipmentIndex : guestSelectedEquipmentIndex;
     }
 
     public void RequestSelectEquipment(int equipmentIndex)

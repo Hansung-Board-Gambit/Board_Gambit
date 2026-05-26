@@ -213,7 +213,6 @@ public class GameRoundFlowController : MonoBehaviour
     {
         float duration = Mathf.Max(0.1f, roundDuration);
         float remain = duration;
-        bool canResolveRound = CanResolveRound();
 
         while (remain > 0f && CurrentPhase == GameRoundPhase.Battle)
         {
@@ -226,13 +225,13 @@ public class GameRoundFlowController : MonoBehaviour
             if (battleTimerText != null)
                 battleTimerText.text = "Time: " + Mathf.CeilToInt(battleTimeRemaining);
 
-            if (canResolveRound && ShouldEndRoundByHealth())
+            if (CanResolveRound() && ShouldEndRoundByHealth())
                 break;
 
             yield return null;
         }
 
-        if (canResolveRound && CurrentPhase == GameRoundPhase.Battle && autoStartNextRoundOnTimer)
+        if (CanResolveRound() && CurrentPhase == GameRoundPhase.Battle && autoStartNextRoundOnTimer)
             CompleteRoundAndPrepareNext();
     }
 
@@ -483,19 +482,88 @@ public class GameRoundFlowController : MonoBehaviour
         return hostHp > guestHp ? 1 : 2;
     }
 
-    private bool TryGetPlayerHealth(int playerId, out PlayerHealth health)
+    public void NotifyPlayerHealthDepleted(PlayerHealth depletedHealth)
     {
+        if (depletedHealth == null || CurrentPhase != GameRoundPhase.Battle || !CanResolveRound())
+            return;
+
+        CompleteRoundAndPrepareNext();
+    }
+
+    private bool TryGetPlayerHealth(int side, out PlayerHealth health)
+    {
+        if (!TryGetPlayerRefForSide(side, out PlayerRef player))
+        {
+            health = null;
+            return false;
+        }
+
+        if (spawnedPlayers.TryGetValue(player, out NetworkObject knownPlayerObject) && TryGetHealthFromPlayerObject(knownPlayerObject, out health))
+            return true;
+
+        NetworkRunner runner = LobbyState.Instance != null ? LobbyState.Instance.Runner : null;
+        if (runner != null && TryGetHealthFromPlayerObject(runner.GetPlayerObject(player), out health))
+            return true;
+
         foreach (NetworkObject playerObject in spawnedPlayers.Values)
         {
-            if (playerObject == null || !playerObject.IsValid || playerObject.InputAuthority.PlayerId != playerId)
+            if (playerObject == null || !playerObject.IsValid || playerObject.InputAuthority != player)
                 continue;
 
-            health = playerObject.GetComponent<PlayerHealth>();
-            return health != null;
+            return TryGetHealthFromPlayerObject(playerObject, out health);
         }
 
         health = null;
         return false;
+    }
+
+    private bool TryGetHealthFromPlayerObject(NetworkObject playerObject, out PlayerHealth health)
+    {
+        if (playerObject == null || !playerObject.IsValid)
+        {
+            health = null;
+            return false;
+        }
+
+        health = playerObject.GetComponent<PlayerHealth>();
+        return health != null;
+    }
+
+    private bool TryGetPlayerRefForSide(int side, out PlayerRef player)
+    {
+        NetworkRunner runner = LobbyState.Instance != null ? LobbyState.Instance.Runner : null;
+        if (runner == null)
+        {
+            player = default;
+            return false;
+        }
+
+        PlayerRef hostPlayer = runner.LocalPlayer;
+        if (side == 1)
+        {
+            player = hostPlayer;
+            return runner.ActivePlayers.Contains(player);
+        }
+
+        if (side == 2)
+        {
+            foreach (PlayerRef activePlayer in runner.ActivePlayers)
+            {
+                if (activePlayer != hostPlayer)
+                {
+                    player = activePlayer;
+                    return true;
+                }
+            }
+        }
+
+        player = default;
+        return false;
+    }
+
+    private bool IsPlayerOnSide(PlayerRef player, int side)
+    {
+        return TryGetPlayerRefForSide(side, out PlayerRef sidePlayer) && player == sidePlayer;
     }
 
     private void HandleRoundResultAnnounced(int winnerSide, int hostScore, int guestScore)
@@ -743,7 +811,7 @@ public class GameRoundFlowController : MonoBehaviour
 
     private Vector3 GetBattleSpawnPosition(PlayerRef player)
     {
-        bool isHostPlayer = player.PlayerId == 1;
+        bool isHostPlayer = IsPlayerOnSide(player, 1);
         bool spawnOwnerIsHost = LobbyState.Instance == null || LobbyState.Instance.objectPlacementAuthorityIsHost;
 
         bool hasMySpawn = prepDataStore != null && prepDataStore.spawnData != null && prepDataStore.spawnData.hasMySpawn;

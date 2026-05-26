@@ -48,12 +48,20 @@ public class PlayerHealth : NetworkBehaviour
     {
         Debug.Log($"{attackerName}의 공격! {damage} 데미지 받음!");
 
+        int previousHP = CurrentHP;
         CurrentHP -= damage;
 
-        if( CurrentHP < 0 )
+        if( CurrentHP <= 0 )
         {
             CurrentHP = 0;
             Debug.Log("플레이어 사망");
+        }
+
+        if (previousHP > 0 && CurrentHP <= 0)
+        {
+            GameRoundFlowController flow = FindFirstObjectByType<GameRoundFlowController>();
+            if (flow != null)
+                flow.NotifyPlayerHealthDepleted(this);
         }
     }
 
