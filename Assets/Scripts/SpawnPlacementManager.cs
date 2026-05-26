@@ -186,8 +186,19 @@ public class SpawnPlacementManager : MonoBehaviour
 
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
         snappedPosition = hit.point;
-        snappedPosition.x = Mathf.Round(snappedPosition.x / safeGridSize) * safeGridSize;
-        snappedPosition.z = Mathf.Round(snappedPosition.z / safeGridSize) * safeGridSize;
+
+        if (boardCollider != null)
+        {
+            Bounds bounds = boardCollider.bounds;
+            snappedPosition.x = SnapToBoardCellCenter(snappedPosition.x, bounds.min.x, bounds.max.x, safeGridSize);
+            snappedPosition.z = SnapToBoardCellCenter(snappedPosition.z, bounds.min.z, bounds.max.z, safeGridSize);
+        }
+        else
+        {
+            snappedPosition.x = Mathf.Round(snappedPosition.x / safeGridSize) * safeGridSize;
+            snappedPosition.z = Mathf.Round(snappedPosition.z / safeGridSize) * safeGridSize;
+        }
+
         snappedPosition.y = GetBoardTopY() + markerYOffset;
 
         return true;
@@ -327,6 +338,16 @@ public class SpawnPlacementManager : MonoBehaviour
     private float GetBoardTopY()
     {
         return boardCollider != null ? boardCollider.bounds.max.y : 0f;
+    }
+
+    private float SnapToBoardCellCenter(float value, float min, float max, float safeGridSize)
+    {
+        float firstLine = Mathf.Ceil(min / safeGridSize) * safeGridSize;
+        float lastLine = Mathf.Floor(max / safeGridSize) * safeGridSize;
+        int cellCount = Mathf.Max(1, Mathf.RoundToInt((lastLine - firstLine) / safeGridSize));
+        int cellIndex = Mathf.FloorToInt((value - firstLine) / safeGridSize);
+        cellIndex = Mathf.Clamp(cellIndex, 0, cellCount - 1);
+        return firstLine + (cellIndex + 0.5f) * safeGridSize;
     }
 
     private float GetBlockedEdgeMargin()
