@@ -16,14 +16,22 @@ public class SelfieStick : WeaponBase
     [SerializeField] float cameraTransitionSpeed = 8f;
     [SerializeField] LayerMask targetLayer;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip swingSfx;      // 휘두르기
+    [SerializeField] AudioClip enterTpsSfx;   // 3인칭 진입
+    [SerializeField] AudioClip exitTpsSfx;    // 1인칭 복귀
+
     [Networked] public TickTimer HitTimer { get; set; }
 
     private Quaternion originalRotation;
     //3인칭 시점과 관련된 변수
     private bool isTpsMode = false;
+    private bool prevTpsMode = false;
     private bool isSwinging = false;
 
     private Vector3 originalLocalPos;
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -36,13 +44,36 @@ public class SelfieStick : WeaponBase
 
     protected override void CheckRightClick(NetworkInputData data, NetworkButtons prevButtons)
     {
-        isTpsMode = data.buttons.IsSet(MyButtons.RightClick);
+        if (!HasInputAuthority)
+        {
+            isTpsMode = data.buttons.IsSet(MyButtons.RightClick);
+            return;
+        }
+
+        bool current = data.buttons.IsSet(MyButtons.RightClick);
+        bool previous = prevButtons.IsSet(MyButtons.RightClick);
+
+        // 눌렀을 때
+        if (current && !previous)
+        {
+            PlaySfx(enterTpsSfx);
+        }
+
+        // 뗐을 때
+        if (!current && previous)
+        {
+            PlaySfx(exitTpsSfx);
+        }
+
+        isTpsMode = current;
     }
 
     protected override void BasicAttack()
     {
         if (LeftClickTimer.ExpiredOrNotRunning(Runner) && !isSwinging)
         {
+            RPC_PlaySwingSfx();
+
             if (stickModel != null) StartCoroutine(SwingMotion());
             HitTimer = TickTimer.CreateFromSeconds(Runner, hitDelay);
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.leftClickCoolTime);
@@ -119,6 +150,23 @@ public class SelfieStick : WeaponBase
 
         stickModel.localRotation = originalRotation;
         isSwinging = false;
+    }
+
+    void PlaySfx(AudioClip clip)
+    {
+        if (clip == null || audioSource == null)
+            return;
+
+        audioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    void RPC_PlaySwingSfx()
+    {
+        if (audioSource == null || swingSfx == null)
+            return;
+
+        audioSource.PlayOneShot(swingSfx);
     }
 
     //다른 무기 교체시 셀카봉 비활성화와 관련된 함수

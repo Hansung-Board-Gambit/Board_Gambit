@@ -1,42 +1,67 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
+    public AudioSource bgmSource;
     public AudioSource sfxSource;
     public AudioClip clickSound;
-    public Slider volumeSlider;
-
-    bool isMuted = false;
+    public AudioClip mainBgm;
+    public AudioClip gameBgm;
 
     void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
 
-        isMuted = PlayerPrefs.GetInt("SFXMuted", 0) == 1;
-        sfxSource.mute = isMuted;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
+        AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.5f);
+    }
 
-        float savedVolume = PlayerPrefs.GetFloat("Volume", 0.5f);
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        switch (scene.name)
+        {
+            case "Jinsoo2":
+                ChangeBGM(mainBgm);
+                break;
 
-        AudioListener.volume = savedVolume;
-        volumeSlider.value = AudioListener.volume;
+            case "Junseo":
+                ChangeBGM(gameBgm);
+                break;
+        }
+    }
 
-        volumeSlider.onValueChanged.AddListener(SetVolume);
+    public void ChangeBGM(AudioClip clip)
+    {
+        if (bgmSource.clip == clip)
+            return;
+
+        bgmSource.Stop();
+        bgmSource.clip = clip;
+        bgmSource.Play();
     }
 
     public void SetVolume(float volume)
     {
         AudioListener.volume = volume;
         PlayerPrefs.SetFloat("Volume", volume);
+        PlayerPrefs.Save();
     }
 
     public void ButtonClick()
     {
-        if (!isMuted)
-        {
-            sfxSource.PlayOneShot(clickSound);
-        }
+        sfxSource.PlayOneShot(clickSound);
     }
 }

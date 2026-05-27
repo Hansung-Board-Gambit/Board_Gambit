@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Taeyoung.unity
     guid: 1e6765fa741d44a4eb17ce04bd8474e6
+  - enabled: 1
+    path: Assets/Scenes/Test.unity
+    guid: a09ef498e8cef654e9972918e3ec341e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

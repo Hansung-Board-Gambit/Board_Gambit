@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIManger : MonoBehaviour
 {
@@ -68,5 +69,15 @@ public class UIManger : MonoBehaviour
     {
         Debug.Log("Game Quit");
         Application.Quit();
+    }
+
+    public void test()
+    {
+        SceneManager.LoadScene("Test");
+    }
+
+    public void test2()
+    {
+        SceneManager.LoadScene("Jinsoo2");
     }
 }
