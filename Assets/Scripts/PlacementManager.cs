@@ -97,8 +97,9 @@ public class PlacementManager : MonoBehaviour
         if (IsPointerBlockedByUi())
             return;
 
+        PlaceableObject selectedInfo = placeablePrefabs[selectedIndex].GetComponent<PlaceableObject>();
         Vector3 snappedPosition;
-        if (!TryGetSnappedBoardPoint(out snappedPosition))
+        if (!TryGetSnappedBoardPoint(selectedInfo, out snappedPosition))
         {
             SetPreviewActive(false);
             return;
@@ -162,7 +163,7 @@ public class PlacementManager : MonoBehaviour
         SetupObjectSlots();
     }
 
-    private bool TryGetSnappedBoardPoint(out Vector3 snappedPosition)
+    private bool TryGetSnappedBoardPoint(PlaceableObject placementInfo, out Vector3 snappedPosition)
     {
         snappedPosition = Vector3.zero;
 
@@ -179,13 +180,14 @@ public class PlacementManager : MonoBehaviour
             return false;
 
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        Vector2 footprint = GetFootprint(placementInfo);
         snappedPosition = hit.point;
 
         if (boardCollider != null)
         {
             Bounds bounds = boardCollider.bounds;
-            snappedPosition.x = SnapToBoardCellCenter(snappedPosition.x, bounds.min.x, bounds.max.x, safeGridSize);
-            snappedPosition.z = SnapToBoardCellCenter(snappedPosition.z, bounds.min.z, bounds.max.z, safeGridSize);
+            snappedPosition.x = SnapToBoardFootprint(snappedPosition.x, bounds.min.x, bounds.max.x, safeGridSize, footprint.x);
+            snappedPosition.z = SnapToBoardFootprint(snappedPosition.z, bounds.min.z, bounds.max.z, safeGridSize, footprint.y);
         }
         else
         {
@@ -220,14 +222,13 @@ public class PlacementManager : MonoBehaviour
         if (boardCollider == null)
             return false;
 
-        Vector2 footprint = Vector2.one;
-        if (info != null)
-            footprint = info.footprint;
+        Vector2 footprint = GetFootprint(info);
 
         Bounds bounds = boardCollider.bounds;
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
 
-        float halfX = footprint.x * 0.5f;
-        float halfZ = footprint.y * 0.5f;
+        float halfX = footprint.x * safeGridSize * 0.5f;
+        float halfZ = footprint.y * safeGridSize * 0.5f;
 
         float edgeMargin = GetBlockedEdgeMargin();
         bool insideBoard =
@@ -294,6 +295,7 @@ public class PlacementManager : MonoBehaviour
         placed.SetActive(true);
 
         int enabledRenderers = EnableRenderers(placed);
+        int createdColliders = EnsurePlacementCollider(placed);
         int enabledColliders = EnableColliders(placed);
         int fixedMaterials = EnsureMaterialsVisible(placed);
 
@@ -325,6 +327,7 @@ public class PlacementManager : MonoBehaviour
             ", active=" + placed.activeInHierarchy +
             ", renderersEnabled=" + enabledRenderers +
             ", collidersEnabled=" + enabledColliders +
+            ", collidersCreated=" + createdColliders +
             ", materialsFixed=" + fixedMaterials
         );
 
@@ -375,6 +378,29 @@ public class PlacementManager : MonoBehaviour
             renderers[i].enabled = true;
 
         return renderers.Length;
+    }
+
+    private int EnsurePlacementCollider(GameObject target)
+    {
+        if (target.GetComponentsInChildren<Collider>(true).Length > 0)
+            return 0;
+
+        Bounds bounds;
+        if (!TryGetRendererBounds(target, out bounds))
+            return 0;
+
+        BoxCollider boxCollider = target.AddComponent<BoxCollider>();
+        Vector3 localSize = target.transform.InverseTransformVector(bounds.size);
+        localSize = new Vector3(Mathf.Abs(localSize.x), Mathf.Abs(localSize.y), Mathf.Abs(localSize.z));
+
+        boxCollider.center = target.transform.InverseTransformPoint(bounds.center);
+        boxCollider.size = new Vector3(
+            Mathf.Max(0.05f, localSize.x),
+            Mathf.Max(0.05f, localSize.y),
+            Mathf.Max(0.05f, localSize.z)
+        );
+
+        return 1;
     }
 
     private int EnsureMaterialsVisible(GameObject target)
@@ -471,14 +497,28 @@ public class PlacementManager : MonoBehaviour
         return boardCollider != null ? boardCollider.bounds.max.y : 0f;
     }
 
-    private float SnapToBoardCellCenter(float value, float min, float max, float safeGridSize)
+    private Vector2 GetFootprint(PlaceableObject info)
+    {
+        if (info == null)
+            return Vector2.one;
+
+        return new Vector2(
+            Mathf.Max(1f, info.footprint.x),
+            Mathf.Max(1f, info.footprint.y)
+        );
+    }
+
+    private float SnapToBoardFootprint(float value, float min, float max, float safeGridSize, float footprintCells)
     {
         float firstLine = Mathf.Ceil(min / safeGridSize) * safeGridSize;
         float lastLine = Mathf.Floor(max / safeGridSize) * safeGridSize;
         int cellCount = Mathf.Max(1, Mathf.RoundToInt((lastLine - firstLine) / safeGridSize));
-        int cellIndex = Mathf.FloorToInt((value - firstLine) / safeGridSize);
-        cellIndex = Mathf.Clamp(cellIndex, 0, cellCount - 1);
-        return firstLine + (cellIndex + 0.5f) * safeGridSize;
+        int footprintCellCount = Mathf.Clamp(Mathf.RoundToInt(Mathf.Max(1f, footprintCells)), 1, cellCount);
+        float halfFootprintSize = footprintCellCount * safeGridSize * 0.5f;
+        int maxStartCell = Mathf.Max(0, cellCount - footprintCellCount);
+        int startCell = Mathf.RoundToInt((value - firstLine - halfFootprintSize) / safeGridSize);
+        startCell = Mathf.Clamp(startCell, 0, maxStartCell);
+        return firstLine + halfFootprintSize + startCell * safeGridSize;
     }
 
     private float GetBlockedEdgeMargin()

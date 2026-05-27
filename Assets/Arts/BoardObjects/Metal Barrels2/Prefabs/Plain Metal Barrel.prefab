@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 761099978965936969}
   - component: {fileID: 6856825107223177804}
   - component: {fileID: 2330592764826345339}
+  - component: {fileID: 910000000000002003}
   m_Layer: 0
   m_Name: Plain Metal Barrel
   m_TagString: Untagged
@@ -39,6 +40,21 @@ Transform:
   - {fileID: 7961322676569765873}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910000000000002003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115943586052242905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1a0e6e4d955c143b4b7c182f4abaa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
+  footprint: {x: 1, y: 1}
+  yOffset: 0
+  prefabId: Plain_Metal_Barrel
 --- !u!205 &761099978965936969
 LODGroup:
   m_ObjectHideFlags: 0

@@ -391,9 +391,11 @@ MonoBehaviour:
   gridSize: 1
   blockedEdgeCellCount: 0
   placeablePrefabs:
-  - {fileID: 718573410}
-  - {fileID: 757090327}
-  - {fileID: 927758363}
+  - {fileID: 790361116177392329, guid: f5e5fef8485eb024c8b7dd58cfc3b778, type: 3}
+  - {fileID: 171904132062822780, guid: 70760a07e46f7ea4c9da1cc70011acf7, type: 3}
+  - {fileID: 1115943586052242905, guid: c050b1b9acc4ca04fb1df89c450b156d, type: 3}
+  - {fileID: 1866590579267404, guid: 3391e96c014a90540946fff814f3572c, type: 3}
+  - {fileID: 1411054063627100, guid: a5b2c973fbd4bcf49b07ded49a003a51, type: 3}
   randomizeSlotsOnStart: 1
   repeatPrefabsForExtraSlots: 1
   emptySlotLabel: Empty
