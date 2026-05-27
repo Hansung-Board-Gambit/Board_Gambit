@@ -118,6 +118,13 @@ public class PlayerWeapon : NetworkBehaviour
         //소환된 무기를 모든 클라이언트에게 알림
         NetWeaponObj = newWeaponObj;
         OnWeaponIndexChanged();
+
+        if (myPlayer != null)
+        {
+            //myPlayer.isDashing = false;
+            myPlayer.isGrappling = false; // 그래플링 쓰다 바꿨어도 바로 걸을 수 있게!
+            myPlayer.ReleasePlungeCameraLock(); // 망치 찍다 바꿨어도 시야 돌아오게!
+        }
     }
 
     public void SetWeaponDataAndEquip(WeaponData newWeaponData)
