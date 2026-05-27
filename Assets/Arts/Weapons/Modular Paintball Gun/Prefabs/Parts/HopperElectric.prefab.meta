@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6dc5c7ed8efb6c541bd6c2649284d19d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/HopperElectric.prefab
+  uploadId: 397571

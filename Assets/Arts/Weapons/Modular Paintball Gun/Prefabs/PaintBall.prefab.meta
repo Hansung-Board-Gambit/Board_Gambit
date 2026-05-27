@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b9a2e34439ee2194c8d00f745533a87e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/PaintBall.prefab
+  uploadId: 397571

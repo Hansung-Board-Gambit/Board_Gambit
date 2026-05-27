@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 897d339c2d0a7a7429c238530edbb441
+timeCreated: 1499443102
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 85518
+  packageName: Action Camera & Accessories
+  packageVersion: 1.0
+  assetPath: Assets/Rune Assets/Action Camera/Prefabs/actioncam.prefab
+  uploadId: 188709

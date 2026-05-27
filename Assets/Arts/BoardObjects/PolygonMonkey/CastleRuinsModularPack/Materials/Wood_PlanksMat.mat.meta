@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 30042d0cac9ecd14fb0b0423f353ddb6
+timeCreated: 1484129993
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80460
+  packageName: Castle Ruins Modular Pack
+  packageVersion: 1.0
+  assetPath: Assets/PolygonMonkey/CastleRuinsModularPack/Materials/Wood_PlanksMat.mat
+  uploadId: 640657

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 324ca808f3a84e74b892d07dd9faf105
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Materials/PaintballGun_Blue.mat
+  uploadId: 397571

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2e5a823b9ed23914394ad4eb1fb5133a
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/HopperLidElectric.prefab
+  uploadId: 397571

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 89d8d4b7456ef2546a0239e2bc0bf4ab
+timeCreated: 1484123216
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 80460
+  packageName: Castle Ruins Modular Pack
+  packageVersion: 1.0
+  assetPath: Assets/PolygonMonkey/CastleRuinsModularPack/Materials/FloorMat.mat
+  uploadId: 640657

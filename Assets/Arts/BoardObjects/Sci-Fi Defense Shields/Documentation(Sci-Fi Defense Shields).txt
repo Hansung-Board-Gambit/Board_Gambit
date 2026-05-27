@@ -1,0 +1,62 @@
+	
+- - - - - - - - - - - - - - - - - - - - - Sci-Fi Neon Defense Shields - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+A collection of stylized sci-fi shield prefabs with custom neon shaders, perfect for futuristic, cyber, and arcade-style games.
+You can use this Asset commercially and non-commercially.This model is optimized for using in pc, mobile games.
+
+Note: Materials/Shaders are customizable.You can create Unlimited variations of Shader's by changing material properties.Also, this asset uses Shadergraph with URP support.
+
+Technical Details :-
+		- Model's included : 8 Shields
+		- Prefabs : 40+
+		- Used Material : Custom Material made with Shadergraph
+		- Animated Shaders : YES
+		- Customizable Shaders : YES (Color, Animation speed, Pattern Textures, Pattern Opacity.etc are customizable)	
+		- Model format : FBX
+		- Polygon count : 
+Disc Shield (400), Half sphere Shield (800), Rect Shield (172), Rounded Shield (580), Shield_1 (324), Shield_2 (248), Shield_3 (704), Three_Rect Shield (156)
+				
+Features:-
+	- Fully Customizable Materials
+	- Lowpoly models
+	- Optimized Shader's
+	- Easy to use(Drag and drop Perfab to your scene)
+	- Easy to create new Shield variations
+
+Shaders/Materials Properties :
+
+- Texture1 : An overlay texture (Black and White with unique patterns), With Color, 
+tiling and offset properties.
+- Animation X & Y : Controls the speed of Texture 1 pattern along the mesh (Set both to Zero for no Animations).
+- Distortion X Y : Controls how much you want to distort the "Texture 1" in X axis and Y axis.
+- Distort Speed : Controls the Speed of the Distortion in the "Texture1" map.
+- Texture2 Overlay : Comes with Color, Offset, Tiling, Animation X & Y and an Opacity features.
+- Other features : Global emission control, Extra overlay texture with Color option.
+
+
+Folder details:-
+	Materials : Where the materials for the model located.	
+	Meshes : Contain FBX format of the 3d model.	
+	(Other folders - Prefabs, Scenes)
+
+How to use:-	
+	Simply drag and drop the Prefab from Prefab folder to your scene and use it.
+
+❓ Frequently Asked Questions:
+
+Q: Can I edit the animation speed and direction of the moving patterns?
+A: Yes, both the animation speed and direction can be easily adjusted through material properties in the Unity Editor.
+
+Q: Can I create new Shader variations?
+A: Yes, you can create unlimited variations using only the Unity Editor by tweaking material properties—no coding required.
+
+Q: Will this shader work on URP, Built-in, and other render pipelines?
+A: Yes. This asset is compatible with any render pipeline. It was originally submitted using URP, but it also includes a setup guide for other pipelines. You can get it working in different pipelines within seconds.
+
+.....................................................................................................................
+
+About Me : "SR Studios Kerala", Indie Game developer & 2D-3D Artist from Alappuzha, Kerala, India
+contact : srstudioskerala@gmail.com
+ 
+
+................Thank you for downloading this package................................

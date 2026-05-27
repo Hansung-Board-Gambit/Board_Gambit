@@ -1,0 +1,167 @@
+fileFormatVersion: 2
+guid: 1732f6a058e38c6498a74fd88db0a1b9
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: PaintBall
+    100002: //RootNode
+    100004: PaintballGun_BarrelLong
+    100006: PaintballGun_BarrelShort
+    100008: PaintballGun_Base
+    100010: PaintballGun_HopperElectric
+    100012: PaintballGun_HopperGravity
+    100014: PaintballGun_HopperLidElectric
+    100016: PaintballGun_HopperLidGravity
+    100018: PaintballGun_JoinedLong
+    100020: PaintballGun_JoinedShort
+    100022: PaintballGun_Tank
+    100024: PaintballGun_TankLarge
+    100026: PaintballGun_Trigger
+    400000: PaintBall
+    400002: //RootNode
+    400004: PaintballGun_BarrelLong
+    400006: PaintballGun_BarrelShort
+    400008: PaintballGun_Base
+    400010: PaintballGun_HopperElectric
+    400012: PaintballGun_HopperGravity
+    400014: PaintballGun_HopperLidElectric
+    400016: PaintballGun_HopperLidGravity
+    400018: PaintballGun_JoinedLong
+    400020: PaintballGun_JoinedShort
+    400022: PaintballGun_Tank
+    400024: PaintballGun_TankLarge
+    400026: PaintballGun_Trigger
+    2100000: PaintballGun
+    2100002: No Name
+    2300000: PaintBall
+    2300002: PaintballGun_BarrelLong
+    2300004: PaintballGun_BarrelShort
+    2300006: PaintballGun_Base
+    2300008: PaintballGun_HopperElectric
+    2300010: PaintballGun_HopperGravity
+    2300012: PaintballGun_HopperLidElectric
+    2300014: PaintballGun_HopperLidGravity
+    2300016: PaintballGun_JoinedLong
+    2300018: PaintballGun_JoinedShort
+    2300020: PaintballGun_Tank
+    2300022: PaintballGun_TankLarge
+    2300024: PaintballGun_Trigger
+    3300000: PaintBall
+    3300002: PaintballGun_BarrelLong
+    3300004: PaintballGun_BarrelShort
+    3300006: PaintballGun_Base
+    3300008: PaintballGun_HopperElectric
+    3300010: PaintballGun_HopperGravity
+    3300012: PaintballGun_HopperLidElectric
+    3300014: PaintballGun_HopperLidGravity
+    3300016: PaintballGun_JoinedLong
+    3300018: PaintballGun_JoinedShort
+    3300020: PaintballGun_Tank
+    3300022: PaintballGun_TankLarge
+    3300024: PaintballGun_Trigger
+    4300000: PaintballGun_HopperElectric
+    4300002: PaintballGun_HopperGravity
+    4300004: PaintballGun_Tank
+    4300006: PaintballGun_HopperLidGravity
+    4300008: PaintballGun_HopperLidElectric
+    4300010: PaintballGun_TankLarge
+    4300012: PaintballGun_Trigger
+    4300014: PaintballGun_BarrelShort
+    4300016: PaintballGun_BarrelLong
+    4300018: PaintballGun_Base
+    4300020: PaintBall
+    4300022: PaintballGun_JoinedShort
+    4300024: PaintballGun_JoinedLong
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Mesh/PaintballGun.fbx
+  uploadId: 397571

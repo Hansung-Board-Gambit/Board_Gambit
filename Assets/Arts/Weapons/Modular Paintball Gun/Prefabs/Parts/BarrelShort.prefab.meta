@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 629d4af2aa74585408b564579db7efed
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/BarrelShort.prefab
+  uploadId: 397571
