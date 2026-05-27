@@ -507,10 +507,10 @@ MonoBehaviour:
   environmentLayer:
     serializedVersion: 2
     m_Bits: 769
-  grappleRange: 40
-  grappleSpeed: 9
+  grappleRange: 50
+  grappleSpeed: 100
   ableClimbHeight: 1
-  hookProjectileSpeed: 15
+  hookProjectileSpeed: 80
   vaultUpPower: 7
   vaultForwardPower: 8
   maxGrappleCharges: 2
@@ -518,10 +518,13 @@ MonoBehaviour:
   lr: {fileID: 6924867443147764012}
   grappleMuzzle: {fileID: 4743654835637065397}
   _GrappleCharges: 0
-  _CurrentState: 0
-  _NeedsVault: 0
-  _GrappleTarget: {x: 0, y: 0, z: 0}
   _IsInitialized: 0
+  _IsFiring: 0
+  _IsPulling: 0
+  _FireTarget: {x: 0, y: 0, z: 0}
+  _PullTarget: {x: 0, y: 0, z: 0}
+  _NextNeedsVault: 0
+  _CurrentNeedsVault: 0
   _InitialTravelTime: 0
 --- !u!114 &-2460650547361367468
 MonoBehaviour:

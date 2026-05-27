@@ -45,7 +45,8 @@ public class Player : NetworkBehaviour
     public Vector3 weaponCameraOffset = Vector3.zero;
     private bool isCameraLocked = false;
     private bool battleControlActive;
-    public bool isDashing = false;
+    public bool isDashing {  get; set; }
+    [Networked] public bool isGrappling { get; set; }
 
     public float currentHeight = 2f;
 
@@ -154,47 +155,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (!HasInputAuthority || !battleControlActive) return;
-
-        bool isStunned = false;
-        PlayerHealth health = GetComponent<PlayerHealth>();
-
-        if(health != null && Runner != null)
-        {
-            isStunned = health.IsStunned(Runner);
-        }
-        if (!isCameraLocked && !isStunned)
-        {
-
-            playerYaw += Input.GetAxis("Mouse X") * mouseSens;
-            camPitch -= Input.GetAxis("Mouse Y") * mouseSens;
-            camPitch = Mathf.Clamp(camPitch, -90f, 90f);
-            // 택배로 보낼 수 있도록 최종 yaw 각도를 갱신
-            NetworkedYaw = playerYaw;
-            NetworkedPitch = camPitch;
-        }
-        if(fpsCamera != null)
-        {
-            // 1인칭 카메라는 여기서 즉시 부드럽게 회전
-            fpsCamera.transform.localRotation = Quaternion.Euler(camPitch, 0, 0);
-        }
-        
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else if(Input.GetMouseButtonDown(0))
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-
-        
-    }
+   
 
     //무기 맞았을때 실행할 디버프 부여 함수
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -215,150 +176,185 @@ public class Player : NetworkBehaviour
     }
 
 
+    // ========================================================
+    // 1. Update() : 내 화면에서만 카메라와 몸통을 144Hz로 아주 부드럽게 덮어씌웁니다!
+    // ========================================================
+    private void Update()
+    {
+        if (!HasInputAuthority || !battleControlActive) return;
+
+        bool isStunned = false;
+        PlayerHealth health = GetComponent<PlayerHealth>();
+
+        if (health != null && Runner != null)
+        {
+            isStunned = health.IsStunned(Runner);
+        }
+
+        if (!isCameraLocked && !isStunned)
+        {
+            playerYaw += Input.GetAxis("Mouse X") * mouseSens;
+            camPitch -= Input.GetAxis("Mouse Y") * mouseSens;
+            camPitch = Mathf.Clamp(camPitch, -90f, 90f);
+
+            // 네트워크 전송을 위해 저장
+            NetworkedYaw = playerYaw;
+            NetworkedPitch = camPitch;
+        }
+
+        // 핵심 방어막: 내 화면(Local)에서는 60Hz로 뚝뚝 끊기는 FUN의 회전을 무시하고, 
+        // 매 모니터 프레임마다 몸통(Y축)과 카메라(X축)를 최고로 부드럽게 실시간 회전시킵니다!
+        //transform.rotation = Quaternion.Euler(0, playerYaw, 0);
+
+        if (fpsCamera != null)
+        {
+            fpsCamera.transform.localRotation = Quaternion.Euler(camPitch, 0, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
+    // ========================================================
+    // 2. FixedUpdateNetwork() : 물리 이동과 서버 동기화만 완벽하게 처리!
+    // ========================================================
     public override void FixedUpdateNetwork()
     {
         if (!battleControlActive)
             return;
 
-        /*
-        if (!GetInput(out NetworkInputData data))
-            return;
-
-        Vector3 move = new Vector3(data.move.x, 0, data.move.y);
-
-        if (move.sqrMagnitude > 1)
-            move.Normalize();
-
-        controller.Move(move * speed * Runner.DeltaTime);
-        */
-        if(GetComponent<PlayerHealth>().IsStunned(Runner))
+        if (GetComponent<PlayerHealth>().IsStunned(Runner))
         {
             return;
         }
-        if(KnockbackTimer.Expired(Runner)) //시간이 다 됐는지 확인
+
+        // --- 넉백 로직 (원래 코드 그대로) ---
+        if (KnockbackTimer.Expired(Runner))
         {
-            //넉백 종료 후 브레이크 잡기
             Controller.Velocity = Vector3.zero;
             KnockbackVelocity = Vector3.zero;
-            isDashing= false; //wasd 잠금 해제
+            isDashing = false;
             KnockbackTimer = TickTimer.None;
         }
-        else if(KnockbackTimer.IsRunning) 
+        else if (KnockbackTimer.IsRunning)
         {
-            
-            //속도 제한을 무시하고 뒤로 날림
-            CollisionFlags flags = GetComponent<CharacterController>().Move(KnockbackVelocity * Runner.DeltaTime);      
-            Controller.Velocity = Vector3.zero; //유령 가속도 방지
+            CollisionFlags flags = GetComponent<CharacterController>().Move(KnockbackVelocity * Runner.DeltaTime);
+            Controller.Velocity = Vector3.zero;
 
-            transform.rotation = Quaternion.Euler(0,NetworkedYaw,0);
+            transform.rotation = Quaternion.Euler(0, NetworkedYaw, 0);
 
-            if((flags & CollisionFlags.Sides) != 0)
+            if ((flags & CollisionFlags.Sides) != 0)
             {
                 KnockbackVelocity = Vector3.zero;
                 KnockbackTimer = TickTimer.None;
                 isDashing = false;
             }
-            
             return;
         }
 
-
-
+        // 대쉬 중일 때는 통제권 상실
         if (isDashing) return;
+
         if (GetInput(out NetworkInputData data))
         {
-            Vector3 feetPos = transform.position + Vector3.down * (standHeight / 2f);
-
-            if(HasStateAuthority && TrailDebuffTimer.IsRunning && TrailDebuffTimer.RemainingTime(Runner) > 0)
-            {
-                if(Vector3.Distance(transform.position, LastTrailSpawnPos) >= trailSpawnDistance)
-                {
-                    Vector3 spawnPos = feetPos + Vector3.up * 0.5f;
-
-                    NetworkObject obj = Runner.Spawn(trailPrefab, spawnPos, Quaternion.identity, Object.InputAuthority);
-                    obj.GetComponent<PaintArea>().SpeedUpPlayer = MyShooter;
-                    LastTrailSpawnPos = transform.position;
-                }
-            }
-            //data.yaw는 이제 '더할 값(Delta)'이 아니라 '최종 각도(Absolute)'입니다.
+            // 1. 회전값 계산만 미리 해둡니다. (적용은 맨 마지막에!)
             Quaternion playerRotation = Quaternion.Euler(0, data.yaw, 0);
 
-            // 이동할 방향 계산 (이제 내가 보는 방향 기준 WASD가 완벽히 작동합니다)
-            data.direction.Normalize();
-            Vector3 moveDirection = playerRotation * data.direction;
-
-            float currentSpeed;
-            currentHeight = standHeight;
-            
-            if(data.sitDown == true)
-            {
-                currentSpeed = sitDownSpeed;
-                controller.maxSpeed = sitDownSpeed; // 최대 속도도 조정 
-
-                currentHeight = sitHeight;
-
-                //추후 물리적 앉는 기능 필요, 현재는 앉는 느낌만 제공
-                //Debug.Log("player sit down" + currentSpeed);
-            }
-            else if(data.speedUp == true)
-            {
-                currentSpeed = runSpeed;
-                controller.maxSpeed = runSpeed;
-                //Debug.Log("player is running" + currentSpeed);
-            }
-            else
-            {
-                currentSpeed = walkSpeed;
-                controller.maxSpeed = walkSpeed;
-                //Debug.Log("player is walking" + currentSpeed);
-            }
-            Collider[] hitColliders = Physics.OverlapSphere(feetPos, 0.7f, trailLayer);
-            bool isOnTrail = false;
-
-            foreach(var col in hitColliders)
-            {
-                PaintArea trail = col.GetComponent<PaintArea>();
-                if(trail != null && trail.Object != null && trail.Object.IsValid)
-                {
-                    if(trail.SpeedUpPlayer == Object.InputAuthority)
-                    {
-                        isOnTrail = true;
-                        break;
-                    }
-                }
-            }
-
-            if (isOnTrail)
-            {
-                // 흔적을 밟고 있다면 현재 속도를 뻥튀기!
-                currentSpeed *= trailSpeedUp;
-                controller.maxSpeed = currentSpeed;
-                Debug.Log("패시브 발동! 이동 속도 증가: " + currentSpeed);
-            }
-
-            //카메라 위치
+            // 2. 카메라 위치는 무조건 갱신해 줍니다.
             if (HasInputAuthority)
             {
-                if (fpsCamera != null) // 혹시 모를 에러 방지
+                if (fpsCamera != null)
                 {
                     fpsCamera.transform.localPosition = new Vector3(0, currentHeight * 0.4f, 0) + weaponCameraOffset;
                 }
             }
-            
 
-            // 이동 실행
-            controller.Move(currentSpeed * moveDirection * Runner.DeltaTime);
-
-            // 몸통 회전 (다른 사람들에게 내가 도는 모습을 보여주기 위함)
-            transform.rotation = playerRotation;
-
-            // 점프 처리
-            if (data.jump && controller.Grounded)
+            //3. 그래플링 중이 아닐 때만 WASD 물리 이동 실행!
+            if (!isGrappling)
             {
-                controller.Jump();
+                Vector3 feetPos = transform.position + Vector3.down * (standHeight / 2f);
+
+                // --- 패시브 트레일 생성 ---
+                if (HasStateAuthority && TrailDebuffTimer.IsRunning && TrailDebuffTimer.RemainingTime(Runner) > 0)
+                {
+                    if (Vector3.Distance(transform.position, LastTrailSpawnPos) >= trailSpawnDistance)
+                    {
+                        Vector3 spawnPos = feetPos + Vector3.up * 0.5f;
+
+                        NetworkObject obj = Runner.Spawn(trailPrefab, spawnPos, Quaternion.identity, Object.InputAuthority);
+                        obj.GetComponent<PaintArea>().SpeedUpPlayer = MyShooter;
+                        LastTrailSpawnPos = transform.position;
+                    }
+                }
+
+                // 이동할 방향 계산
+                data.direction.Normalize();
+                Vector3 moveDirection = playerRotation * data.direction;
+
+                float currentSpeed;
+                currentHeight = standHeight;
+
+                if (data.sitDown == true)
+                {
+                    currentSpeed = sitDownSpeed;
+                    controller.maxSpeed = sitDownSpeed;
+                    currentHeight = sitHeight;
+                }
+                else if (data.speedUp == true)
+                {
+                    currentSpeed = runSpeed;
+                    controller.maxSpeed = runSpeed;
+                }
+                else
+                {
+                    currentSpeed = walkSpeed;
+                    controller.maxSpeed = walkSpeed;
+                }
+
+                // --- 패시브 트레일 밟기 ---
+                Collider[] hitColliders = Physics.OverlapSphere(feetPos, 0.7f, trailLayer);
+                bool isOnTrail = false;
+
+                foreach (var col in hitColliders)
+                {
+                    PaintArea trail = col.GetComponent<PaintArea>();
+                    if (trail != null && trail.Object != null && trail.Object.IsValid)
+                    {
+                        if (trail.SpeedUpPlayer == Object.InputAuthority)
+                        {
+                            isOnTrail = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isOnTrail)
+                {
+                    currentSpeed *= trailSpeedUp;
+                    controller.maxSpeed = currentSpeed;
+                }
+
+                // 최종 물리 이동 실행 (반드시 회전보다 먼저 일어나야 합니다!)
+                controller.Move(currentSpeed * moveDirection * Runner.DeltaTime);
+
+                // 점프 처리
+                if (data.jump && controller.Grounded)
+                {
+                    controller.Jump();
+                }
             }
+
+            //4. 몸통 회전 (유저님의 오리지널 코드처럼 무조건 Move 다음에 와야 화면이 안 튕깁니다!)
+            transform.rotation = playerRotation;
         }
-      
     }
 
     public void StartPlungeCameraLock()
