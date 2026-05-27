@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: db02d6ce6b1e18e4ca1787e39715fa6d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Materials/PaintballGun_Red.mat
+  uploadId: 397571

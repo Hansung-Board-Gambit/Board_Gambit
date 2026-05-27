@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 123b805d1073cb245b657a3f677534d3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/TankLarge.prefab
+  uploadId: 397571

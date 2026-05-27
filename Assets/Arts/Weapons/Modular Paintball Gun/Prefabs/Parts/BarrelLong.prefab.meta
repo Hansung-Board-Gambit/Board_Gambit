@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 694d45b21d107e4409c1fde46160f472
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/BarrelLong.prefab
+  uploadId: 397571

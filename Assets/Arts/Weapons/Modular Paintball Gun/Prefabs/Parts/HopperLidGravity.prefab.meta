@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8d15f54b252ac1e4a871a0e66e0f8933
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/HopperLidGravity.prefab
+  uploadId: 397571

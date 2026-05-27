@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e49975c0fd619fe489ec1cf89e18144b
+timeCreated: 1499443176
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 85518
+  packageName: Action Camera & Accessories
+  packageVersion: 1.0
+  assetPath: Assets/Rune Assets/Action Camera/Prefabs/tripod_mount.prefab
+  uploadId: 188709

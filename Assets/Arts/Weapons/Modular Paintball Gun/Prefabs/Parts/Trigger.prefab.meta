@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 09ca2a61a8e47d3428e41ce49a35b75c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 133333
+  packageName: Modular Paintball Gun
+  packageVersion: 1.0
+  assetPath: Assets/Modular Paintball Gun/Prefabs/Parts/Trigger.prefab
+  uploadId: 397571

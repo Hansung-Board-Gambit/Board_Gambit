@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5cb1f96db6d44b343a2cd8f68b860254
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 195684
+  packageName: Modular Brick Walls - Stylized/Low-Poly
+  packageVersion: 1.0
+  assetPath: Assets/LowPoly Modular Brick Walls/Resources/Materials/BaseMaterial_Palette01Gradient_mat_URP.mat
+  uploadId: 434295
