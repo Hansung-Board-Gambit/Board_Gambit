@@ -17,7 +17,7 @@ MonoBehaviour:
   weaponImg: {fileID: 21300000, guid: c05fa15ebb1350d4fb7f1858c63fb9fe, type: 3}
   type: 0
   damage: 65
-  range: 10
+  range: 0.8
   weaponIcon: {fileID: 21300000, guid: c05fa15ebb1350d4fb7f1858c63fb9fe, type: 3}
   weaponDescription: 
   leftClickCoolTime: 1

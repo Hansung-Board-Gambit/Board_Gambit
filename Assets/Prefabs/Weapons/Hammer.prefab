@@ -31,6 +31,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2285079754582607503}
   - {fileID: 8131293091516552927}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -56,7 +57,7 @@ MonoBehaviour:
   attackWidth: 2
   dashForce: 50
   Damage: 60
-  minPlungeHeight: 3
+  minPlungeHeight: 1.5
   plungeSpeed: 30
   slamRadius: 4
   hammerModel: {fileID: 8131293091516552927}
@@ -323,7 +324,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8131293091516552927
 Transform:
   m_ObjectHideFlags: 0
@@ -337,7 +338,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2285079754582607503}
   - {fileID: 7152810718763115211}
   - {fileID: 6735330485463438647}
   m_Father: {fileID: 1063884645350165251}
@@ -348,7 +348,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 8131293091516552927}
+    m_TransformParent: {fileID: 1063884645350165251}
     m_Modifications:
     - target: {fileID: 1230127989643127960, guid: f876335dce38ca94f89e3f8a611f718e, type: 3}
       propertyPath: m_Name
@@ -360,7 +360,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1428014490869979994, guid: f876335dce38ca94f89e3f8a611f718e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.002
+      value: -0.002000004
       objectReference: {fileID: 0}
     - target: {fileID: 1428014490869979994, guid: f876335dce38ca94f89e3f8a611f718e, type: 3}
       propertyPath: m_LocalPosition.z

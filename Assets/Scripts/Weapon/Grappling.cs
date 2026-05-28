@@ -173,6 +173,10 @@ public class Grappling : WeaponBase
         if (IsPulling)
         {
             Vector3 currentPos = myPlayer.transform.position;
+
+            //Vector3 horizontalCurrent = new Vector3(currentPos.x, 0, currentPos.z);
+            //Vector3 horizontalTarget = new Vector3(PullTarget.x, 0, PullTarget.z);
+            
             float distanceToTarget = Vector3.Distance(currentPos, PullTarget);
 
             if (distanceToTarget <= 2f)
@@ -201,10 +205,53 @@ public class Grappling : WeaponBase
                 moveDir.Normalize();
 
                 myPlayer.Controller.Move(moveDir * grappleSpeed * Runner.DeltaTime);
-               // myPlayer.Controller.Velocity = moveDir * grappleSpeed;
+                myPlayer.Controller.Velocity = moveDir * grappleSpeed;
             }
+            
+            /*
+            float horizontalDistance = Vector3.Distance(horizontalCurrent, horizontalTarget);
+
+            //벽 껍질(콜라이더 두께)을 감안해서 평면상으로 1.5m 이내에 도달했다면? 
+            // = "높이가 어떻든 간에 일단 벽에 완전히 갖다 박았다!" -> 즉시 줄 끊기!
+            if (horizontalDistance <= 1.5f)
+            {
+                FinishPulling(); // 아래에 따로 빼둔 줄 끊기 함수 실행
+                return; // 여기서 멈춤 (더 이상 당기지 않음)
+            }
+
+            // 아직 벽에 안 닿았다면 계속 당기기
+            Vector3 moveDir = (PullTarget - currentPos).normalized;
+            if (PullTarget.y >= currentPos.y && moveDir.y < 0f)
+            {
+                moveDir.y = 0f; // 바닥으로 내리꽂히는 것 방지
+            }
+            moveDir.Normalize();
+
+            // 부드러운 이동
+            myPlayer.Controller.Move(moveDir * grappleSpeed * Runner.DeltaTime);
+            */
         }
     }
+    /*
+    private void FinishPulling()
+    {
+        IsPulling = false;
+        myPlayer.isGrappling = false;
+
+        if (CurrentNeedsVault)
+        {
+            // 옥상 바닥이 감지되었을 때는 위+앞으로 파쿠르!
+            Vector3 lookForward = myPlayer.fpsCamera.transform.forward;
+            lookForward.y = 0;
+            myPlayer.Controller.Velocity = (Vector3.up * vaultUpPower) + (lookForward.normalized * vaultForwardPower);
+        }
+        else
+        {
+            // 일반 벽일 때는 부딪히고 살짝 위로 튕겨오름
+            myPlayer.Controller.Velocity = Vector3.up * 4f;
+        }
+    }
+    */
 
     public override void Render()
     {

@@ -43,6 +43,7 @@ public class Hammer : WeaponBase
     //대쉬 방향
     [Networked] public Vector3 DashDir { get; set; }
 
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -97,17 +98,21 @@ public class Hammer : WeaponBase
         {
             return;
         }
+        Vector3 rayStartPos = transform.position + (Vector3.down * 1.1f);
+        int floorMask = ~LayerMask.GetMask("Player");
 
-        if(Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f))
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f,floorMask))
         {
-            if(hit.distance >= minPlungeHeight && !IsPlunging)
+            float actualHeight = hit.distance + 1.1f;
+
+            if (actualHeight >= minPlungeHeight && !IsPlunging)
             {
                 StartPlunge();
                 SkillQTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.skillQCoolTime);
             }
-            else if(hit.distance < minPlungeHeight)
+            else if (actualHeight < minPlungeHeight)
             {
-                Debug.Log("높이가 너무 낮습니다");
+                Debug.Log("높이가 너무 낮습니다! 현재 높이: " + actualHeight);
             }
         }
     }
@@ -242,7 +247,21 @@ public class Hammer : WeaponBase
                 h.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
+        
+    }
 
-        if (HasInputAuthority && myPlayer != null) myPlayer.ReleasePlungeCameraLock();
+    public override void Render()
+    {
+        if (myPlayer == null || !HasInputAuthority) return;
+
+        // 떨어지는 중(IsPlunging)이면 무조건 잠그고, 아니면 무조건 풀어버립니다.
+        if (IsPlunging)
+        {
+            myPlayer.StartPlungeCameraLock();
+        }
+        else
+        {
+            myPlayer.ReleasePlungeCameraLock();
+        }
     }
 }
