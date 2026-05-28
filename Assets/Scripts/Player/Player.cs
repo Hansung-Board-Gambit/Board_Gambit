@@ -302,6 +302,15 @@ public class Player : NetworkBehaviour
                     if (Vector3.Distance(transform.position, LastTrailSpawnPos) >= trailSpawnDistance)
                     {
                         Vector3 spawnPos = feetPos + Vector3.up * 0.5f;
+                        int floorMask = ~LayerMask.GetMask("Player");
+
+                        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 20f, floorMask))
+                        {
+                            // 레이저가 진짜 바닥(지형)에 닿았다면?
+                            // 바닥 좌표(hit.point)를 가져오고, 바닥에 파묻히지 않게 아주 살짝(0.05) 위로 띄워줍니다.
+                            spawnPos = hit.point + (Vector3.up * 0.05f);
+                        }
+
 
                         NetworkObject obj = Runner.Spawn(trailPrefab, spawnPos, Quaternion.identity, Object.InputAuthority);
                         obj.GetComponent<PaintArea>().SpeedUpPlayer = MyShooter;
@@ -379,5 +388,17 @@ public class Player : NetworkBehaviour
     public void ReleasePlungeCameraLock()
     {
         isCameraLocked = false;
+    }
+
+    public void ApplyJumpPadForce(float force)
+    {
+        // 퓨전 네트워크 동기화: 내 화면이거나 서버일 때만 튕겨오름을 적용
+        if (HasStateAuthority || HasInputAuthority)
+        {
+            if (Controller != null)
+            {              
+                Controller.Velocity = new Vector3(Controller.Velocity.x, force, Controller.Velocity.z);
+            }
+        }
     }
 }
