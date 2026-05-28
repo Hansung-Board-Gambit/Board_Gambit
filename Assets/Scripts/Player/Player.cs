@@ -360,14 +360,6 @@ public class Player : NetworkBehaviour
     public void StartPlungeCameraLock()
     {
         isCameraLocked = true;
-        camPitch = 80f;
-
-        NetworkedPitch = camPitch;
-
-        if(fpsCamera != null)
-        {
-            fpsCamera.transform.localRotation = Quaternion.Euler(camPitch, 0,0);
-        }
     }
 
     public void ReleasePlungeCameraLock()
