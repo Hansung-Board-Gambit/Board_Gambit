@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6f3d794f893121f4c8d835375ee01d9a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 285768
+  packageName: Chibi Stickman
+  packageVersion: 1.0
+  assetPath: Assets/Chibi_Stickman/Materials/Chibi_Stickman.mat
+  uploadId: 666899
