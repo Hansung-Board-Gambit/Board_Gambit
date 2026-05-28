@@ -15,8 +15,10 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public NetworkRunner runner;  //네트워크 러너
     public NetworkObject lobbyStatePrefab;  //로비스테이트 프리팹
     public LobbyState lobbystate;  //로비스테이트
+    private bool isJoining = false;
 
     // 초기 씬 요소
+    public CanvasGroup MainUI;
     public GameObject JoinPanel;  //방 코드 입력 패널
     public TMP_Text warningText;  //방 코드 에러 문구
     public TMP_InputField roomInput;  //방 코드 입력창
@@ -149,6 +151,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     // Play as host 버튼
     public async void StartHost()
     {
+        MainUI.interactable = false;
+        MainUI.blocksRaycasts = false;
+
         ResetRunner();
 
         runner = new GameObject("NetworkRunner").AddComponent<NetworkRunner>();
@@ -174,6 +179,8 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             Debug.LogError("Host 생성 실패");
             ResetRunner();
+            MainUI.interactable = true;
+            MainUI.blocksRaycasts = true;
             return;
         }
 
@@ -206,6 +213,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     //Play as guest 버튼
     public async void StartClient(string roomID)
     {
+        if (isJoining) return;
+        isJoining = true;
+
         Debug.Log("StartClient 받은 코드: " + roomID);
 
         ResetRunner();
@@ -221,23 +231,28 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             GameMode = GameMode.Client,
             SessionName = roomID,
-            SceneManager = sceneManager
+            SceneManager = sceneManager,
         });
+
+        Debug.Log($"Join Result: " + $"Ok={result.Ok}, " + $"Reason={result.ShutdownReason}");
 
         if (!result.Ok)
         {
             Debug.LogError("Wrong room code");
-            roomInput.ActivateInputField();
-            roomInput.Select();
 
             if (result.ShutdownReason == ShutdownReason.GameIsFull) { 
                 warningText.text = "Room is full"; 
             }
             else {
-                warningText.text = "Room not found"; 
+                warningText.text = "Room not found";
             }
 
+            roomInput.Select();
+            roomInput.ActivateInputField();
             ResetRunner();
+            MainUI.interactable = false;
+            MainUI.blocksRaycasts = false;
+            isJoining = false;
             return;
         }
 
@@ -252,6 +267,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         roomCode.text = "Room Code: " + runner.SessionInfo.Name;
 
         SetupUI();
+        isJoining = false;
 
         Debug.Log("서버 접속 성공 (Client)");
     }
@@ -321,6 +337,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         SceneManager.LoadScene("Jinsoo2");
         Destroy(gameObject);
     }
+
     public async void ExitRoom()
     {
         if (isExitingRoom)
@@ -350,6 +367,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             SetActiveIfExists(LobbyCanvas, false);
             SetActiveIfExists(InitCanvas, true);
             SetActiveIfExists(WarningPanel, false);
+
+            MainUI.interactable = true;
+            MainUI.blocksRaycasts = true;
 
             if (roomCode != null)
                 roomCode.text = "Room Code : ";

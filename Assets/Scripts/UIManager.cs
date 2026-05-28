@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class UIManger : MonoBehaviour
 {
-
+    public CanvasGroup MainUI;
     public GameObject WarningPanel;
     public GameObject JoinPanel;
     public GameObject wrongCode;
@@ -42,6 +42,9 @@ public class UIManger : MonoBehaviour
     public void OpenJoinPanel()
     {
         JoinPanel.SetActive(true);
+        MainUI.interactable = false;
+        MainUI.blocksRaycasts = false;
+        wrongCode.GetComponent<TMP_Text>().text = "";
         roomInput.text = "";
         roomInput.ActivateInputField();
     }
@@ -49,7 +52,8 @@ public class UIManger : MonoBehaviour
     public void CloseJoinPanel()
     {
         JoinPanel.SetActive(false);
-        wrongCode.SetActive(false);
+        MainUI.interactable = true;
+        MainUI.blocksRaycasts = true;
         roomInput.text = "";
     }
 
