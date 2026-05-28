@@ -297,6 +297,7 @@ public class PlacementManager : MonoBehaviour
         int enabledRenderers = EnableRenderers(placed);
         int createdColliders = EnsurePlacementCollider(placed);
         int enabledColliders = EnableColliders(placed);
+        int frozenRigidbodies = FreezePlacedRigidbodies(placed);
         int fixedMaterials = EnsureMaterialsVisible(placed);
 
         int placedLayer = LayerMask.NameToLayer(placedObjectLayerName);
@@ -328,6 +329,7 @@ public class PlacementManager : MonoBehaviour
             ", renderersEnabled=" + enabledRenderers +
             ", collidersEnabled=" + enabledColliders +
             ", collidersCreated=" + createdColliders +
+            ", rigidbodiesFrozen=" + frozenRigidbodies +
             ", materialsFixed=" + fixedMaterials
         );
 
@@ -401,6 +403,22 @@ public class PlacementManager : MonoBehaviour
         );
 
         return 1;
+    }
+
+    private int FreezePlacedRigidbodies(GameObject target)
+    {
+        Rigidbody[] rigidbodies = target.GetComponentsInChildren<Rigidbody>(true);
+        for (int i = 0; i < rigidbodies.Length; i++)
+        {
+            Rigidbody rb = rigidbodies[i];
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.useGravity = false;
+            rb.isKinematic = true;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+        }
+
+        return rigidbodies.Length;
     }
 
     private int EnsureMaterialsVisible(GameObject target)
