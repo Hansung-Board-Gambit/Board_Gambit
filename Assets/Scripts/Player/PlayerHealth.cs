@@ -24,10 +24,8 @@ public class PlayerHealth : NetworkBehaviour
 
         if(HasInputAuthority && PlayerUI.instance != null)
         {
-            PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
+            PlayerUI.instance.UpdateHP(CurrentHP, maxHP);
         }
-
-
     }
 
     public void ResetForRound()
@@ -40,7 +38,7 @@ public class PlayerHealth : NetworkBehaviour
 
         if (HasInputAuthority && PlayerUI.instance != null)
         {
-            PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
+            PlayerUI.instance.UpdateHP(CurrentHP, maxHP);
         }
     }
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -74,10 +72,9 @@ public class PlayerHealth : NetworkBehaviour
 
     public void OnHPChanged()
     {
-        if(HasInputAuthority && PlayerUI.instance != null)
+        if (HasInputAuthority && PlayerUI.instance != null)
         {
-            PlayerUI.instance.UpdateHPText(CurrentHP, maxHP);
+            PlayerUI.instance.UpdateHP(CurrentHP, maxHP);
         }
     }
-
 }

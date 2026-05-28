@@ -460,6 +460,11 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
         if (!state.Object || !state.Object.IsValid) return;
 
+        if (PlayerUI.instance != null)
+        {
+            PlayerUI.instance.UpdateNames(LobbyState.Instance.hostName.ToString(), LobbyState.Instance.guestName.ToString());
+        }
+
         valueText.text = state.gameValue.ToString();
         decreaseButton.interactable = state.gameValue > 2;
         increaseButton.interactable = state.gameValue < 5;
@@ -515,6 +520,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
     void SetStartButton(bool enable)
     {
+        if (startButtonCanvas == null || !startButtonCanvas)
+            return;
+
         startButton.interactable = enable;
 
         if (enable)
