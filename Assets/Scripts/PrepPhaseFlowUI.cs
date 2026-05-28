@@ -158,9 +158,10 @@ public class PrepPhaseFlowUI : MonoBehaviour
         currentPhaseIndex = 0;
         // 1단계 화면 먼저 띄우기
         ShowOnlyPanel(objectPlacementPanel);
+        yield return WaitForPrepAuthorityReadyRoutine();
 
         // 그 위에 턴 소개 오버레이
-        yield return ShowTurnIntroRoutine(GetObjectPlacementPlayerName());
+        yield return ShowTurnIntroRoutine(GetObjectPlacementTurnText);
 
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(
@@ -173,9 +174,10 @@ public class PrepPhaseFlowUI : MonoBehaviour
         currentPhaseIndex = 1;
         // 2단계 화면 먼저 띄우기
         ShowOnlyPanel(spawnPlacementPanel);
+        yield return WaitForPrepAuthorityReadyRoutine();
 
         // 그 위에 턴 소개 오버레이
-        yield return ShowTurnIntroRoutine(GetSpawnPlacementPlayerName());
+        yield return ShowTurnIntroRoutine(GetSpawnPlacementTurnText);
 
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(
@@ -214,13 +216,12 @@ public class PrepPhaseFlowUI : MonoBehaviour
             targetPanel.SetActive(true);
     }
 
-    private IEnumerator ShowTurnIntroRoutine(string playerName)
+    private IEnumerator ShowTurnIntroRoutine(Func<string> turnTextProvider)
     {
         if (turnIntroCanvasGroup == null)
             yield break;
 
-        if (turnIntroText != null)
-            turnIntroText.text = playerName + "'s Turn!";
+        UpdateTurnIntroText(turnTextProvider);
 
         turnIntroCanvasGroup.gameObject.SetActive(true);
         turnIntroCanvasGroup.alpha = 1f;
@@ -229,6 +230,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         while (t < turnIntroFadeDuration)
         {
+            UpdateTurnIntroText(turnTextProvider);
             t += Time.deltaTime;
             turnIntroCanvasGroup.alpha = Mathf.Lerp(1f, 0f, t / turnIntroFadeDuration);
             yield return null;
@@ -238,20 +240,56 @@ public class PrepPhaseFlowUI : MonoBehaviour
         turnIntroCanvasGroup.gameObject.SetActive(false);
     }
 
-    private string GetObjectPlacementPlayerName()
+    private void UpdateTurnIntroText(Func<string> turnTextProvider)
     {
-        if (LobbyState.Instance == null)
-            return objectPlacementPlayerName;
+        if (turnIntroText == null || turnTextProvider == null)
+            return;
 
-        return LobbyState.Instance.objectPlacementAuthorityIsHost ? "Host" : "Guest";
+        turnIntroText.text = turnTextProvider();
     }
 
-    private string GetSpawnPlacementPlayerName()
+    private string GetObjectPlacementTurnText()
     {
         if (LobbyState.Instance == null)
-            return spawnPlacementPlayerName;
+            return GetFallbackTurnText(objectPlacementPlayerName);
 
-        return LobbyState.Instance.objectPlacementAuthorityIsHost ? "Guest" : "Host";
+        return CanLocalControlObjectPlacement() ? "My Turn" : "Enemy Turn";
+    }
+
+    private string GetSpawnPlacementTurnText()
+    {
+        if (LobbyState.Instance == null)
+            return GetFallbackTurnText(spawnPlacementPlayerName);
+
+        return CanLocalControlSpawnPlacement() ? "My Turn" : "Enemy Turn";
+    }
+
+    private string GetFallbackTurnText(string playerName)
+    {
+#if UNITY_EDITOR
+        if (allowEditorLocalTest)
+            return "My Turn";
+#endif
+        return playerName + "'s Turn!";
+    }
+
+    private IEnumerator WaitForPrepAuthorityReadyRoutine()
+    {
+        const float maxWaitSeconds = 2f;
+        float elapsed = 0f;
+
+        while (LobbyState.Instance == null && elapsed < maxWaitSeconds)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        LobbyState state = LobbyState.Instance;
+        while (state != null && state.Runner != null && state.prepRound <= 0 && elapsed < maxWaitSeconds)
+        {
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 
     private IEnumerator RunPhaseTimerRoutine(int phaseIndex, float duration, Image timerFill)
