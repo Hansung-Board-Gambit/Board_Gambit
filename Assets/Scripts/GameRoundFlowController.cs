@@ -24,7 +24,7 @@ public class GameRoundFlowController : MonoBehaviour
     public int roundIndex = 1;
     public float countdownDuration = 3f;
     public float roundDuration = 60f;
-    public float roundResultDuration = 3f;
+    public float roundResultDuration = 5f;
     public float matchResultDuration = 5f;
     public bool autoStartNextRoundOnTimer = true;
     public bool returnToLobbyAfterMatch = true;
@@ -40,9 +40,15 @@ public class GameRoundFlowController : MonoBehaviour
     public Vector3 fallbackHostSpawn = new Vector3(-2f, 1f, 0f);
     public Vector3 fallbackGuestSpawn = new Vector3(2f, 1f, 0f);
 
+    [Header("Round Result UI")]
+    [SerializeField] private GameObject victoryPanel;
+    [SerializeField] private GameObject defeatPanel;
+    [SerializeField] private GameObject drawPanel;
+
     [Header("UI")]
     public GameObject preparationRoot;
     public GameObject battleHudRoot;
+    public GameObject resultHudRoot;
     public CanvasGroup countdownCanvasGroup;
     public TextMeshProUGUI countdownText;
     public TextMeshProUGUI phaseText;
@@ -81,12 +87,21 @@ public class GameRoundFlowController : MonoBehaviour
             preparationCamera = Camera.main;
 
         GameInputGate.Unlock();
-        EnsureBattleHudUi();
+        victoryPanel.SetActive(false);
+        defeatPanel.SetActive(false);
+        if (drawPanel != null) drawPanel.SetActive(false);
         SetPreparationCameraVisible(true);
         SetLocalBattleControlActive(false);
         SetBattleHudVisible(false);
         SetCountdownVisible(false);
         UpdatePhaseText();
+    }
+
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() => PlayerUI.instance != null);
+
+        EnsureBattleHudUi();
     }
 
     private void OnEnable()
@@ -142,6 +157,12 @@ public class GameRoundFlowController : MonoBehaviour
         SetBattleHudVisible(false);
         SetCountdownVisible(false);
         UpdatePhaseText();
+
+        victoryPanel.SetActive(false);
+        defeatPanel.SetActive(false);
+
+        if (drawPanel != null)
+            drawPanel.SetActive(false);
 
         if (preparationRoot != null)
             preparationRoot.SetActive(true);
@@ -251,6 +272,7 @@ public class GameRoundFlowController : MonoBehaviour
         UpdatePhaseText();
         SetBattleHudVisible(true);
         UpdateRoundResultText();
+        ShowRoundResultUI();
 
         yield return new WaitForSeconds(roundResultDuration);
 
@@ -267,6 +289,7 @@ public class GameRoundFlowController : MonoBehaviour
             SetPreparationCameraVisible(true);
             SetSpawnMarkersVisible(false);
             SetBattleHudVisible(true);
+            resultHudRoot.SetActive(false);
             SetCountdownVisible(false);
             Debug.Log("Match completed after round " + roundIndex + ".");
             UpdatePhaseText();
@@ -275,20 +298,19 @@ public class GameRoundFlowController : MonoBehaviour
             if (returnToLobbyAfterMatch)
                 ReturnToLobbyAfterMatchDelay();
         }
-
         roundResultRoutine = null;
     }
 
     private void SetBattleHudVisible(bool visible)
     {
-        if (visible)
-            EnsureBattleHudUi();
+        //if (visible)
+         //   EnsureBattleHudUi();
 
         if (battleHudRoot != null)
             battleHudRoot.SetActive(visible);
 
-        if (playerUiRoot != null)
-            playerUiRoot.SetActive(visible);
+        //if (playerUiRoot != null)
+         //   playerUiRoot.SetActive(visible);
 
         if (!visible)
         {
@@ -304,51 +326,11 @@ public class GameRoundFlowController : MonoBehaviour
     {
         if (PlayerUI.instance == null)
         {
-            playerUiRoot = CreatePlayerUiRoot();
-            PlayerUI playerUi = playerUiRoot.AddComponent<PlayerUI>();
-            TextMeshProUGUI hpText = CreatePlayerUiText(
-                "PlayerHP",
-                playerUiRoot.transform,
-                new Vector2(0f, 0f),
-                new Vector2(0f, 0f),
-                new Vector2(0f, 1f),
-                new Vector2(25f, 50f),
-                new Vector2(400f, 50f),
-                TextAlignmentOptions.Left,
-                36,
-                "HP : ");
-            TextMeshProUGUI ammoText = CreatePlayerUiText(
-                "Ammo",
-                playerUiRoot.transform,
-                new Vector2(1f, 0f),
-                new Vector2(1f, 0f),
-                new Vector2(0.5f, 0.5f),
-                new Vector2(-100f, 25f),
-                new Vector2(400f, 50f),
-                TextAlignmentOptions.Left,
-                36,
-                "Ammo : ");
-            playerUi.Configure(hpText, ammoText);
-        }
-        else if (playerUiRoot == null)
-        {
-            playerUiRoot = PlayerUI.instance.gameObject;
-        }
-
-        if (battleHudRoot == null)
+            Debug.LogError("PlayerUI instance missing!");
             return;
-
-        if (battleTimerText == null)
-            battleTimerText = CreateHudText("BattleTimerText", battleHudRoot.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -24f), new Vector2(520f, 60f), TextAlignmentOptions.Center, 28);
-
-        if (roundResultText == null)
-        {
-            roundResultText = CreateHudText("RoundResultText", battleHudRoot.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 40f), new Vector2(720f, 90f), TextAlignmentOptions.Center, 42);
-            roundResultText.gameObject.SetActive(false);
         }
 
-        if (matchScoreText == null)
-            matchScoreText = CreateHudText("MatchScoreText", battleHudRoot.transform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -58f), new Vector2(520f, 44f), TextAlignmentOptions.Center, 24);
+        playerUiRoot = PlayerUI.instance.gameObject;
     }
 
     private GameObject CreatePlayerUiRoot()
@@ -797,7 +779,7 @@ public class GameRoundFlowController : MonoBehaviour
         {
             PlayerHealth health = healths[i];
             if (health != null && health.HasInputAuthority)
-                PlayerUI.instance.UpdateHPText(health.CurrentHP, health.maxHP);
+                PlayerUI.instance.UpdateHP(health.CurrentHP, health.maxHP);
         }
 
         WeaponBase[] weapons = FindObjectsByType<WeaponBase>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -866,5 +848,24 @@ public class GameRoundFlowController : MonoBehaviour
             new Rect(12, 12, 780, 28),
             "Round " + roundIndex + " / " + CurrentPhase + extra + authority + " / Input: " + GameInputGate.AllowPlayerInput
         );
+    }
+
+    private void ShowRoundResultUI()
+    {
+        battleHudRoot.SetActive(false);
+        resultHudRoot.SetActive(true);
+        victoryPanel.SetActive(false);
+        defeatPanel.SetActive(false);
+
+        bool isHost = LobbyState.Instance.Runner.IsServer;
+        bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
+
+        if (latestRoundWinnerSide == 0)
+            return;
+
+        if (isWinner)
+            victoryPanel.SetActive(true);
+        else
+            defeatPanel.SetActive(true);
     }
 }
