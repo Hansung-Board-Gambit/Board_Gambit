@@ -510,9 +510,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 769
   grappleRange: 50
-  grappleSpeed: 120
+  grappleSpeed: 50
   ableClimbHeight: 1
-  hookProjectileSpeed: 80
+  hookProjectileSpeed: 100
   vaultUpPower: 7
   vaultForwardPower: 8
   maxGrappleCharges: 2
@@ -1005,7 +1005,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: (Prb)Kunai
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 519491962103907682, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -1095,7 +1096,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4125139759156341042, guid: eb360b06ee92a194fa6a456126902349, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
