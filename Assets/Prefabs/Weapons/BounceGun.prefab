@@ -90,7 +90,6 @@ GameObject:
   - component: {fileID: 3222128925680224573}
   - component: {fileID: 4332631823963227762}
   - component: {fileID: 6893151017119988029}
-  - component: {fileID: 2799776917925732090}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -170,27 +169,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2799776917925732090
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7673218693439417466}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8598019314159965189
 GameObject:
   m_ObjectHideFlags: 0
@@ -202,7 +180,6 @@ GameObject:
   - component: {fileID: 6965829099933327497}
   - component: {fileID: 1028389359505161373}
   - component: {fileID: 4344314402219506502}
-  - component: {fileID: 2457286467649779087}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -282,27 +259,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2457286467649779087
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8598019314159965189}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9060795689500338864
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,6 +301,10 @@ PrefabInstance:
     - target: {fileID: -5042587528849330215, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5042587528849330215, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalScale.x
@@ -402,7 +362,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: AR_SCARL.3
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -5042587528849330215, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

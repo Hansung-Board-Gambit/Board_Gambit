@@ -203,7 +203,7 @@ public class Grappling : WeaponBase
                     moveDir.y = 0f;
                 }
                 moveDir.Normalize();
-
+                myPlayer.Controller.maxSpeed = grappleSpeed;
                 myPlayer.Controller.Move(moveDir * grappleSpeed * Runner.DeltaTime);
                 myPlayer.Controller.Velocity = moveDir * grappleSpeed;
             }

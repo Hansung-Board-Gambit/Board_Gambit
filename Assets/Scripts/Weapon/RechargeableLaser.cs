@@ -58,6 +58,7 @@ public class RechargeableLaser : WeaponBase
     //게이지 증가 및 감소(총알)
     public override void OnFixedUpdateNetwork()
     {
+      
         Debug.Log($"현재 게이지 : {currentGage.ToString("F0")}");
 
         if(isPressing)
@@ -72,6 +73,11 @@ public class RechargeableLaser : WeaponBase
         }
         //int displayGage = Mathf.FloorToInt(currentGage); - 실제 정수로 변환
         CurrentAmmo = Mathf.FloorToInt(currentGage);
+    }
+
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        
     }
 
 
