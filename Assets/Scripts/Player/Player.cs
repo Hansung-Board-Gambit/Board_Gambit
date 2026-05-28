@@ -154,8 +154,17 @@ public class Player : NetworkBehaviour
             transform.SetPositionAndRotation(position, rotation);
         }
     }
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        // 내 캐릭터가 맞고, 지금 배틀 중인데, 게임 창을 클릭했다면?
+        if (hasFocus && HasInputAuthority && battleControlActive)
+        {
+            // 도망간 마우스 커서를 강제로 다시 잡아옵니다.
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
 
-   
 
     //무기 맞았을때 실행할 디버프 부여 함수
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -181,7 +190,12 @@ public class Player : NetworkBehaviour
     // ========================================================
     private void Update()
     {
-        if (!HasInputAuthority || !battleControlActive) return;
+        if (!HasInputAuthority) return;
+        if (!battleControlActive && ShouldStartVisibleInBattle())
+        {
+            SetBattleControlActive(true);
+        }
+        if (!battleControlActive) return;
 
         bool isStunned = false;
         PlayerHealth health = GetComponent<PlayerHealth>();
