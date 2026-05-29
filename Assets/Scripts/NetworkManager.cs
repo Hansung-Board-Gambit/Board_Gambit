@@ -205,6 +205,14 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         string roomID = roomInput.text.Trim().ToUpper();
 
+        if (string.IsNullOrEmpty(roomID))
+        {
+            warningText.text = "Enter room code";
+            roomInput.Select();
+            roomInput.ActivateInputField();
+            return;
+        }
+
         Debug.Log("ÀÔ·ÂµÈ RoomCode: " + roomID);
 
         StartClient(roomID);

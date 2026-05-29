@@ -63,8 +63,7 @@ public class BounceGun : WeaponBase
         base.CheckReload(data, prevButtons);
 
         // 로컬 효과음만 재생
-        if (data.buttons.WasPressed(prevButtons, MyButtons.Reload)
-            && CurrentAmmo < rangedWeapon.MaxAmmo)
+        if (HasInputAuthority && data.buttons.WasPressed(prevButtons, MyButtons.Reload) && CurrentAmmo < rangedWeapon.MaxAmmo)
         {
             PlayLocalSfx(reloadSfx);
         }

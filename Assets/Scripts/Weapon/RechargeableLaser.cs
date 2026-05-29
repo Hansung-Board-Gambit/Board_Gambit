@@ -43,7 +43,10 @@ public class RechargeableLaser : WeaponBase
     {
         if (data.buttons.WasPressed(prevButtons, MyButtons.LeftClick))
         {
-            PlayLocalSfx(chargeStartSfx);
+            if (HasInputAuthority)
+            {
+                PlayLocalSfx(chargeStartSfx);
+            }
         }
 
         //좌클릭이 눌리고 있을때 true
@@ -64,17 +67,31 @@ public class RechargeableLaser : WeaponBase
 
     protected override void CheckRightClick(NetworkInputData data, NetworkButtons prevButtons)
     {
-        if(data.buttons.IsSet(MyButtons.RightClick))
+        if(data.buttons.WasPressed(prevButtons, MyButtons.RightClick))
         {
             //줌 확대됨
             player.TargetFOV = zoomFOV;
-            PlayLocalSfx(zoomInSfx);
+            if (HasInputAuthority)
+            {
+                PlayLocalSfx(zoomInSfx);
+            }
         }
-        else if(data.buttons.WasReleased(prevButtons, MyButtons.RightClick))
+
+        // 누르고 있는 동안은 FOV만 유지
+        if (data.buttons.IsSet(MyButtons.RightClick))
         {
-            //줌 확대 풀림
+            player.TargetFOV = zoomFOV;
+        }
+
+        // 줌 해제 순간 1번만
+        if (data.buttons.WasReleased(prevButtons, MyButtons.RightClick))
+        {
             player.TargetFOV = player.defaultFOV;
-            PlayLocalSfx(zoomOutSfx);
+
+            if (HasInputAuthority)
+            {
+                PlayLocalSfx(zoomOutSfx);
+            }
         }
     }
 
