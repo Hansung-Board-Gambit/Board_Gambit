@@ -10,12 +10,27 @@ public class RechargeableLaser : WeaponBase
     [SerializeField] float dischargeSpeed = 35f;
     [SerializeField] LayerMask targetLayer;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;     // 2D
+    [SerializeField] AudioSource networkAudioSource;   // 3D
+    [SerializeField] AudioClip chargeStartSfx; // 좌클릭 홀드 시작 (로컬)
+    [SerializeField] AudioClip fullChargeSfx;  // 완충 (로컬)
+    [SerializeField] AudioClip zoomInSfx;      // 줌 인 (로컬)
+    [SerializeField] AudioClip zoomOutSfx;     // 줌 아웃 (로컬)
+    [SerializeField] AudioClip shootSfx;       // 발사 (네트워크 공유)
+
     private RangedWeapon rangedWeapon;
 
     private bool isPressing;
+    private bool wasFullyCharged;
 
     //현재 게이지
     [Networked] public float currentGage {  get; set; }
+
+    public enum LaserSfxType
+    {
+        Shoot
+    }
 
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
@@ -26,6 +41,11 @@ public class RechargeableLaser : WeaponBase
 
     protected override void CheckLeftClick(NetworkInputData data, NetworkButtons prevButtons)
     {
+        if (data.buttons.WasPressed(prevButtons, MyButtons.LeftClick))
+        {
+            PlayLocalSfx(chargeStartSfx);
+        }
+
         //좌클릭이 눌리고 있을때 true
         isPressing = data.buttons.IsSet(MyButtons.LeftClick);
        
@@ -37,8 +57,9 @@ public class RechargeableLaser : WeaponBase
                 BasicAttack();
                 currentGage = 0;
             }
-        }
 
+            wasFullyCharged = false;
+        }
     }
 
     protected override void CheckRightClick(NetworkInputData data, NetworkButtons prevButtons)
@@ -47,11 +68,13 @@ public class RechargeableLaser : WeaponBase
         {
             //줌 확대됨
             player.TargetFOV = zoomFOV;
+            PlayLocalSfx(zoomInSfx);
         }
         else if(data.buttons.WasReleased(prevButtons, MyButtons.RightClick))
         {
             //줌 확대 풀림
             player.TargetFOV = player.defaultFOV;
+            PlayLocalSfx(zoomOutSfx);
         }
     }
 
@@ -65,6 +88,16 @@ public class RechargeableLaser : WeaponBase
         {
             currentGage += chargeSpeed * Runner.DeltaTime;
             if(currentGage > rangedWeapon.MaxAmmo) currentGage = rangedWeapon.MaxAmmo;
+
+            if (!wasFullyCharged && currentGage >= rangedWeapon.MaxAmmo)
+            {
+                wasFullyCharged = true;
+
+                if (HasInputAuthority)
+                {
+                    PlayLocalSfx(fullChargeSfx);
+                }
+            }
         }
         else
         {
@@ -75,14 +108,9 @@ public class RechargeableLaser : WeaponBase
         CurrentAmmo = Mathf.FloorToInt(currentGage);
     }
 
-    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
-    {
-        
-    }
-
-
     protected override void BasicAttack()
-    {       
+    {
+        RPC_PlayNetworkSfx(LaserSfxType.Shoot);
         Shoot();
     }    
     protected override void SecondAttack() { }
@@ -114,7 +142,6 @@ public class RechargeableLaser : WeaponBase
         
         if(hit.Hitbox != null)
         {
-
             GameObject target = hit.Hitbox.Root.gameObject;
             Debug.Log($"4. 명중! 대상: {target.name}");
 
@@ -147,8 +174,27 @@ public class RechargeableLaser : WeaponBase
         {
             Debug.Log($"맞은 오브젝트 : {hit.Collider.gameObject.name}");
         }
+    }
 
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (clip == null || localAudioSource == null)
+            return;
+
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(LaserSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case LaserSfxType.Shoot:
+                networkAudioSource.PlayOneShot(shootSfx);
+                break;
+        }
     }
 }
-   
-

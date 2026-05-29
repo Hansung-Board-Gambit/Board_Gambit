@@ -6,10 +6,15 @@ using UnityEngine;
 
 public class BounceProjectile : NetworkBehaviour
 {
+    [Header("사운드")]
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip bounceSfx;
+
     [SerializeField] float speed = 20f;
     [SerializeField] float explosionRadius = 3f;
     [SerializeField] RangedWeapon rangedData;
     public LayerMask hitLayer;
+    private BounceGun bounceGun;
 
     [Networked] public int BounceCount { get; set; }
     [Networked] public Vector3 Velocity { get; set; }
@@ -59,6 +64,8 @@ public class BounceProjectile : NetworkBehaviour
                 }
                 else
                 {
+                    RPC_PlayBounceSfx();
+
                     // 진짜 벽이나 바닥일 때만 튕김 처리
                     BounceCount--;
                     if (BounceCount < 0)
@@ -108,5 +115,14 @@ public class BounceProjectile : NetworkBehaviour
         }
 
         Runner.Despawn(Object);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_PlayBounceSfx()
+    {
+        if (audioSource != null && bounceSfx != null)
+        {
+            audioSource.PlayOneShot(bounceSfx);
+        }
     }
 }

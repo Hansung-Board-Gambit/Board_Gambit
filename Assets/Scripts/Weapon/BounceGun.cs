@@ -12,8 +12,22 @@ public class BounceGun : WeaponBase
     [SerializeField] int bounceTime = 3;
     [SerializeField] int lineSegments = 30;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;    // 2D
+    [SerializeField] AudioSource networkAudioSource;  // 3D
+    [SerializeField] AudioClip normalShotSfx; // 좌클릭 발사
+    [SerializeField] AudioClip bounceShotSfx; // 우클릭 발사
+    [SerializeField] AudioClip reloadSfx;     // 재장전 (로컬)
+
 
     private RangedWeapon rangedWeapon;
+
+    public enum BounceGunSfxType
+    {
+        NormalShot,
+        BounceShot,
+    }
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -26,6 +40,7 @@ public class BounceGun : WeaponBase
         if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
+            RPC_PlayNetworkSfx(BounceGunSfxType.NormalShot);
             SpawnProjectile(0);
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedData.leftClickCoolTime);
         }
@@ -37,7 +52,21 @@ public class BounceGun : WeaponBase
         if(CurrentAmmo >= 2)
         {
             CurrentAmmo -= 2;
+            RPC_PlayNetworkSfx(BounceGunSfxType.BounceShot);
             SpawnProjectile(bounceTime);
+        }
+    }
+
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        // 기존 WeaponBase 재장전 실행
+        base.CheckReload(data, prevButtons);
+
+        // 로컬 효과음만 재생
+        if (data.buttons.WasPressed(prevButtons, MyButtons.Reload)
+            && CurrentAmmo < rangedWeapon.MaxAmmo)
+        {
+            PlayLocalSfx(reloadSfx);
         }
     }
 
@@ -69,7 +98,30 @@ public class BounceGun : WeaponBase
             //소환된 투사체에게 방향과 튕길 횟수 전달
             BounceProjectile proj = obj.GetComponent<BounceProjectile>();
             proj.InitProjectile(shootDirection, bounceCount, Object.InputAuthority);
+        }
+    }
 
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (clip == null || localAudioSource == null)
+            return;
+
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(BounceGunSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case BounceGunSfxType.NormalShot: networkAudioSource.PlayOneShot(normalShotSfx);
+                break;
+
+            case BounceGunSfxType.BounceShot: networkAudioSource.PlayOneShot(bounceShotSfx);
+                break;
         }
     }
 

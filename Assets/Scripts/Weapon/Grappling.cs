@@ -28,6 +28,11 @@ public class Grappling : WeaponBase
     [SerializeField] LineRenderer lr;
     [SerializeField] Transform grappleMuzzle;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource networkAudioSource;
+    [SerializeField] AudioClip swingSfx;
+    [SerializeField] AudioClip grappleSfx;
+
     [Networked] public int GrappleCharges { get; set; }
     [Networked] public TickTimer GrappleRechargeTimer { get; set; }
     [Networked] public bool IsInitialized { get; set; }
@@ -45,6 +50,12 @@ public class Grappling : WeaponBase
     [Networked] public TickTimer HookTravelTimer { get; set; }
     [Networked] public float InitialTravelTime { get; set; }
 
+    public enum GrappleSfxType
+    {
+        Swing,
+        Grapple
+    }
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -56,6 +67,7 @@ public class Grappling : WeaponBase
         // 당겨지는 중(IsPulling)에도 평타를 칠 수 있게 조건 완화
         if (LeftClickTimer.ExpiredOrNotRunning(Runner) && !IsFiring)
         {
+            RPC_PlayNetworkSfx(GrappleSfxType.Swing);
             SwingGrappling();
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.leftClickCoolTime);
         }
@@ -72,6 +84,7 @@ public class Grappling : WeaponBase
 
             if (Physics.Raycast(camPos, camDir, out RaycastHit hit, grappleRange, grappleMask))
             {
+                RPC_PlayNetworkSfx(GrappleSfxType.Grapple);
                 Vector3 finalTarget = hit.point;
                 bool needsVaultCheck = false;
 
@@ -290,4 +303,20 @@ public class Grappling : WeaponBase
     }
 
     protected override void SkillQ() { }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(GrappleSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case GrappleSfxType.Swing: networkAudioSource.PlayOneShot(swingSfx);
+                break;
+
+            case GrappleSfxType.Grapple: networkAudioSource.PlayOneShot(grappleSfx);
+                break;
+        }
+    }
 }
