@@ -29,6 +29,7 @@ public class SpawnPlacementManager : MonoBehaviour
     [Header("Settings")]
     public float gridSize = 1f;
     public int blockedEdgeCellCount = 0;
+    public bool useCircularBoardBounds = false;
     public float markerYOffset = 0.3f;
     public Vector3 spawnCheckHalfExtents = new Vector3(0.4f, 1f, 0.4f);
 
@@ -220,6 +221,9 @@ public class SpawnPlacementManager : MonoBehaviour
         if (!insideBoard)
             return false;
 
+        if (useCircularBoardBounds && !IsSpawnInsideCircularBoard(position, bounds, edgeMargin))
+            return false;
+
         Collider[] overlaps = Physics.OverlapBox(
             new Vector3(position.x, bounds.center.y + 0.5f, position.z),
             spawnCheckHalfExtents,
@@ -354,6 +358,26 @@ public class SpawnPlacementManager : MonoBehaviour
     {
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
         return Mathf.Max(0, blockedEdgeCellCount) * safeGridSize;
+    }
+
+    private bool IsSpawnInsideCircularBoard(Vector3 position, Bounds bounds, float edgeMargin)
+    {
+        float radius = Mathf.Min(bounds.extents.x, bounds.extents.z) - edgeMargin;
+        if (radius <= 0f)
+            return false;
+
+        Vector2 center = new Vector2(bounds.center.x, bounds.center.z);
+        float sqrRadius = radius * radius;
+
+        return IsPointInsideCircle(new Vector2(position.x - spawnCheckHalfExtents.x, position.z - spawnCheckHalfExtents.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x - spawnCheckHalfExtents.x, position.z + spawnCheckHalfExtents.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x + spawnCheckHalfExtents.x, position.z - spawnCheckHalfExtents.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x + spawnCheckHalfExtents.x, position.z + spawnCheckHalfExtents.z), center, sqrRadius);
+    }
+
+    private bool IsPointInsideCircle(Vector2 point, Vector2 center, float sqrRadius)
+    {
+        return (point - center).sqrMagnitude <= sqrRadius + 0.001f;
     }
 
     private bool IsPointerBlockedByUi()

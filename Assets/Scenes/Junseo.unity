@@ -427,12 +427,24 @@ MonoBehaviour:
   placedObjectLayerName: PlacedObject
   gridSize: 1
   blockedEdgeCellCount: 0
+  useCircularBoardBounds: 1
   placeablePrefabs:
   - {fileID: 790361116177392329, guid: f5e5fef8485eb024c8b7dd58cfc3b778, type: 3}
   - {fileID: 171904132062822780, guid: 70760a07e46f7ea4c9da1cc70011acf7, type: 3}
-  - {fileID: 1115943586052242905, guid: c050b1b9acc4ca04fb1df89c450b156d, type: 3}
+  - {fileID: 7035482642403280837, guid: b624beb41e595664a9221c6e29fdf564, type: 3}
   - {fileID: 1866590579267404, guid: 3391e96c014a90540946fff814f3572c, type: 3}
   - {fileID: 1411054063627100, guid: a5b2c973fbd4bcf49b07ded49a003a51, type: 3}
+  - {fileID: 5246857530251915736, guid: 93ca3b3bcd9079b43975731fbdd70957, type: 3}
+  - {fileID: 7975998872709633962, guid: b76de77e9e36a1c44b094c10711555eb, type: 3}
+  - {fileID: 2202114632087129249, guid: 3d7cdd1dea866e046af20a8ff9fcb7af, type: 3}
+  - {fileID: 8174126501031990675, guid: d947dd730f143d34d814b144e8c7eebd, type: 3}
+  - {fileID: 8261624860209068613, guid: 9786a9df393f4134491c67fabcb6c95e, type: 3}
+  - {fileID: 7705379498693962746, guid: ec071114b8fd5d5468111c87b27093d6, type: 3}
+  - {fileID: 3561579029745449286, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+  autoScaleObjectsToFootprint: 1
+  footprintFitPadding: 0.85
+  alignObjectsToBoardSurface: 1
+  boardSurfaceYOffset: 0.02
   randomizeSlotsOnStart: 1
   repeatPrefabsForExtraSlots: 1
   emptySlotLabel: Empty
@@ -3885,7 +3897,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910001002
 Transform:
   m_ObjectHideFlags: 0
@@ -3997,7 +4009,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910002002
 Transform:
   m_ObjectHideFlags: 0
@@ -4109,7 +4121,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910003002
 Transform:
   m_ObjectHideFlags: 0
@@ -4221,7 +4233,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910004002
 Transform:
   m_ObjectHideFlags: 0
@@ -4341,7 +4353,39 @@ MonoBehaviour:
   centerLineColor: {r: 1, g: 1, b: 1, a: 0.35}
   centerLineWidthMultiplier: 2
   centerLineYOffset: 0.12
+  useCircularBoardBounds: 1
   gridRootName: BoardGridLines
+--- !u!114 &910006001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1303445897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72d7353d79f346b8828445dc2790503b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CircularBoardWall
+  boardCollider: {fileID: 2051830065}
+  wallMaterial: {fileID: 2100000, guid: 5fbc0ea41b5ef8341a6ed3bb76258bcf, type: 2}
+  squareWallsToHide:
+  - {fileID: 910001001}
+  - {fileID: 910002001}
+  - {fileID: 910003001}
+  - {fileID: 910004001}
+  - {fileID: 910011001}
+  - {fileID: 910012001}
+  - {fileID: 910013001}
+  - {fileID: 910014001}
+  radiusOffset: 0.25
+  wallThickness: 0.5
+  wallHeight: 4
+  segments: 128
+  createInvisibleTopCollider: 1
+  invisibleTopHeight: 8
+  generatedRootName: CircularBoardWall_Generated
+  fallbackWallColor: {r: 0.14, g: 0.42, b: 0.75, a: 1}
 --- !u!1 &910011001
 GameObject:
   m_ObjectHideFlags: 0
@@ -4358,7 +4402,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910011002
 Transform:
   m_ObjectHideFlags: 0
@@ -4411,7 +4455,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910012002
 Transform:
   m_ObjectHideFlags: 0
@@ -4464,7 +4508,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910013002
 Transform:
   m_ObjectHideFlags: 0
@@ -4517,7 +4561,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &910014002
 Transform:
   m_ObjectHideFlags: 0
@@ -6335,6 +6379,7 @@ MonoBehaviour:
     m_Bits: 512
   gridSize: 1
   blockedEdgeCellCount: 0
+  useCircularBoardBounds: 1
   markerYOffset: 0.3
   spawnCheckHalfExtents: {x: 0.4, y: 1, z: 0.4}
   allowEditorLocalTest: 1
@@ -6764,6 +6809,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1303445898}
   - component: {fileID: 910005001}
+  - component: {fileID: 910006001}
   m_Layer: 0
   m_Name: BoardRoot
   m_TagString: Untagged
@@ -8717,6 +8763,7 @@ GameObject:
   - component: {fileID: 2051830067}
   - component: {fileID: 2051830066}
   - component: {fileID: 2051830065}
+  - component: {fileID: 2051830068}
   m_Layer: 8
   m_Name: BoardPlane
   m_TagString: Untagged
@@ -8760,7 +8807,7 @@ MeshCollider:
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!23 &2051830066
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8817,7 +8864,22 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2051830063}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
+--- !u!114 &2051830068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2051830063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9e42391c32a4281a4657a970830d148, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CircularBoardSurface
+  radius: 5
+  segments: 96
+  rebuildInEditor: 1
 --- !u!1 &2057305800
 GameObject:
   m_ObjectHideFlags: 0

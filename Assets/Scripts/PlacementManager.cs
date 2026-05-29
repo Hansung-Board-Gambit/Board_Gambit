@@ -28,7 +28,14 @@ public class PlacementManager : MonoBehaviour
     [Header("Placement Settings")]
     public float gridSize = 1f;
     public int blockedEdgeCellCount = 0;
+    public bool useCircularBoardBounds = false;
     public GameObject[] placeablePrefabs;
+
+    [Header("Auto Fit")]
+    public bool autoScaleObjectsToFootprint = true;
+    public float footprintFitPadding = 0.85f;
+    public bool alignObjectsToBoardSurface = true;
+    public float boardSurfaceYOffset = 0.02f;
 
     [Header("Slot UI")]
     public bool randomizeSlotsOnStart = true;
@@ -110,7 +117,7 @@ public class PlacementManager : MonoBehaviour
             return;
 
         PlaceableObject previewInfo = previewObject.GetComponent<PlaceableObject>();
-        snappedPosition.y = GetBoardTopY() + (previewInfo != null ? previewInfo.yOffset : 0f);
+        snappedPosition.y = GetPlacementY(previewInfo);
 
         bool canPlace = CanPlace(snappedPosition, previewInfo);
         if (!canPlace)
@@ -120,6 +127,7 @@ public class PlacementManager : MonoBehaviour
         }
 
         previewObject.transform.position = snappedPosition;
+        AlignObjectToBoardSurface(previewObject);
         previewObject.SetActive(true);
         SetPreviewColor(new Color(0f, 1f, 0f, 0.5f));
 
@@ -209,6 +217,13 @@ public class PlacementManager : MonoBehaviour
         GameObject prefab = placeablePrefabs[selectedIndex];
         previewObject = Instantiate(prefab);
         previewObject.name = prefab.name + "_Preview";
+        previewObject.transform.position = Vector3.zero;
+        previewObject.transform.rotation = Quaternion.identity;
+        previewObject.transform.localScale = prefab.transform.localScale;
+
+        PlaceableObject previewInfo = previewObject.GetComponent<PlaceableObject>();
+        EnableRenderers(previewObject);
+        ApplyFootprintScale(previewObject, previewInfo);
 
         DisableColliders(previewObject);
         SetLayerRecursively(previewObject, LayerMask.NameToLayer("Ignore Raycast"));
@@ -238,6 +253,9 @@ public class PlacementManager : MonoBehaviour
             position.z + halfZ <= bounds.max.z - edgeMargin;
 
         if (!insideBoard)
+            return false;
+
+        if (useCircularBoardBounds && !IsFootprintInsideCircularBoard(position, halfX, halfZ, bounds, edgeMargin))
             return false;
 
         Vector3 center = new Vector3(position.x, bounds.center.y + 0.5f, position.z);
@@ -289,12 +307,16 @@ public class PlacementManager : MonoBehaviour
         if (placedParent != null)
             placed.transform.SetParent(placedParent, true);
 
+        PlaceableObject info = placed.GetComponent<PlaceableObject>();
+
         placed.transform.position = position;
         placed.transform.rotation = rotation;
         placed.transform.localScale = prefab.transform.localScale;
         placed.SetActive(true);
 
         int enabledRenderers = EnableRenderers(placed);
+        ApplyFootprintScale(placed, info);
+        AlignObjectToBoardSurface(placed);
         int createdColliders = EnsurePlacementCollider(placed);
         int enabledColliders = EnableColliders(placed);
         int frozenRigidbodies = FreezePlacedRigidbodies(placed);
@@ -311,7 +333,6 @@ public class PlacementManager : MonoBehaviour
             Debug.LogWarning("PlacedObject layer was not found. Keeping placed object on layer " + LayerMask.LayerToName(placed.layer));
         }
 
-        PlaceableObject info = placed.GetComponent<PlaceableObject>();
         string id = info != null ? info.prefabId : prefab.name;
 
         dataStore.SavePlacedObject(id, placed.transform.position, placed.transform.rotation);
@@ -515,6 +536,52 @@ public class PlacementManager : MonoBehaviour
         return boardCollider != null ? boardCollider.bounds.max.y : 0f;
     }
 
+    private float GetPlacementY(PlaceableObject info)
+    {
+        if (alignObjectsToBoardSurface)
+            return GetBoardTopY();
+
+        return GetBoardTopY() + (info != null ? info.yOffset : 0f);
+    }
+
+    private void ApplyFootprintScale(GameObject target, PlaceableObject info)
+    {
+        if (!autoScaleObjectsToFootprint || target == null || info == null)
+            return;
+
+        Bounds bounds;
+        if (!TryGetRendererBounds(target, out bounds))
+            return;
+
+        Vector2 footprint = GetFootprint(info);
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        float targetWidth = footprint.x * safeGridSize * Mathf.Clamp(footprintFitPadding, 0.1f, 1f);
+        float targetDepth = footprint.y * safeGridSize * Mathf.Clamp(footprintFitPadding, 0.1f, 1f);
+
+        float scaleX = bounds.size.x > 0.001f ? targetWidth / bounds.size.x : float.PositiveInfinity;
+        float scaleZ = bounds.size.z > 0.001f ? targetDepth / bounds.size.z : float.PositiveInfinity;
+        float scaleFactor = Mathf.Min(scaleX, scaleZ);
+
+        if (float.IsNaN(scaleFactor) || float.IsInfinity(scaleFactor) || scaleFactor <= 0f)
+            return;
+
+        target.transform.localScale *= scaleFactor;
+    }
+
+    private void AlignObjectToBoardSurface(GameObject target)
+    {
+        if (!alignObjectsToBoardSurface || target == null)
+            return;
+
+        Bounds bounds;
+        if (!TryGetRendererBounds(target, out bounds))
+            return;
+
+        Vector3 position = target.transform.position;
+        position.y += GetBoardTopY() + boardSurfaceYOffset - bounds.min.y;
+        target.transform.position = position;
+    }
+
     private Vector2 GetFootprint(PlaceableObject info)
     {
         if (info == null)
@@ -543,6 +610,26 @@ public class PlacementManager : MonoBehaviour
     {
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
         return Mathf.Max(0, blockedEdgeCellCount) * safeGridSize;
+    }
+
+    private bool IsFootprintInsideCircularBoard(Vector3 position, float halfX, float halfZ, Bounds bounds, float edgeMargin)
+    {
+        float radius = Mathf.Min(bounds.extents.x, bounds.extents.z) - edgeMargin;
+        if (radius <= 0f)
+            return false;
+
+        Vector2 center = new Vector2(bounds.center.x, bounds.center.z);
+        float sqrRadius = radius * radius;
+
+        return IsPointInsideCircle(new Vector2(position.x - halfX, position.z - halfZ), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x - halfX, position.z + halfZ), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x + halfX, position.z - halfZ), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(position.x + halfX, position.z + halfZ), center, sqrRadius);
+    }
+
+    private bool IsPointInsideCircle(Vector2 point, Vector2 center, float sqrRadius)
+    {
+        return (point - center).sqrMagnitude <= sqrRadius + 0.001f;
     }
 
     private void EnsureMainCameraRendersLayer(int layer)

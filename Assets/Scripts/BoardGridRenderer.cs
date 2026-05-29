@@ -17,6 +17,7 @@ public class BoardGridRenderer : MonoBehaviour
     public Color centerLineColor = new Color(1f, 1f, 1f, 0.35f);
     public float centerLineWidthMultiplier = 2f;
     public float centerLineYOffset = 0.12f;
+    public bool useCircularBoardBounds = false;
     public string gridRootName = "BoardGridLines";
 
     private Material lineMaterial;
@@ -92,11 +93,15 @@ public class BoardGridRenderer : MonoBehaviour
             if (drawCenterX && Mathf.Abs(x - centerX) <= 0.001f)
                 continue;
 
+            float zLength = bounds.size.z;
+            if (useCircularBoardBounds && !TryGetCircleLineLength(x, bounds.center.x, GetBoardRadius(bounds), out zLength))
+                continue;
+
             CreateGridBar(
                 gridRoot,
                 "GridLine_X",
                 new Vector3(x, y, bounds.center.z),
-                new Vector3(width, height, bounds.size.z),
+                new Vector3(width, height, zLength),
                 material
             );
         }
@@ -106,11 +111,15 @@ public class BoardGridRenderer : MonoBehaviour
             if (drawCenterZ && Mathf.Abs(z - centerZ) <= 0.001f)
                 continue;
 
+            float xLength = bounds.size.x;
+            if (useCircularBoardBounds && !TryGetCircleLineLength(z, bounds.center.z, GetBoardRadius(bounds), out xLength))
+                continue;
+
             CreateGridBar(
                 gridRoot,
                 "GridLine_Z",
                 new Vector3(bounds.center.x, y, z),
-                new Vector3(bounds.size.x, height, width),
+                new Vector3(xLength, height, width),
                 material
             );
         }
@@ -118,22 +127,30 @@ public class BoardGridRenderer : MonoBehaviour
         float centerLineY = y + Mathf.Max(0.001f, centerLineYOffset);
         if (drawCenterX)
         {
+            float zLength = bounds.size.z;
+            if (useCircularBoardBounds)
+                TryGetCircleLineLength(centerX, bounds.center.x, GetBoardRadius(bounds), out zLength);
+
             CreateGridBar(
                 gridRoot,
                 "GridLine_CenterX",
                 new Vector3(centerX, centerLineY, bounds.center.z),
-                new Vector3(centerWidth, height, bounds.size.z),
+                new Vector3(centerWidth, height, zLength),
                 centerMaterial
             );
         }
 
         if (drawCenterZ)
         {
+            float xLength = bounds.size.x;
+            if (useCircularBoardBounds)
+                TryGetCircleLineLength(centerZ, bounds.center.z, GetBoardRadius(bounds), out xLength);
+
             CreateGridBar(
                 gridRoot,
                 "GridLine_CenterZ",
                 new Vector3(bounds.center.x, centerLineY, centerZ),
-                new Vector3(bounds.size.x, height, centerWidth),
+                new Vector3(xLength, height, centerWidth),
                 centerMaterial
             );
         }
@@ -252,6 +269,24 @@ public class BoardGridRenderer : MonoBehaviour
     private float SnapToGrid(float value, float safeGridSize)
     {
         return Mathf.Round(value / safeGridSize) * safeGridSize;
+    }
+
+    private float GetBoardRadius(Bounds bounds)
+    {
+        return Mathf.Min(bounds.extents.x, bounds.extents.z);
+    }
+
+    private bool TryGetCircleLineLength(float linePosition, float circleCenterOnLineAxis, float radius, out float length)
+    {
+        length = 0f;
+
+        float distanceFromCenter = Mathf.Abs(linePosition - circleCenterOnLineAxis);
+        if (distanceFromCenter > radius)
+            return false;
+
+        float halfLength = Mathf.Sqrt(Mathf.Max(0f, radius * radius - distanceFromCenter * distanceFromCenter));
+        length = Mathf.Max(0.001f, halfLength * 2f);
+        return true;
     }
 
     private void SetMaterialColor(Material material, Color color)
