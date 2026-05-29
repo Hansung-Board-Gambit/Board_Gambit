@@ -1,10 +1,5 @@
 fileFormatVersion: 2
 guid: 70760a07e46f7ea4c9da1cc70011acf7
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 354940
@@ -12,3 +7,8 @@ AssetOrigin:
   packageVersion: 1.0
   assetPath: Assets/Sci-fi Jumpad Orbit Platform/Prefab/Jumpad_03.prefab
   uploadId: 845780
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
