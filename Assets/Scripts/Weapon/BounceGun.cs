@@ -17,7 +17,6 @@ public class BounceGun : WeaponBase
     [SerializeField] AudioSource networkAudioSource;  // 3D
     [SerializeField] AudioClip normalShotSfx; // 좌클릭 발사
     [SerializeField] AudioClip bounceShotSfx; // 우클릭 발사
-    [SerializeField] AudioClip bounceHitSfx;  // 튕길 때
     [SerializeField] AudioClip reloadSfx;     // 재장전 (로컬)
 
 
@@ -27,7 +26,6 @@ public class BounceGun : WeaponBase
     {
         NormalShot,
         BounceShot,
-        BounceHit
     }
 
     public override void Init(PlayerWeapon owner, WeaponData data)
@@ -59,6 +57,19 @@ public class BounceGun : WeaponBase
         }
     }
 
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        // 기존 WeaponBase 재장전 실행
+        base.CheckReload(data, prevButtons);
+
+        // 로컬 효과음만 재생
+        if (data.buttons.WasPressed(prevButtons, MyButtons.Reload)
+            && CurrentAmmo < rangedWeapon.MaxAmmo)
+        {
+            PlayLocalSfx(reloadSfx);
+        }
+    }
+
     private void SpawnProjectile(int bounceCount)
     {
         if(HasStateAuthority)
@@ -87,14 +98,7 @@ public class BounceGun : WeaponBase
             //소환된 투사체에게 방향과 튕길 횟수 전달
             BounceProjectile proj = obj.GetComponent<BounceProjectile>();
             proj.InitProjectile(shootDirection, bounceCount, Object.InputAuthority);
-
-            proj.SetBounceGun(this);
         }
-    }
-
-    public void PlayBounceHitSfx()
-    {
-        RPC_PlayNetworkSfx(BounceGunSfxType.BounceHit);
     }
 
     void PlayLocalSfx(AudioClip clip)
@@ -117,9 +121,6 @@ public class BounceGun : WeaponBase
                 break;
 
             case BounceGunSfxType.BounceShot: networkAudioSource.PlayOneShot(bounceShotSfx);
-                break;
-
-            case BounceGunSfxType.BounceHit: networkAudioSource.PlayOneShot(bounceHitSfx);
                 break;
         }
     }
