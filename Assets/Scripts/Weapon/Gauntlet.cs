@@ -19,7 +19,16 @@ public class Gauntlet : WeaponBase
     [SerializeField] int shockwaveBaseDamage = 0;
     [SerializeField] int wallDamage = 50;
     [SerializeField] LayerMask environmentLayer;
+    [Header("»ç¿îµå")]
+    [SerializeField] AudioSource networkAudioSource;
+    [SerializeField] AudioClip punchSfx;
+    [SerializeField] AudioClip shockwaveSfx;
 
+    public enum GauntletSfxType
+    {
+        Punch,
+        Shockwave
+    }
 
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
@@ -32,6 +41,7 @@ public class Gauntlet : WeaponBase
     {
         if(LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
+            RPC_PlayNetworkSfx(GauntletSfxType.Punch);
             Punch();
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.leftClickCoolTime);
         }
@@ -41,6 +51,7 @@ public class Gauntlet : WeaponBase
     {
        if(RightClickTimer.ExpiredOrNotRunning(Runner))
        {
+            RPC_PlayNetworkSfx(GauntletSfxType.Shockwave);
             ShockWave();
             RightClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.rightClickCoolTime);
        }
@@ -117,14 +128,25 @@ public class Gauntlet : WeaponBase
                 
                     targetPlayer.RPC_ApplyKnockback(pushDir * shockPower, duration);
                 }
-
-
             }
         }
-
-
     }
 
     protected override void SkillQ() { }
-  
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(GauntletSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case GauntletSfxType.Punch: networkAudioSource.PlayOneShot(punchSfx);
+                break;
+
+            case GauntletSfxType.Shockwave: networkAudioSource.PlayOneShot(shockwaveSfx);
+                break;
+        }
+    }
 }

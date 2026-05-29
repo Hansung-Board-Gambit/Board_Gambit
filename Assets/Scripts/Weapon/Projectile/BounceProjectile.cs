@@ -10,6 +10,7 @@ public class BounceProjectile : NetworkBehaviour
     [SerializeField] float explosionRadius = 3f;
     [SerializeField] RangedWeapon rangedData;
     public LayerMask hitLayer;
+    private BounceGun bounceGun;
 
     [Networked] public int BounceCount { get; set; }
     [Networked] public Vector3 Velocity { get; set; }
@@ -108,5 +109,10 @@ public class BounceProjectile : NetworkBehaviour
         }
 
         Runner.Despawn(Object);
+    }
+
+    public void SetBounceGun(BounceGun gun)
+    {
+        bounceGun = gun;
     }
 }

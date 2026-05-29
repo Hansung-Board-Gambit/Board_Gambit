@@ -12,8 +12,24 @@ public class BounceGun : WeaponBase
     [SerializeField] int bounceTime = 3;
     [SerializeField] int lineSegments = 30;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;    // 2D
+    [SerializeField] AudioSource networkAudioSource;  // 3D
+    [SerializeField] AudioClip normalShotSfx; // 좌클릭 발사
+    [SerializeField] AudioClip bounceShotSfx; // 우클릭 발사
+    [SerializeField] AudioClip bounceHitSfx;  // 튕길 때
+    [SerializeField] AudioClip reloadSfx;     // 재장전 (로컬)
+
 
     private RangedWeapon rangedWeapon;
+
+    public enum BounceGunSfxType
+    {
+        NormalShot,
+        BounceShot,
+        BounceHit
+    }
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -26,6 +42,7 @@ public class BounceGun : WeaponBase
         if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
+            RPC_PlayNetworkSfx(BounceGunSfxType.NormalShot);
             SpawnProjectile(0);
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedData.leftClickCoolTime);
         }
@@ -37,6 +54,7 @@ public class BounceGun : WeaponBase
         if(CurrentAmmo >= 2)
         {
             CurrentAmmo -= 2;
+            RPC_PlayNetworkSfx(BounceGunSfxType.BounceShot);
             SpawnProjectile(bounceTime);
         }
     }
@@ -70,6 +88,39 @@ public class BounceGun : WeaponBase
             BounceProjectile proj = obj.GetComponent<BounceProjectile>();
             proj.InitProjectile(shootDirection, bounceCount, Object.InputAuthority);
 
+            proj.SetBounceGun(this);
+        }
+    }
+
+    public void PlayBounceHitSfx()
+    {
+        RPC_PlayNetworkSfx(BounceGunSfxType.BounceHit);
+    }
+
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (clip == null || localAudioSource == null)
+            return;
+
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(BounceGunSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case BounceGunSfxType.NormalShot: networkAudioSource.PlayOneShot(normalShotSfx);
+                break;
+
+            case BounceGunSfxType.BounceShot: networkAudioSource.PlayOneShot(bounceShotSfx);
+                break;
+
+            case BounceGunSfxType.BounceHit: networkAudioSource.PlayOneShot(bounceHitSfx);
+                break;
         }
     }
 

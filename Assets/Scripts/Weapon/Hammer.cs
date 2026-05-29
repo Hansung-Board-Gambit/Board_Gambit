@@ -28,6 +28,15 @@ public class Hammer : WeaponBase
     [Header("타격 판정-논리용")]
     [SerializeField] float hitDelay = 0.2f;
 
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;
+    [SerializeField] AudioSource networkAudioSource;
+    [SerializeField] AudioClip swingSfx;       // 좌클릭 - 네트워크 공유
+    [SerializeField] AudioClip dashSfx;        // 우클릭 - 네트워크 공유
+    [SerializeField] AudioClip plungeStartSfx; // Q 시작 - 로컬만
+    [SerializeField] AudioClip slamSfx;        // 착지 강타 - 네트워크 공유
+
+
     //서버용 타이머
     [Networked] public TickTimer HitTimer {  get; set; }
     //원래 망치 각도
@@ -44,6 +53,13 @@ public class Hammer : WeaponBase
     [Networked] public Vector3 DashDir { get; set; }
 
 
+    public enum HammerSfxType
+    {
+        Swing,
+        Dash,
+        Slam
+    }
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
@@ -55,6 +71,7 @@ public class Hammer : WeaponBase
     {
         if(LeftClickTimer.ExpiredOrNotRunning(Runner) && !isSwinging)
         {
+            RPC_PlayNetworkSfx(HammerSfxType.Swing);
             //나중에 애니메이션 추가후 swingHammer는 제거 -> 애니메이션과 연결, add animation event 연결
             //모션 시작
             if (hammerModel != null) StartCoroutine(SwingMotion());
@@ -69,6 +86,7 @@ public class Hammer : WeaponBase
     {
         if(RightClickTimer.ExpiredOrNotRunning(Runner))
         {
+            RPC_PlayNetworkSfx(HammerSfxType.Dash);
             Vector3 tempDir = myPlayer.fpsCamera.transform.forward;
             tempDir.y = 0f;
             if(tempDir.sqrMagnitude > 0.01f)
@@ -95,18 +113,17 @@ public class Hammer : WeaponBase
     protected override void SkillQ()
     {
         if(!SkillQTimer.ExpiredOrNotRunning(Runner))
-        {
             return;
-        }
         Vector3 rayStartPos = transform.position + (Vector3.down * 1.1f);
         int floorMask = ~LayerMask.GetMask("Player");
 
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f,floorMask))
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f, floorMask))
         {
             float actualHeight = hit.distance + 1.1f;
 
             if (actualHeight >= minPlungeHeight && !IsPlunging)
             {
+                PlayLocalSfx(plungeStartSfx);
                 StartPlunge();
                 SkillQTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.skillQCoolTime);
             }
@@ -121,8 +138,7 @@ public class Hammer : WeaponBase
     {
         if (myPlayer == null) return;
 
-        Vector3 boxCenter = myPlayer.fpsCamera.transform.position +
-            myPlayer.fpsCamera.transform.forward * (meleeWeapon.range / 2f);
+        Vector3 boxCenter = myPlayer.fpsCamera.transform.position + myPlayer.fpsCamera.transform.forward * (meleeWeapon.range / 2f);
         Vector3 boxSize = new Vector3(attackWidth, 2f, meleeWeapon.range);
 
         var hits = new System.Collections.Generic.List<LagCompensatedHit>();
@@ -208,7 +224,7 @@ public class Hammer : WeaponBase
         {
             myPlayer.Controller.Move(Vector3.down * plungeSpeed * Runner.DeltaTime);
 
-            if(myPlayer.Controller.Grounded)
+            if(myPlayer.Controller.Grounded && HasStateAuthority)
             {
                 LandSlam();
             }
@@ -235,7 +251,9 @@ public class Hammer : WeaponBase
     private void LandSlam()
     {
         IsPlunging = false;
-        if(HasStateAuthority)
+        RPC_PlayNetworkSfx(HammerSfxType.Slam);
+
+        if (HasStateAuthority)
         {
             var hits = new System.Collections.Generic.List<LagCompensatedHit>();
             Runner.LagCompensation.OverlapSphere(transform.position, slamRadius,
@@ -262,6 +280,34 @@ public class Hammer : WeaponBase
         else
         {
             myPlayer.ReleasePlungeCameraLock();
+        }
+    }
+
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (clip == null || localAudioSource == null)
+            return;
+
+        localAudioSource.spatialBlend = 0f; // 2D 강제
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(HammerSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case HammerSfxType.Swing: networkAudioSource.PlayOneShot(swingSfx);
+                break;
+
+            case HammerSfxType.Dash: networkAudioSource.PlayOneShot(dashSfx);
+                break;
+
+            case HammerSfxType.Slam: networkAudioSource.PlayOneShot(slamSfx);
+                break;
         }
     }
 }
