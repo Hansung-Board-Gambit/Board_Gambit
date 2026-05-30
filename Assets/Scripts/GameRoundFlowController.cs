@@ -59,6 +59,16 @@ public class GameRoundFlowController : MonoBehaviour
     public TextMeshProUGUI hostScoreText;
     public TextMeshProUGUI guestScoreText;
 
+    [Header("BGM")]
+    [SerializeField] AudioSource bgmSource;
+    [SerializeField] AudioClip prepBgm;
+    [SerializeField] AudioClip battleBgm;
+
+    [Header("Result SFX")]
+    [SerializeField] AudioSource resultAudioSource;
+    [SerializeField] AudioClip victorySfx;
+    [SerializeField] AudioClip defeatSfx;
+
     public GameRoundPhase CurrentPhase { get; private set; } = GameRoundPhase.Preparation;
 
     private Coroutine battleRoutine;
@@ -74,6 +84,9 @@ public class GameRoundFlowController : MonoBehaviour
 
     private void Awake()
     {
+        if (SoundManager.instance != null)
+            SoundManager.instance.bgmSource.Stop();
+
         if (prepFlow == null)
             prepFlow = GetComponent<PrepPhaseFlowUI>();
 
@@ -86,6 +99,8 @@ public class GameRoundFlowController : MonoBehaviour
         if (preparationCamera == null)
             preparationCamera = Camera.main;
 
+        AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.5f);
+
         GameInputGate.Unlock();
         victoryPanel.SetActive(false);
         defeatPanel.SetActive(false);
@@ -94,6 +109,7 @@ public class GameRoundFlowController : MonoBehaviour
         SetLocalBattleControlActive(false);
         SetBattleHudVisible(false);
         SetCountdownVisible(false);
+        PlayPrepBgm();
         UpdatePhaseText();
     }
 
@@ -142,6 +158,8 @@ public class GameRoundFlowController : MonoBehaviour
     public void StartNextPreparation()
     {
         roundIndex++;
+
+        PlayPrepBgm();
 
         if (LobbyState.Instance != null)
             LobbyState.Instance.AdvancePrepRound();
@@ -216,6 +234,7 @@ public class GameRoundFlowController : MonoBehaviour
         yield return new WaitForSeconds(0.75f);
 
         CurrentPhase = GameRoundPhase.Battle;
+        PlayBattleBgm();
         RequestBattlePlayerSpawn();
         SetPreparationCameraVisible(false);
         SetLocalBattleControlActive(true);
@@ -385,8 +404,13 @@ public class GameRoundFlowController : MonoBehaviour
 
     private bool ShouldStartNextRound()
     {
-        int targetRoundCount = LobbyState.Instance != null ? Mathf.Max(2, LobbyState.Instance.gameValue) : 2;
-        return roundIndex < targetRoundCount;
+        int targetScore = LobbyState.Instance.gameValue;
+
+        if (latestHostScore >= targetScore || latestGuestScore >= targetScore)
+        {
+            return false;
+        }
+        return true;
     }
 
     private void SetSpawnMarkersVisible(bool visible)
@@ -854,6 +878,8 @@ public class GameRoundFlowController : MonoBehaviour
 
     private void ShowRoundResultUI()
     {
+        PlayResultSfx();
+
         battleHudRoot.SetActive(false);
         resultHudRoot.SetActive(true);
         victoryPanel.SetActive(false);
@@ -869,5 +895,33 @@ public class GameRoundFlowController : MonoBehaviour
             victoryPanel.SetActive(true);
         else
             defeatPanel.SetActive(true);
+    }
+
+    private void PlayPrepBgm()
+    {
+        if (bgmSource.clip == prepBgm && bgmSource.isPlaying)
+            return;
+
+        bgmSource.Stop();
+        bgmSource.clip = prepBgm;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
+    private void PlayBattleBgm()
+    {
+        bgmSource.Stop();
+        bgmSource.clip = battleBgm;
+        bgmSource.loop = true;
+        bgmSource.Play();
+    }
+
+    private void PlayResultSfx()
+    {
+        bgmSource.Stop();
+
+        bool isHost = LobbyState.Instance.Runner.IsServer;
+        bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
+        resultAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
     }
 }

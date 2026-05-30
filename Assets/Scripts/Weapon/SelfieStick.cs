@@ -92,8 +92,6 @@ public class SelfieStick : WeaponBase
             (myPlayer.fpsCamera.transform.localRotation) * (-myPlayer.weaponCameraOffset);
     }
 
-
-
     public override void OnFixedUpdateNetwork()
     {
         base.OnFixedUpdateNetwork();

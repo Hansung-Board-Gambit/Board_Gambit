@@ -13,34 +13,11 @@ public class SoundManager : MonoBehaviour
 
     void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
-        }
+        instance = this;
 
         AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.5f);
-    }
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        switch (scene.name)
-        {
-            case "Jinsoo2":
-                ChangeBGM(mainBgm);
-                break;
-
-            case "Junseo":
-                ChangeBGM(gameBgm);
-                break;
-        }
+        ChangeBGM(mainBgm);
     }
 
     public void ChangeBGM(AudioClip clip)

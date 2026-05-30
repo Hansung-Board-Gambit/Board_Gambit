@@ -32,7 +32,7 @@ public class Player : NetworkBehaviour
     [SerializeField] AudioClip trailEnterSfx;
     [SerializeField] AudioClip jumpSfx;
 
-    [SerializeField] float footstepDistance = 1.3f;
+    [SerializeField] float footstepDistance = 3f;
 
     private Vector3 lastFootstepPosition;
     private bool wasOnTrail;
@@ -90,6 +90,7 @@ public class Player : NetworkBehaviour
 
     public override void Spawned()
     {
+        Debug.Log($"PLAYER SPAWN: {Object.Id} | Input={Object.InputAuthority} | State={HasStateAuthority}");
         Debug.Log("Player Spawned. InputAuthority=" + Object.InputAuthority + ", HasInputAuthority=" + HasInputAuthority + ", HasStateAuthority=" + HasStateAuthority);
 
         rend = GetComponent<Renderer>();
@@ -100,21 +101,22 @@ public class Player : NetworkBehaviour
         lastFootstepPosition = transform.position;
 
         // Host 색상
-        if (Object.InputAuthority.PlayerId == 1)
+        if (rend == null)
         {
-            rend.material.color = Color.red;
+            Debug.LogWarning("Renderer 없음");
+            return;
         }
-        else
-        {
-            int id = Object.InputAuthority.PlayerId % 3;
 
-            if (id == 0)
-                rend.material.color = Color.blue;
-            else if (id == 1)
-                rend.material.color = Color.yellow;
-            else
-                rend.material.color = Color.green;
-        }
+        int id = Object.InputAuthority.PlayerId % 3;
+
+        if (Object.InputAuthority.PlayerId == 1)
+            rend.material.color = Color.red;
+        else if (id == 0)
+            rend.material.color = Color.blue;
+        else if (id == 1)
+            rend.material.color = Color.yellow;
+        else
+            rend.material.color = Color.green;
 
         SetBattleControlActive(ShouldStartVisibleInBattle());
     }
@@ -448,6 +450,7 @@ public class Player : NetworkBehaviour
                 // 점프 처리
                 if (data.jump && controller.Grounded)
                 {
+                    Debug.Log("JUMP");
                     controller.Jump();
                     AnimJumpCount++;
 

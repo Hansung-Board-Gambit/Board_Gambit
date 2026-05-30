@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -74,8 +75,17 @@ public class PlacementManager : MonoBehaviour
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
 
+    [Header("Sound")]
+    public AudioSource sfxSource;
+    public AudioClip selectSfx;
+    public AudioClip placeSfx;
+    public AudioClip deleteSfx;
+    public AudioClip rotateSfx;
+    public AudioClip errorSfx;
+
     private const float PlacementRotationStepDegrees = 90f;
 
+    private bool wasCantPlace;
     private PlacementToolMode currentToolMode = PlacementToolMode.Place;
     private int selectedIndex = -1;
     private int placementRotationSteps;
@@ -85,6 +95,13 @@ public class PlacementManager : MonoBehaviour
     private Image placeModeButtonBackground;
     private Image deleteModeButtonBackground;
     private readonly List<SlotPreviewBinding> slotPreviewBindings = new List<SlotPreviewBinding>();
+    private HashSet<Vector3> deleteSfxCooldown = new HashSet<Vector3>();
+
+    private IEnumerator RemoveDeleteCooldown(Vector3 pos)
+    {
+        yield return null; // 1프레임만 막기
+        deleteSfxCooldown.Remove(pos);
+    }
 
     private void OnEnable()
     {
@@ -175,12 +192,11 @@ public class PlacementManager : MonoBehaviour
         bool canPlace = CanPlace(snappedPosition, previewInfo, placementRotation);
         SetPreviewColor(canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f));
 
-        if (!canPlace)
-            return;
+        wasCantPlace = false;
 
         if (Input.GetMouseButtonDown(0))
         {
-            PlaceSelectedObject(snappedPosition);
+            PlaceSelectedObject(snappedPosition, canPlace);
         }
     }
 
@@ -199,6 +215,7 @@ public class PlacementManager : MonoBehaviour
             Debug.LogWarning("SelectObject ignored because no prefab is assigned for slot index = " + index);
             return;
         }
+        PlaySfx(selectSfx);
 
         Debug.Log("SelectObject called, slot index = " + index + ", prefab index = " + prefabIndex);
 
@@ -206,7 +223,7 @@ public class PlacementManager : MonoBehaviour
         selectedIndex = prefabIndex;
         placementRotationSteps = 0;
         DestroyPreview();
-        EnsurePreviewExists();
+        //EnsurePreviewExists();
     }
 
     public void SetPlaceMode()
@@ -329,22 +346,35 @@ public class PlacementManager : MonoBehaviour
         return overlaps.Length == 0;
     }
 
-    private void PlaceSelectedObject(Vector3 position)
+    private void PlaceSelectedObject(Vector3 position, bool canPlace)
     {
-        if (dataStore == null || !HasValidSelection())
+        Quaternion rotation = GetPlacementRotation();
+        PlaceableObject info = placeablePrefabs[selectedIndex].GetComponent<PlaceableObject>();
+
+        if (!dataStore.CanSpendPoint())
+        {
+            PlaySfx(errorSfx); // 포인트 부족은 항상 울림
             return;
+        }
+
+        if (!canPlace)
+        {
+            PlaySfx(errorSfx); // 빨간 상태 클릭 시 1회 울림
+            return;
+        }
+
+        PlaySfx(placeSfx); // 성공 시에만
 
         int prefabIndex = selectedIndex;
-        Quaternion placementRotation = GetPlacementRotation();
         CancelSelection();
 
         if (LobbyState.Instance != null)
         {
-            LobbyState.Instance.RequestPlacePrepObject(prefabIndex, position, placementRotation);
+            LobbyState.Instance.RequestPlacePrepObject(prefabIndex, position, rotation);
             return;
         }
 
-        CreatePlacedObject(prefabIndex, position, placementRotation);
+        CreatePlacedObject(prefabIndex, position, rotation);
     }
 
     private void HandleNetworkObjectPlaced(int prefabIndex, Vector3 position, Quaternion rotation)
@@ -475,8 +505,19 @@ public class PlacementManager : MonoBehaviour
     private void DeletePlacedObjectAt(Vector3 position)
     {
         GameObject placedObject = FindPlacedObjectByPosition(position);
+
         if (placedObject != null)
+        {
             Destroy(placedObject);
+
+            // 중복 방지 (한 프레임/한 위치 기준)
+            if (!deleteSfxCooldown.Contains(position))
+            {
+                PlaySfx(deleteSfx);
+                deleteSfxCooldown.Add(position);
+                StartCoroutine(RemoveDeleteCooldown(position));
+            }
+        }
 
         if (dataStore != null && dataStore.RemovePlacedObject(position, deletePositionTolerance))
         {
@@ -790,6 +831,7 @@ public class PlacementManager : MonoBehaviour
 
     private void RotateSelection()
     {
+        PlaySfx(rotateSfx);
         placementRotationSteps = (placementRotationSteps + 1) % 4;
 
         if (previewObject == null)
@@ -1469,5 +1511,11 @@ public class PlacementManager : MonoBehaviour
         target.layer = layer;
         foreach (Transform child in target.transform)
             SetLayerRecursively(child.gameObject, layer);
+    }
+
+    private void PlaySfx(AudioClip clip)
+    {
+        if (clip == null || sfxSource == null) return;
+        sfxSource.PlayOneShot(clip);
     }
 }

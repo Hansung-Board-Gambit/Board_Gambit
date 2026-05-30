@@ -23,7 +23,6 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public TMP_Text warningText;  //방 코드 에러 문구
     public TMP_InputField roomInput;  //방 코드 입력창
     public TMP_Text roomCode;  //입력된 방 코드
-    public Button cancelButton;  //캔슬 버튼
 
     // 로비 씬 요소
     public TMP_Text valueText; //승점 
@@ -214,6 +213,13 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
+        CanvasGroup cg = JoinPanel.GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
+        }
+
         Debug.Log("입력된 RoomCode: " + roomID);
 
         StartClient(roomID);
@@ -224,8 +230,6 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         if (isJoining) return;
         isJoining = true;
-
-        if (cancelButton != null) cancelButton.interactable = false;
 
         Debug.Log("StartClient 받은 코드: " + roomID);
 
@@ -264,7 +268,12 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             MainUI.interactable = false;
             MainUI.blocksRaycasts = false;
 
-            if (cancelButton != null) cancelButton.interactable = true;
+            CanvasGroup cg = JoinPanel.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.interactable = true;
+                cg.blocksRaycasts = true;
+            }
 
             isJoining = false;
             return;
@@ -273,7 +282,6 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         warningText.text = "";
         JoinPanel.SetActive(false);
 
-        if (cancelButton != null) cancelButton.interactable = true;
         StartCoroutine(SetGuestNameAfterSpawn());
 
         InitCanvas.SetActive(false);
@@ -355,6 +363,8 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public async void ExitRoom()
     {
+        CanvasGroup joinGroup = JoinPanel.GetComponent<CanvasGroup>();
+
         if (isExitingRoom)
             return;
 
@@ -393,6 +403,12 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
                 roomInput.text = "";
 
             ResetLobbyUI();
+
+            if (joinGroup != null)
+            {
+                joinGroup.interactable = true;
+                joinGroup.blocksRaycasts = true;
+            }
 
             Debug.Log("방에서 나감");
         }

@@ -572,7 +572,6 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
     private void SelectEquipment(int localIndex)
     {
-        
         if (currentPhaseIndex != 2)
             return;
 
