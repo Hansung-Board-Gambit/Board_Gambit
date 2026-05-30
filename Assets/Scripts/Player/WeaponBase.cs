@@ -12,6 +12,8 @@ public abstract class WeaponBase : NetworkBehaviour
 
     protected Camera fpsCam;
 
+    protected float lastEmptyAmmoTime;
+
 
     //본인 컴퓨터에서만 변화가 일어나는게 아닌 서버 전체에서 변화가 일어나게 하려 사용
     //탄약 관리
@@ -28,6 +30,22 @@ public abstract class WeaponBase : NetworkBehaviour
 
     //시점 고정 쿨타임
     [Networked] public TickTimer CamFixTimer { get; set; }
+
+    protected bool HasAmmo()
+    {
+        if (CurrentAmmo > 0)
+            return true;
+
+        if (Time.time - lastEmptyAmmoTime > 0.3f)
+        {
+            lastEmptyAmmoTime = Time.time;
+
+            if (HasInputAuthority)
+                player.PlayEmptyAmmoSound();
+        }
+
+        return false;
+    }
 
     public virtual void Init(PlayerWeapon owner, WeaponData data)
     {

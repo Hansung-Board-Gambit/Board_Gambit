@@ -23,6 +23,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public TMP_Text warningText;  //방 코드 에러 문구
     public TMP_InputField roomInput;  //방 코드 입력창
     public TMP_Text roomCode;  //입력된 방 코드
+    public Button cancelButton;  //캔슬 버튼
 
     // 로비 씬 요소
     public TMP_Text valueText; //승점 
@@ -224,6 +225,8 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         if (isJoining) return;
         isJoining = true;
 
+        if (cancelButton != null) cancelButton.interactable = false;
+
         Debug.Log("StartClient 받은 코드: " + roomID);
 
         ResetRunner();
@@ -260,6 +263,9 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             ResetRunner();
             MainUI.interactable = false;
             MainUI.blocksRaycasts = false;
+
+            if (cancelButton != null) cancelButton.interactable = true;
+
             isJoining = false;
             return;
         }
@@ -267,6 +273,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         warningText.text = "";
         JoinPanel.SetActive(false);
 
+        if (cancelButton != null) cancelButton.interactable = true;
         StartCoroutine(SetGuestNameAfterSpawn());
 
         InitCanvas.SetActive(false);

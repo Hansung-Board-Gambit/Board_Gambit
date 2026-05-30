@@ -25,6 +25,16 @@ public class Player : NetworkBehaviour
     [SerializeField] float trailSpawnDistance = 1f;
     [Header("건틀릿 날아가는 시간")]
     [SerializeField] public float flyingTime = 0.25f;
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;
+    [SerializeField] AudioClip footstepSfx;
+    [SerializeField] AudioClip trailEnterSfx;
+    [SerializeField] AudioClip jumpSfx;
+
+    [SerializeField] float footstepDistance = 1.3f;
+
+    private Vector3 lastFootstepPosition;
+    private bool wasOnTrail;
 
     //페인트 탄 관련 네트워크 변수
     [Networked] public TickTimer TrailDebuffTimer {  get; set; }
@@ -68,6 +78,8 @@ public class Player : NetworkBehaviour
 
         rend = GetComponent<Renderer>();
         controller = GetComponent<NetworkCharacterController>();
+
+        lastFootstepPosition = transform.position;
 
         // Host 색상
         if (Object.InputAuthority.PlayerId == 1)
@@ -364,6 +376,16 @@ public class Player : NetworkBehaviour
                     }
                 }
 
+                if (isOnTrail && !wasOnTrail)
+                {
+                    if (HasInputAuthority)
+                    {
+                        localAudioSource.PlayOneShot(trailEnterSfx);
+                    }
+                }
+
+                wasOnTrail = isOnTrail;
+
                 if (isOnTrail)
                 {
                     currentSpeed *= trailSpeedUp;
@@ -373,10 +395,30 @@ public class Player : NetworkBehaviour
                 // 최종 물리 이동 실행 (반드시 회전보다 먼저 일어나야 합니다!)
                 controller.Move(currentSpeed * moveDirection * Runner.DeltaTime);
 
+                if (HasInputAuthority && controller.Grounded && moveDirection.sqrMagnitude > 0.01f)
+                {
+                    float movedDistance = Vector3.Distance(transform.position, lastFootstepPosition);
+
+                    if (movedDistance >= footstepDistance)
+                    {
+                        localAudioSource.PlayOneShot(footstepSfx);
+                        lastFootstepPosition = transform.position;
+                    }
+                }
+                else
+                {
+                    lastFootstepPosition = transform.position;
+                }
+
                 // 점프 처리
                 if (data.jump && controller.Grounded)
                 {
                     controller.Jump();
+
+                    if (HasInputAuthority)
+                    {
+                        localAudioSource.PlayOneShot(jumpSfx);
+                    }
                 }
             }
 
