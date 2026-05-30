@@ -150,6 +150,8 @@ public class PlayerWeapon : NetworkBehaviour
 
     public void OnWeaponIndexChanged()
     {
+        TargetFOV = defaultFOV;
+
         // 1. 서버가 지정한 도감 번호를 꺼냄
         if (SyncWeaponIndex >= 0 && SyncWeaponIndex < weaponCatalog.Length)
         {

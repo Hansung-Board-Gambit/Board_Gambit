@@ -214,4 +214,9 @@ public class RechargeableLaser : WeaponBase
                 break;
         }
     }
+
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        
+    }
 }
