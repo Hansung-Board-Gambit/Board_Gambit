@@ -6,6 +6,7 @@ public class Player : NetworkBehaviour
     [Header("카메라 세팅")]
     [SerializeField] public Camera fpsCamera;
     [SerializeField] AudioListener audioListener;
+    [SerializeField] Animator characterAnimator;
 
     [Header("카메라 감도 설정")]
     //[SerializeField] float speed = 6f;
@@ -44,6 +45,11 @@ public class Player : NetworkBehaviour
     //넉백 관련 네트워크 변수
     [Networked] public TickTimer KnockbackTimer { get; set; }
     [Networked] public Vector3 KnockbackVelocity { get; set; }
+    [Networked] private float AnimSpeed { get; set; }
+    [Networked] private float AnimMoveZ { get; set; }
+    [Networked] private NetworkBool AnimIsRunning { get; set; }
+    [Networked] private NetworkBool AnimIsCrouching { get; set; }
+    [Networked] private int AnimJumpCount { get; set; }
 
     public static float NetworkedYaw = 0f;
     public static float NetworkedPitch;
@@ -62,6 +68,13 @@ public class Player : NetworkBehaviour
 
     Renderer rend;
     private NetworkCharacterController controller;
+    private int lastRenderedJumpCount;
+
+    private static readonly int SpeedHash = Animator.StringToHash("Speed");
+    private static readonly int MoveZHash = Animator.StringToHash("MoveZ");
+    private static readonly int IsRunningHash = Animator.StringToHash("IsRunning");
+    private static readonly int IsCrouchingHash = Animator.StringToHash("IsCrouching");
+    private static readonly int JumpHash = Animator.StringToHash("Jump");
 
     public NetworkCharacterController Controller { get; private set; }
 
@@ -70,6 +83,9 @@ public class Player : NetworkBehaviour
     {
         controller = GetComponent<NetworkCharacterController>();
         Controller = controller;
+
+        if (characterAnimator == null)
+            characterAnimator = GetComponentInChildren<Animator>(true);
     }
 
     public override void Spawned()
@@ -78,6 +94,8 @@ public class Player : NetworkBehaviour
 
         rend = GetComponent<Renderer>();
         controller = GetComponent<NetworkCharacterController>();
+        if (characterAnimator == null)
+            characterAnimator = GetComponentInChildren<Animator>(true);
 
         lastFootstepPosition = transform.position;
 
@@ -99,6 +117,11 @@ public class Player : NetworkBehaviour
         }
 
         SetBattleControlActive(ShouldStartVisibleInBattle());
+    }
+
+    public override void Render()
+    {
+        UpdateAnimatorParameters();
     }
 
     private bool ShouldStartVisibleInBattle()
@@ -255,10 +278,14 @@ public class Player : NetworkBehaviour
     public override void FixedUpdateNetwork()
     {
         if (!battleControlActive)
+        {
+            SetAnimationState(0f, 0f, false, false);
             return;
+        }
 
         if (GetComponent<PlayerHealth>().IsStunned(Runner))
         {
+            SetAnimationState(0f, 0f, false, false);
             return;
         }
 
@@ -272,6 +299,7 @@ public class Player : NetworkBehaviour
         }
         else if (KnockbackTimer.IsRunning)
         {
+            SetAnimationState(0f, 0f, false, false);
             CollisionFlags flags = GetComponent<CharacterController>().Move(KnockbackVelocity * Runner.DeltaTime);
             Controller.Velocity = Vector3.zero;
 
@@ -287,7 +315,11 @@ public class Player : NetworkBehaviour
         }
 
         // 대쉬 중일 때는 통제권 상실
-        if (isDashing) return;
+        if (isDashing)
+        {
+            SetAnimationState(0f, 0f, false, false);
+            return;
+        }
 
         if (GetInput(out NetworkInputData data))
         {
@@ -336,6 +368,8 @@ public class Player : NetworkBehaviour
                 }
 
                 // 이동할 방향 계산
+                bool isMoving = data.direction.sqrMagnitude > 0.0001f;
+                float moveZ = isMoving ? Mathf.Clamp(data.direction.z, -1f, 1f) : 0f;
                 data.direction.Normalize();
                 Vector3 moveDirection = playerRotation * data.direction;
 
@@ -394,6 +428,7 @@ public class Player : NetworkBehaviour
 
                 // 최종 물리 이동 실행 (반드시 회전보다 먼저 일어나야 합니다!)
                 controller.Move(currentSpeed * moveDirection * Runner.DeltaTime);
+                SetAnimationState(isMoving ? 1f : 0f, moveZ, data.speedUp && isMoving, data.sitDown);
 
                 if (HasInputAuthority && controller.Grounded && moveDirection.sqrMagnitude > 0.01f)
                 {
@@ -414,6 +449,7 @@ public class Player : NetworkBehaviour
                 if (data.jump && controller.Grounded)
                 {
                     controller.Jump();
+                    AnimJumpCount++;
 
                     if (HasInputAuthority)
                     {
@@ -421,9 +457,38 @@ public class Player : NetworkBehaviour
                     }
                 }
             }
+            else
+            {
+                SetAnimationState(0f, 0f, false, data.sitDown);
+            }
 
             //4. 몸통 회전 (유저님의 오리지널 코드처럼 무조건 Move 다음에 와야 화면이 안 튕깁니다!)
             transform.rotation = playerRotation;
+        }
+    }
+
+    private void SetAnimationState(float speed, float moveZ, bool isRunning, bool isCrouching)
+    {
+        AnimSpeed = speed;
+        AnimMoveZ = moveZ;
+        AnimIsRunning = isRunning;
+        AnimIsCrouching = isCrouching;
+    }
+
+    private void UpdateAnimatorParameters()
+    {
+        if (characterAnimator == null)
+            return;
+
+        characterAnimator.SetFloat(SpeedHash, AnimSpeed);
+        characterAnimator.SetFloat(MoveZHash, AnimMoveZ);
+        characterAnimator.SetBool(IsRunningHash, AnimIsRunning);
+        characterAnimator.SetBool(IsCrouchingHash, AnimIsCrouching);
+
+        if (lastRenderedJumpCount != AnimJumpCount)
+        {
+            lastRenderedJumpCount = AnimJumpCount;
+            characterAnimator.SetTrigger(JumpHash);
         }
     }
 
