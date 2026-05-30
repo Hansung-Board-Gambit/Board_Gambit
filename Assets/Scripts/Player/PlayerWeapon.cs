@@ -18,9 +18,6 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] public float defaultFOV = 60f;
     [SerializeField] float zoomSpeed = 10f;
 
-    [SerializeField] AudioSource localAudioSource;
-    [SerializeField] AudioClip emptyAmmoSfx;
-
     //목표 시야각
     public float TargetFOV { get; set; }
 
@@ -34,7 +31,6 @@ public class PlayerWeapon : NetworkBehaviour
 
     [Networked, OnChangedRender(nameof(OnWeaponIndexChanged))]
     public int SyncWeaponIndex { get; set; } = -1;
-
 
 
     private void OnEnable()
@@ -299,8 +295,4 @@ public class PlayerWeapon : NetworkBehaviour
         Debug.Log($"{attackerName}한테 공격 당함");
     }
 
-    public void PlayEmptyAmmoSound()
-    {
-        localAudioSource.PlayOneShot(emptyAmmoSfx);
-    }
 }

@@ -37,9 +37,6 @@ public class BounceGun : WeaponBase
 
     protected override void BasicAttack()
     {
-        if (!HasAmmo())
-            return;
-
         if (CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
