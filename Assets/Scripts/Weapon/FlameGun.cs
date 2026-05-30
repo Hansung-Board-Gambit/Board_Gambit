@@ -3,11 +3,24 @@ using UnityEngine;
 
 public class FlameGun : WeaponBase
 {
+    [Header("사운드")]
+    [SerializeField] AudioSource localAudioSource;     // 재장전용
+    [SerializeField] AudioSource networkAudioSource;   // 네트워크 공유용
+    [SerializeField] AudioClip shootSfx;       // 좌클릭
+    [SerializeField] AudioClip flameBallSfx;   // 우클릭 화염구
+    [SerializeField] AudioClip reloadSfx;      // 재장전
+
     [Header("발사체 세팅")]
     [SerializeField] GameObject flameProjectilePrefab;
     [SerializeField] LayerMask targetLayer;
 
     private RangedWeapon rangedWeapon;
+
+    public enum FlameSfxType
+    {
+        Shoot,
+        FlameBall
+    }
 
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
@@ -21,6 +34,7 @@ public class FlameGun : WeaponBase
         if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
+            RPC_PlayNetworkSfx(FlameSfxType.Shoot);
             Shoot();
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedWeapon.leftClickCoolTime);
         }
@@ -31,7 +45,20 @@ public class FlameGun : WeaponBase
         {
             //추후 소모한 탄약 개수에 따라 장판이 커지게 수정가능, 현재는 모든 탄약 소모
             CurrentAmmo = 0;
+            RPC_PlayNetworkSfx(FlameSfxType.FlameBall);
             SpawnProjectile();
+        }
+    }
+
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        base.CheckReload(data, prevButtons);
+
+        if (HasInputAuthority &&
+            data.buttons.WasPressed(prevButtons, MyButtons.Reload) &&
+            CurrentAmmo < rangedWeapon.MaxAmmo)
+        {
+            PlayLocalSfx(reloadSfx);
         }
     }
 
@@ -127,4 +154,28 @@ public class FlameGun : WeaponBase
     }
 
     protected override void SkillQ() { }
+
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (localAudioSource == null || clip == null)
+            return;
+
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(FlameSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case FlameSfxType.Shoot: networkAudioSource.PlayOneShot(shootSfx);
+                break;
+
+            case FlameSfxType.FlameBall: networkAudioSource.PlayOneShot(flameBallSfx);
+                break;
+        }
+    }
 }

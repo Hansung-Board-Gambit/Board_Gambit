@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class FlameArea : NetworkBehaviour
 {
+    [Header("사운드")]
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip flameAreaSfx;
+
     [Header("장판 설정")]
     [SerializeField] float radius = 3f;
     [SerializeField] float lifeTime = 5f;
@@ -20,7 +24,12 @@ public class FlameArea : NetworkBehaviour
         transform.localScale = new Vector3(radius * 2f, 0.05f, radius * 2f);
         //if(flameParticle != null) { var shape = flameParticle.shape; shape.radius = this.radius } 
 
-        if(HasStateAuthority)
+        if (audioSource != null && flameAreaSfx != null)
+        {
+            audioSource.PlayOneShot(flameAreaSfx);
+        }
+
+        if (HasStateAuthority)
         {
             Shooter = Object.InputAuthority;
             LifeTimer = TickTimer.CreateFromSeconds(Runner, lifeTime);
@@ -73,6 +82,5 @@ public class FlameArea : NetworkBehaviour
                 }
             }
         }
-
     }
 }

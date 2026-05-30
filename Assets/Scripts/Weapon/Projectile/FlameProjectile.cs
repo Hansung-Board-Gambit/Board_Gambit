@@ -63,8 +63,6 @@ public class FlameProjectile : NetworkBehaviour
                     spawnPos = floorHit.point;
                     floorNormal = floorHit.normal;
                 }
-                    
-
             }
             spawnPos += floorNormal * 0.05f;
 
@@ -73,9 +71,5 @@ public class FlameProjectile : NetworkBehaviour
             Runner.Spawn(flameAreaPrefab, spawnPos, flatRotation, Object.InputAuthority);
             Runner.Despawn(Object);
         }
-
     }
 }
-
-
-

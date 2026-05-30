@@ -3,20 +3,41 @@ using UnityEngine;
 
 public class PaintGun : WeaponBase
 {
+    [Header("荤款靛")]
+    [SerializeField] AudioSource localAudioSource;     // 2D
+    [SerializeField] AudioSource networkAudioSource;   // 3D
+
+    [SerializeField] AudioClip shootSfx;      
+    [SerializeField] AudioClip reloadSfx;     
+
     [Header("眠利 如利")]
     [SerializeField] float debuffDuration = 5f;
     [SerializeField] LayerMask targetLayer;
+
     private RangedWeapon rangedWeapon;
+
+    public enum PaintGunSfxType
+    {
+        Shoot
+    }
+
     public override void Init(PlayerWeapon owner, WeaponData data)
     {
         base.Init(owner, data);
         rangedWeapon = data as RangedWeapon;
     }
+
     protected override void BasicAttack()
     {
         if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
+
+            if (HasStateAuthority)
+            {
+                RPC_PlayNetworkSfx(PaintGunSfxType.Shoot);
+            }
+
             Shoot();
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedData.leftClickCoolTime);
         }
@@ -90,8 +111,40 @@ public class PaintGun : WeaponBase
         }
     }
 
+    protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        bool canReload = data.buttons.WasPressed(prevButtons, MyButtons.Reload) && rangedData != null && CurrentAmmo < rangedData.MaxAmmo;
+
+        if (canReload && HasInputAuthority && !IsReloading)
+        {
+            PlayLocalSfx(reloadSfx);
+        }
+
+        base.CheckReload(data, prevButtons);
+    }
+
+    void PlayLocalSfx(AudioClip clip)
+    {
+        if (clip == null || localAudioSource == null)
+            return;
+
+        localAudioSource.PlayOneShot(clip);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    void RPC_PlayNetworkSfx(PaintGunSfxType type)
+    {
+        if (networkAudioSource == null)
+            return;
+
+        switch (type)
+        {
+            case PaintGunSfxType.Shoot: networkAudioSource.PlayOneShot(shootSfx);
+                break;
+        }
+    }
+
     protected override void SecondAttack() { }
 
     protected override void SkillQ() { }
-    
 }
