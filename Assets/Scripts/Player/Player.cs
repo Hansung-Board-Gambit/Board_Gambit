@@ -302,13 +302,18 @@ public class Player : NetworkBehaviour
                     if (Vector3.Distance(transform.position, LastTrailSpawnPos) >= trailSpawnDistance)
                     {
                         Vector3 spawnPos = feetPos + Vector3.up * 0.5f;
-                        int floorMask = ~LayerMask.GetMask("Player");
+                        int floorMask = ~(LayerMask.GetMask("Player") | trailLayer.value);
 
-                        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 20f, floorMask))
+                        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 100f, floorMask, QueryTriggerInteraction.Ignore))
                         {
                             // 레이저가 진짜 바닥(지형)에 닿았다면?
                             // 바닥 좌표(hit.point)를 가져오고, 바닥에 파묻히지 않게 아주 살짝(0.05) 위로 띄워줍니다.
                             spawnPos = hit.point + (Vector3.up * 0.05f);
+                        }
+                        else
+                        {
+                            // 만약 100m 아래에도 땅이 없다면 (맵 밖으로 떨어지는 중 등)
+                            spawnPos = feetPos; // 허공에 붕 뜨는 오프셋 제거
                         }
 
 
