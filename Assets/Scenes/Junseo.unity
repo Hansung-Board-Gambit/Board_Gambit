@@ -434,7 +434,6 @@ MonoBehaviour:
   - {fileID: 7035482642403280837, guid: b624beb41e595664a9221c6e29fdf564, type: 3}
   - {fileID: 1866590579267404, guid: 3391e96c014a90540946fff814f3572c, type: 3}
   - {fileID: 1411054063627100, guid: a5b2c973fbd4bcf49b07ded49a003a51, type: 3}
-  - {fileID: 5246857530251915736, guid: 93ca3b3bcd9079b43975731fbdd70957, type: 3}
   - {fileID: 7975998872709633962, guid: b76de77e9e36a1c44b094c10711555eb, type: 3}
   - {fileID: 2202114632087129249, guid: 3d7cdd1dea866e046af20a8ff9fcb7af, type: 3}
   - {fileID: 8174126501031990675, guid: d947dd730f143d34d814b144e8c7eebd, type: 3}
@@ -2520,7 +2519,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Set Opponent Spawn
+  m_Text: Set Enemy Spawn
 --- !u!222 &668161934
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4378,7 +4377,7 @@ MonoBehaviour:
   - {fileID: 910012001}
   - {fileID: 910013001}
   - {fileID: 910014001}
-  radiusOffset: 0.25
+  radiusOffset: 0
   wallThickness: 0.5
   wallHeight: 4
   segments: 128
@@ -6371,6 +6370,10 @@ MonoBehaviour:
   dataStore: {fileID: 1024786534}
   mySpawnMarker: {fileID: 323754536}
   opponentSpawnMarker: {fileID: 1216546176}
+  mySpawnButtonLabel: {fileID: 0}
+  opponentSpawnButtonLabel: {fileID: 0}
+  setMySpawnText: Set My Spawn
+  setEnemySpawnText: Set Enemy Spawn
   boardLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -8878,7 +8881,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CircularBoardSurface
   radius: 5
-  segments: 96
+  segments: 128
   rebuildInEditor: 1
 --- !u!1 &2057305800
 GameObject:

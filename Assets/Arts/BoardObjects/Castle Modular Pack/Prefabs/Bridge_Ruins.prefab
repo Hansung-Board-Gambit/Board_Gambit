@@ -103,6 +103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1a0e6e4d955c143b4b7c182f4abaa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
-  footprint: {x: 5, y: 10}
+  footprint: {x: 5, y: 0}
   yOffset: 0.5
   prefabId: Object

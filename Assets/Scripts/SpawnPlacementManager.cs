@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class SpawnPlacementManager : MonoBehaviour
@@ -22,6 +23,16 @@ public class SpawnPlacementManager : MonoBehaviour
     public GameObject mySpawnMarker;
     public GameObject opponentSpawnMarker;
 
+    [Header("Button Labels")]
+    public Text mySpawnButtonLabel;
+    public Text opponentSpawnButtonLabel;
+    public string setMySpawnText = "Set My Spawn";
+    public string setEnemySpawnText = "Set Enemy Spawn";
+    public float spawnButtonMinHeight = 56f;
+    public float spawnButtonHorizontalPadding = 12f;
+    public Color spawnButtonBackgroundColor = new Color(0.08f, 0.09f, 0.13f, 0.95f);
+    public Color spawnButtonSelectedColor = new Color(0.12f, 0.32f, 0.58f, 0.95f);
+
     [Header("Layers")]
     public LayerMask boardLayer;
     public LayerMask placedObjectMask;
@@ -39,6 +50,8 @@ public class SpawnPlacementManager : MonoBehaviour
     private SpawnMode currentMode = SpawnMode.None;
     private GameObject previewMarker;
     private SpawnMode previewMarkerMode = SpawnMode.None;
+    private Image mySpawnButtonBackground;
+    private Image opponentSpawnButtonBackground;
 
     private void OnEnable()
     {
@@ -54,6 +67,10 @@ public class SpawnPlacementManager : MonoBehaviour
     private void Start()
     {
         EnsureSpawnButtonsCanReceiveClicks();
+        CacheSpawnButtonLabels();
+        UpdateSpawnButtonLabels();
+        SetupSpawnButtonBackgrounds();
+        UpdateSpawnButtonVisuals();
         DisableMarkerColliders();
         RestoreSavedMarkers();
     }
@@ -65,6 +82,9 @@ public class SpawnPlacementManager : MonoBehaviour
             SetPreviewMarkerActive(false);
             return;
         }
+
+        UpdateSpawnButtonLabels();
+        UpdateSpawnButtonVisuals();
 
         if (!CanLocalControlSpawnPlacement())
         {
@@ -120,6 +140,7 @@ public class SpawnPlacementManager : MonoBehaviour
             return;
 
         currentMode = SpawnMode.MySpawn;
+        UpdateSpawnButtonVisuals();
     }
 
     public void SetOpponentSpawnMode()
@@ -128,12 +149,14 @@ public class SpawnPlacementManager : MonoBehaviour
             return;
 
         currentMode = SpawnMode.OpponentSpawn;
+        UpdateSpawnButtonVisuals();
     }
 
     public void ClearMode()
     {
         currentMode = SpawnMode.None;
         SetPreviewMarkerActive(false);
+        UpdateSpawnButtonVisuals();
     }
 
     private void RequestSpawnPlacement(bool isMySpawn, Vector3 position)
@@ -431,6 +454,131 @@ public class SpawnPlacementManager : MonoBehaviour
             if (targetGraphic != null)
                 targetGraphic.raycastTarget = true;
         }
+    }
+
+    private void CacheSpawnButtonLabels()
+    {
+        if (spawnPlacementPanel == null)
+            return;
+
+        if (mySpawnButtonLabel == null)
+            mySpawnButtonLabel = FindChildText("SetMySpawnLabel");
+
+        if (opponentSpawnButtonLabel == null)
+            opponentSpawnButtonLabel = FindChildText("SetOpponentSpawnLabel");
+    }
+
+    private Text FindChildText(string objectName)
+    {
+        Text[] labels = spawnPlacementPanel.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < labels.Length; i++)
+        {
+            if (labels[i] != null && labels[i].gameObject.name == objectName)
+                return labels[i];
+        }
+
+        return null;
+    }
+
+    private void UpdateSpawnButtonLabels()
+    {
+        CacheSpawnButtonLabels();
+
+        bool localOwnsSpawnPlacement = CanLocalControlSpawnPlacement();
+        SetLabelText(mySpawnButtonLabel, localOwnsSpawnPlacement ? setMySpawnText : setEnemySpawnText);
+        SetLabelText(opponentSpawnButtonLabel, localOwnsSpawnPlacement ? setEnemySpawnText : setMySpawnText);
+    }
+
+    private void SetLabelText(Text label, string text)
+    {
+        if (label != null)
+            label.text = text;
+    }
+
+    private void SetupSpawnButtonBackgrounds()
+    {
+        CacheSpawnButtonLabels();
+        mySpawnButtonBackground = EnsureLabeledButtonBackground(mySpawnButtonLabel, "SetMySpawnButtonBackground", SetMySpawnMode);
+        opponentSpawnButtonBackground = EnsureLabeledButtonBackground(opponentSpawnButtonLabel, "SetOpponentSpawnButtonBackground", SetOpponentSpawnMode);
+        UpdateSpawnButtonVisuals();
+    }
+
+    private Image EnsureLabeledButtonBackground(Text label, string backgroundName, UnityAction clickAction)
+    {
+        if (label == null || label.transform.parent == null)
+            return null;
+
+        label.alignment = TextAnchor.MiddleCenter;
+        label.horizontalOverflow = HorizontalWrapMode.Wrap;
+        label.verticalOverflow = VerticalWrapMode.Overflow;
+        label.raycastTarget = false;
+
+        Transform parent = label.transform.parent;
+        Transform existingBackground = parent.Find(backgroundName);
+        GameObject backgroundObject = existingBackground != null ? existingBackground.gameObject : new GameObject(backgroundName);
+        backgroundObject.transform.SetParent(parent, false);
+
+        RectTransform labelRect = label.rectTransform;
+        RectTransform backgroundRect = backgroundObject.GetComponent<RectTransform>();
+        if (backgroundRect == null)
+            backgroundRect = backgroundObject.AddComponent<RectTransform>();
+
+        backgroundRect.anchorMin = labelRect.anchorMin;
+        backgroundRect.anchorMax = labelRect.anchorMax;
+        backgroundRect.anchoredPosition = new Vector2(0f, labelRect.anchoredPosition.y);
+        backgroundRect.sizeDelta = new Vector2(GetStretchedButtonWidthDelta(labelRect, spawnButtonHorizontalPadding), Mathf.Max(labelRect.sizeDelta.y, spawnButtonMinHeight));
+        backgroundRect.pivot = labelRect.pivot;
+        backgroundRect.localScale = Vector3.one;
+        CopyRectTransform(labelRect, backgroundRect);
+
+        Image image = backgroundObject.GetComponent<Image>();
+        if (image == null)
+            image = backgroundObject.AddComponent<Image>();
+
+        image.color = spawnButtonBackgroundColor;
+        image.raycastTarget = true;
+
+        Button button = backgroundObject.GetComponent<Button>();
+        if (button == null)
+            button = backgroundObject.AddComponent<Button>();
+
+        button.targetGraphic = image;
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(clickAction);
+
+        backgroundObject.transform.SetSiblingIndex(label.transform.GetSiblingIndex());
+        label.transform.SetAsLastSibling();
+        return image;
+    }
+
+    private void CopyRectTransform(RectTransform target, RectTransform source)
+    {
+        if (target == null || source == null)
+            return;
+
+        target.anchorMin = source.anchorMin;
+        target.anchorMax = source.anchorMax;
+        target.anchoredPosition = source.anchoredPosition;
+        target.sizeDelta = source.sizeDelta;
+        target.pivot = source.pivot;
+        target.localScale = source.localScale;
+    }
+
+    private float GetStretchedButtonWidthDelta(RectTransform rectTransform, float horizontalPadding)
+    {
+        if (rectTransform != null && !Mathf.Approximately(rectTransform.anchorMin.x, rectTransform.anchorMax.x))
+            return -Mathf.Abs(horizontalPadding * 2f);
+
+        return Mathf.Max(rectTransform != null ? rectTransform.sizeDelta.x : 0f, 72f);
+    }
+
+    private void UpdateSpawnButtonVisuals()
+    {
+        if (mySpawnButtonBackground != null)
+            mySpawnButtonBackground.color = currentMode == SpawnMode.MySpawn ? spawnButtonSelectedColor : spawnButtonBackgroundColor;
+
+        if (opponentSpawnButtonBackground != null)
+            opponentSpawnButtonBackground.color = currentMode == SpawnMode.OpponentSpawn ? spawnButtonSelectedColor : spawnButtonBackgroundColor;
     }
 
     private void RestoreSavedMarkers()

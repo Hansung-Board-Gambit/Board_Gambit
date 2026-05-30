@@ -1,10 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlacementManager : MonoBehaviour
 {
+    private enum PlacementToolMode
+    {
+        Place,
+        Delete
+    }
+
     private class SlotPreviewBinding
     {
         public RawImage image;
@@ -31,6 +38,9 @@ public class PlacementManager : MonoBehaviour
     public bool useCircularBoardBounds = false;
     public GameObject[] placeablePrefabs;
 
+    [Header("Rotation")]
+    public KeyCode rotateKey = KeyCode.R;
+
     [Header("Auto Fit")]
     public bool autoScaleObjectsToFootprint = true;
     public float footprintFitPadding = 0.85f;
@@ -49,23 +59,43 @@ public class PlacementManager : MonoBehaviour
     public Color slotPreviewBackgroundColor = new Color(0f, 0f, 0f, 0f);
     public Vector3 slotPreviewWorldOrigin = new Vector3(5000f, 5000f, 5000f);
 
+    [Header("Tool UI")]
+    public string placeButtonText = "Place";
+    public string deleteButtonText = "Delete";
+    public string rotateHintText = "Press R to Rotate";
+    public float toolButtonMinHeight = 44f;
+    public float toolButtonHorizontalPadding = 12f;
+    public Color toolButtonNormalColor = new Color(0.08f, 0.09f, 0.13f, 0.95f);
+    public Color toolButtonSelectedColor = new Color(0.12f, 0.32f, 0.58f, 0.95f);
+
+    [Header("Delete")]
+    public float deletePositionTolerance = 0.2f;
+
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
 
+    private const float PlacementRotationStepDegrees = 90f;
+
+    private PlacementToolMode currentToolMode = PlacementToolMode.Place;
     private int selectedIndex = -1;
+    private int placementRotationSteps;
     private GameObject previewObject;
     private int[] slotPrefabIndices;
     private GameObject slotPreviewRoot;
+    private Image placeModeButtonBackground;
+    private Image deleteModeButtonBackground;
     private readonly List<SlotPreviewBinding> slotPreviewBindings = new List<SlotPreviewBinding>();
 
     private void OnEnable()
     {
         LobbyState.PrepObjectPlaced += HandleNetworkObjectPlaced;
+        LobbyState.PrepObjectDeleted += HandleNetworkObjectDeleted;
     }
 
     private void OnDisable()
     {
         LobbyState.PrepObjectPlaced -= HandleNetworkObjectPlaced;
+        LobbyState.PrepObjectDeleted -= HandleNetworkObjectDeleted;
     }
 
     private void OnDestroy()
@@ -75,7 +105,9 @@ public class PlacementManager : MonoBehaviour
 
     private void Start()
     {
+        SetupPlacementToolUi();
         RefreshObjectSlots();
+        SetPlaceMode();
         UpdatePointText();
     }
 
@@ -95,18 +127,35 @@ public class PlacementManager : MonoBehaviour
             return;
         }
 
+        if (currentToolMode == PlacementToolMode.Delete)
+        {
+            SetPreviewActive(false);
+
+            if (IsPointerBlockedByUi())
+                return;
+
+            if (Input.GetMouseButtonDown(0))
+                TryDeletePlacedObject();
+
+            return;
+        }
+
         if (!HasValidSelection())
         {
             SetPreviewActive(false);
             return;
         }
 
+        if (Input.GetKeyDown(rotateKey))
+            RotateSelection();
+
         if (IsPointerBlockedByUi())
             return;
 
+        Quaternion placementRotation = GetPlacementRotation();
         PlaceableObject selectedInfo = placeablePrefabs[selectedIndex].GetComponent<PlaceableObject>();
         Vector3 snappedPosition;
-        if (!TryGetSnappedBoardPoint(selectedInfo, out snappedPosition))
+        if (!TryGetSnappedBoardPoint(selectedInfo, placementRotation, out snappedPosition))
         {
             SetPreviewActive(false);
             return;
@@ -118,18 +167,16 @@ public class PlacementManager : MonoBehaviour
 
         PlaceableObject previewInfo = previewObject.GetComponent<PlaceableObject>();
         snappedPosition.y = GetPlacementY(previewInfo);
-
-        bool canPlace = CanPlace(snappedPosition, previewInfo);
-        if (!canPlace)
-        {
-            SetPreviewActive(false);
-            return;
-        }
-
+        previewObject.transform.rotation = placementRotation;
         previewObject.transform.position = snappedPosition;
         AlignObjectToBoardSurface(previewObject);
         previewObject.SetActive(true);
-        SetPreviewColor(new Color(0f, 1f, 0f, 0.5f));
+
+        bool canPlace = CanPlace(snappedPosition, previewInfo, placementRotation);
+        SetPreviewColor(canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f));
+
+        if (!canPlace)
+            return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -155,14 +202,27 @@ public class PlacementManager : MonoBehaviour
 
         Debug.Log("SelectObject called, slot index = " + index + ", prefab index = " + prefabIndex);
 
+        SetPlacementToolMode(PlacementToolMode.Place);
         selectedIndex = prefabIndex;
+        placementRotationSteps = 0;
         DestroyPreview();
         EnsurePreviewExists();
+    }
+
+    public void SetPlaceMode()
+    {
+        SetPlacementToolMode(PlacementToolMode.Place);
+    }
+
+    public void SetDeleteMode()
+    {
+        SetPlacementToolMode(PlacementToolMode.Delete);
     }
 
     public void CancelSelection()
     {
         selectedIndex = -1;
+        placementRotationSteps = 0;
         DestroyPreview();
     }
 
@@ -171,7 +231,7 @@ public class PlacementManager : MonoBehaviour
         SetupObjectSlots();
     }
 
-    private bool TryGetSnappedBoardPoint(PlaceableObject placementInfo, out Vector3 snappedPosition)
+    private bool TryGetSnappedBoardPoint(PlaceableObject placementInfo, Quaternion rotation, out Vector3 snappedPosition)
     {
         snappedPosition = Vector3.zero;
 
@@ -188,7 +248,7 @@ public class PlacementManager : MonoBehaviour
             return false;
 
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
-        Vector2 footprint = GetFootprint(placementInfo);
+        Vector2 footprint = GetFootprint(placementInfo, rotation);
         snappedPosition = hit.point;
 
         if (boardCollider != null)
@@ -218,18 +278,18 @@ public class PlacementManager : MonoBehaviour
         previewObject = Instantiate(prefab);
         previewObject.name = prefab.name + "_Preview";
         previewObject.transform.position = Vector3.zero;
-        previewObject.transform.rotation = Quaternion.identity;
+        previewObject.transform.rotation = GetPlacementRotation();
         previewObject.transform.localScale = prefab.transform.localScale;
 
         PlaceableObject previewInfo = previewObject.GetComponent<PlaceableObject>();
         EnableRenderers(previewObject);
-        ApplyFootprintScale(previewObject, previewInfo);
+        ApplyFootprintScale(previewObject, previewInfo, GetPlacementRotation());
 
         DisableColliders(previewObject);
         SetLayerRecursively(previewObject, LayerMask.NameToLayer("Ignore Raycast"));
     }
 
-    private bool CanPlace(Vector3 position, PlaceableObject info)
+    private bool CanPlace(Vector3 position, PlaceableObject info, Quaternion rotation)
     {
         if (dataStore == null || !dataStore.CanSpendPoint())
             return false;
@@ -237,7 +297,7 @@ public class PlacementManager : MonoBehaviour
         if (boardCollider == null)
             return false;
 
-        Vector2 footprint = GetFootprint(info);
+        Vector2 footprint = GetFootprint(info, rotation);
 
         Bounds bounds = boardCollider.bounds;
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
@@ -275,20 +335,26 @@ public class PlacementManager : MonoBehaviour
             return;
 
         int prefabIndex = selectedIndex;
+        Quaternion placementRotation = GetPlacementRotation();
         CancelSelection();
 
         if (LobbyState.Instance != null)
         {
-            LobbyState.Instance.RequestPlacePrepObject(prefabIndex, position, Quaternion.identity);
+            LobbyState.Instance.RequestPlacePrepObject(prefabIndex, position, placementRotation);
             return;
         }
 
-        CreatePlacedObject(prefabIndex, position, Quaternion.identity);
+        CreatePlacedObject(prefabIndex, position, placementRotation);
     }
 
     private void HandleNetworkObjectPlaced(int prefabIndex, Vector3 position, Quaternion rotation)
     {
         CreatePlacedObject(prefabIndex, position, rotation);
+    }
+
+    private void HandleNetworkObjectDeleted(Vector3 position)
+    {
+        DeletePlacedObjectAt(position);
     }
 
     private void CreatePlacedObject(int prefabIndex, Vector3 position, Quaternion rotation)
@@ -315,7 +381,7 @@ public class PlacementManager : MonoBehaviour
         placed.SetActive(true);
 
         int enabledRenderers = EnableRenderers(placed);
-        ApplyFootprintScale(placed, info);
+        ApplyFootprintScale(placed, info, rotation);
         AlignObjectToBoardSurface(placed);
         int createdColliders = EnsurePlacementCollider(placed);
         int enabledColliders = EnableColliders(placed);
@@ -355,6 +421,91 @@ public class PlacementManager : MonoBehaviour
         );
 
         SetPreviewActive(false);
+    }
+
+    private void TryDeletePlacedObject()
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (mainCamera == null)
+            return;
+
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (!Physics.Raycast(ray, out hit, 500f, placedObjectMask, QueryTriggerInteraction.Ignore))
+            return;
+
+        GameObject placedObject = FindPlacedObjectRoot(hit.collider);
+        if (placedObject == null)
+            return;
+
+        Vector3 deletePosition = placedObject.transform.position;
+        if (LobbyState.Instance != null)
+        {
+            LobbyState.Instance.RequestDeletePrepObject(deletePosition);
+            return;
+        }
+
+        DeletePlacedObjectAt(deletePosition);
+    }
+
+    private GameObject FindPlacedObjectRoot(Collider hitCollider)
+    {
+        if (hitCollider == null)
+            return null;
+
+        Transform current = hitCollider.transform;
+        if (placedParent != null)
+        {
+            while (current != null && current.parent != placedParent)
+                current = current.parent;
+
+            if (current != null)
+                return current.gameObject;
+        }
+
+        PlaceableObject placeableObject = hitCollider.GetComponentInParent<PlaceableObject>();
+        if (placeableObject != null)
+            return placeableObject.gameObject;
+
+        return hitCollider.gameObject;
+    }
+
+    private void DeletePlacedObjectAt(Vector3 position)
+    {
+        GameObject placedObject = FindPlacedObjectByPosition(position);
+        if (placedObject != null)
+            Destroy(placedObject);
+
+        if (dataStore != null && dataStore.RemovePlacedObject(position, deletePositionTolerance))
+        {
+            dataStore.RefundPoint();
+            UpdatePointText();
+        }
+    }
+
+    private GameObject FindPlacedObjectByPosition(Vector3 position)
+    {
+        if (placedParent == null)
+            return null;
+
+        float toleranceSqr = Mathf.Max(0.001f, deletePositionTolerance) * Mathf.Max(0.001f, deletePositionTolerance);
+        GameObject closestObject = null;
+        float closestDistanceSqr = float.PositiveInfinity;
+
+        for (int i = 0; i < placedParent.childCount; i++)
+        {
+            Transform child = placedParent.GetChild(i);
+            float distanceSqr = (child.position - position).sqrMagnitude;
+            if (distanceSqr > toleranceSqr || distanceSqr >= closestDistanceSqr)
+                continue;
+
+            closestDistanceSqr = distanceSqr;
+            closestObject = child.gameObject;
+        }
+
+        return closestObject;
     }
 
     private void UpdatePointText()
@@ -499,6 +650,16 @@ public class PlacementManager : MonoBehaviour
         return IsValidPrefabIndex(selectedIndex);
     }
 
+    private void SetPlacementToolMode(PlacementToolMode mode)
+    {
+        currentToolMode = mode;
+
+        if (currentToolMode == PlacementToolMode.Delete)
+            CancelSelection();
+
+        UpdatePlacementToolButtonVisuals();
+    }
+
     private bool CanLocalControlPlacement()
     {
         if (LobbyState.Instance != null)
@@ -544,7 +705,7 @@ public class PlacementManager : MonoBehaviour
         return GetBoardTopY() + (info != null ? info.yOffset : 0f);
     }
 
-    private void ApplyFootprintScale(GameObject target, PlaceableObject info)
+    private void ApplyFootprintScale(GameObject target, PlaceableObject info, Quaternion rotation)
     {
         if (!autoScaleObjectsToFootprint || target == null || info == null)
             return;
@@ -553,7 +714,7 @@ public class PlacementManager : MonoBehaviour
         if (!TryGetRendererBounds(target, out bounds))
             return;
 
-        Vector2 footprint = GetFootprint(info);
+        Vector2 footprint = GetFootprint(info, rotation);
         float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
         float targetWidth = footprint.x * safeGridSize * Mathf.Clamp(footprintFitPadding, 0.1f, 1f);
         float targetDepth = footprint.y * safeGridSize * Mathf.Clamp(footprintFitPadding, 0.1f, 1f);
@@ -582,15 +743,71 @@ public class PlacementManager : MonoBehaviour
         target.transform.position = position;
     }
 
-    private Vector2 GetFootprint(PlaceableObject info)
+    private Vector2 GetFootprint(PlaceableObject info, Quaternion rotation)
+    {
+        Vector2 footprint = ResolveFootprint(info);
+        if (IsQuarterTurnRotation(rotation))
+            return new Vector2(footprint.y, footprint.x);
+
+        return footprint;
+    }
+
+    private Vector2 ResolveFootprint(PlaceableObject info)
     {
         if (info == null)
             return Vector2.one;
 
-        return new Vector2(
-            Mathf.Max(1f, info.footprint.x),
-            Mathf.Max(1f, info.footprint.y)
-        );
+        float footprintX = info.footprint.x;
+        float footprintZ = info.footprint.y;
+
+        if ((footprintX <= 0f || footprintZ <= 0f) && TryGetLocalRendererFootprintSize(info.gameObject, out Vector2 modelFootprintSize))
+        {
+            float modelX = Mathf.Max(0.001f, modelFootprintSize.x);
+            float modelZ = Mathf.Max(0.001f, modelFootprintSize.y);
+
+            if (footprintX > 0f && footprintZ <= 0f)
+                footprintZ = footprintX * modelZ / modelX;
+            else if (footprintZ > 0f && footprintX <= 0f)
+                footprintX = footprintZ * modelX / modelZ;
+        }
+
+        if (footprintX <= 0f && footprintZ <= 0f)
+        {
+            footprintX = 1f;
+            footprintZ = 1f;
+        }
+        else if (footprintX <= 0f)
+        {
+            footprintX = footprintZ;
+        }
+        else if (footprintZ <= 0f)
+        {
+            footprintZ = footprintX;
+        }
+
+        return new Vector2(Mathf.Max(1f, footprintX), Mathf.Max(1f, footprintZ));
+    }
+
+    private void RotateSelection()
+    {
+        placementRotationSteps = (placementRotationSteps + 1) % 4;
+
+        if (previewObject == null)
+            return;
+
+        previewObject.transform.rotation = GetPlacementRotation();
+        AlignObjectToBoardSurface(previewObject);
+    }
+
+    private Quaternion GetPlacementRotation()
+    {
+        return Quaternion.Euler(0f, placementRotationSteps * PlacementRotationStepDegrees, 0f);
+    }
+
+    private bool IsQuarterTurnRotation(Quaternion rotation)
+    {
+        int quarterTurns = Mathf.RoundToInt(Mathf.Repeat(rotation.eulerAngles.y, 360f) / PlacementRotationStepDegrees);
+        return quarterTurns % 2 != 0;
     }
 
     private float SnapToBoardFootprint(float value, float min, float max, float safeGridSize, float footprintCells)
@@ -679,6 +896,169 @@ public class PlacementManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void SetupPlacementToolUi()
+    {
+        if (objectPlacementPanel == null)
+            return;
+
+        Text placeLabel = FindPanelText("SelectLabel");
+        Text moveLabel = FindPanelText("MoveLabel");
+        Text rotateLabel = FindPanelText("RotateLabel");
+        Text deleteLabel = FindPanelText("DeleteLabel");
+
+        RectTransform deleteHintSlot = deleteLabel != null ? CaptureRectTransform(deleteLabel.rectTransform) : null;
+
+        if (moveLabel != null && deleteLabel != null)
+            CopyRectTransform(deleteLabel.rectTransform, moveLabel.rectTransform);
+
+        if (rotateLabel != null && deleteHintSlot != null)
+            CopyRectTransform(rotateLabel.rectTransform, deleteHintSlot);
+
+        if (deleteHintSlot != null)
+            DestroySlotPreviewObject(deleteHintSlot.gameObject);
+
+        if (placeLabel != null)
+        {
+            placeLabel.text = placeButtonText;
+            placeModeButtonBackground = EnsureLabeledButtonBackground(placeLabel, "PlaceButtonBackground", SetPlaceMode);
+        }
+
+        if (deleteLabel != null)
+        {
+            deleteLabel.text = deleteButtonText;
+            deleteModeButtonBackground = EnsureLabeledButtonBackground(deleteLabel, "DeleteButtonBackground", SetDeleteMode);
+        }
+
+        if (moveLabel != null)
+            moveLabel.gameObject.SetActive(false);
+
+        if (rotateLabel != null)
+        {
+            rotateLabel.text = GetRotateHintDisplayText();
+            rotateLabel.raycastTarget = false;
+            rotateLabel.fontSize = Mathf.Min(rotateLabel.fontSize, 15);
+            rotateLabel.alignment = TextAnchor.MiddleCenter;
+            RectTransform rotateRect = rotateLabel.rectTransform;
+            rotateRect.anchoredPosition = new Vector2(0f, rotateRect.anchoredPosition.y);
+            rotateRect.sizeDelta = new Vector2(GetStretchedButtonWidthDelta(rotateRect, toolButtonHorizontalPadding), Mathf.Max(rotateRect.sizeDelta.y, toolButtonMinHeight));
+        }
+
+        UpdatePlacementToolButtonVisuals();
+    }
+
+    private Text FindPanelText(string objectName)
+    {
+        if (objectPlacementPanel == null)
+            return null;
+
+        Text[] labels = objectPlacementPanel.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < labels.Length; i++)
+        {
+            if (labels[i] != null && labels[i].gameObject.name == objectName)
+                return labels[i];
+        }
+
+        return null;
+    }
+
+    private RectTransform CaptureRectTransform(RectTransform source)
+    {
+        if (source == null)
+            return null;
+
+        GameObject snapshotObject = new GameObject(source.name + "_LayoutSnapshot");
+        snapshotObject.hideFlags = HideFlags.HideAndDontSave;
+        RectTransform snapshot = snapshotObject.AddComponent<RectTransform>();
+        CopyRectTransform(snapshot, source);
+        return snapshot;
+    }
+
+    private void CopyRectTransform(RectTransform target, RectTransform source)
+    {
+        if (target == null || source == null)
+            return;
+
+        target.anchorMin = source.anchorMin;
+        target.anchorMax = source.anchorMax;
+        target.anchoredPosition = source.anchoredPosition;
+        target.sizeDelta = source.sizeDelta;
+        target.pivot = source.pivot;
+        target.localScale = source.localScale;
+    }
+
+    private Image EnsureLabeledButtonBackground(Text label, string backgroundName, UnityAction clickAction)
+    {
+        if (label == null || label.transform.parent == null)
+            return null;
+
+        label.alignment = TextAnchor.MiddleCenter;
+        label.horizontalOverflow = HorizontalWrapMode.Wrap;
+        label.verticalOverflow = VerticalWrapMode.Overflow;
+        label.raycastTarget = false;
+
+        Transform parent = label.transform.parent;
+        Transform existingBackground = parent.Find(backgroundName);
+        GameObject backgroundObject = existingBackground != null ? existingBackground.gameObject : new GameObject(backgroundName);
+        backgroundObject.transform.SetParent(parent, false);
+
+        RectTransform labelRect = label.rectTransform;
+        RectTransform backgroundRect = backgroundObject.GetComponent<RectTransform>();
+        if (backgroundRect == null)
+            backgroundRect = backgroundObject.AddComponent<RectTransform>();
+
+        backgroundRect.anchorMin = labelRect.anchorMin;
+        backgroundRect.anchorMax = labelRect.anchorMax;
+        backgroundRect.anchoredPosition = new Vector2(0f, labelRect.anchoredPosition.y);
+        backgroundRect.sizeDelta = new Vector2(GetStretchedButtonWidthDelta(labelRect, toolButtonHorizontalPadding), Mathf.Max(labelRect.sizeDelta.y, toolButtonMinHeight));
+        backgroundRect.pivot = labelRect.pivot;
+        backgroundRect.localScale = Vector3.one;
+        CopyRectTransform(labelRect, backgroundRect);
+
+        Image image = backgroundObject.GetComponent<Image>();
+        if (image == null)
+            image = backgroundObject.AddComponent<Image>();
+
+        image.color = toolButtonNormalColor;
+        image.raycastTarget = true;
+
+        Button button = backgroundObject.GetComponent<Button>();
+        if (button == null)
+            button = backgroundObject.AddComponent<Button>();
+
+        button.targetGraphic = image;
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(clickAction);
+
+        backgroundObject.transform.SetSiblingIndex(label.transform.GetSiblingIndex());
+        label.transform.SetAsLastSibling();
+        return image;
+    }
+
+    private float GetStretchedButtonWidthDelta(RectTransform rectTransform, float horizontalPadding)
+    {
+        if (rectTransform != null && !Mathf.Approximately(rectTransform.anchorMin.x, rectTransform.anchorMax.x))
+            return -Mathf.Abs(horizontalPadding * 2f);
+
+        return Mathf.Max(rectTransform != null ? rectTransform.sizeDelta.x : 0f, 72f);
+    }
+
+    private string GetRotateHintDisplayText()
+    {
+        if (string.IsNullOrEmpty(rotateHintText))
+            return string.Empty;
+
+        return rotateHintText.Contains("\n") ? rotateHintText : rotateHintText.Replace(" to ", "\nto ");
+    }
+
+    private void UpdatePlacementToolButtonVisuals()
+    {
+        if (placeModeButtonBackground != null)
+            placeModeButtonBackground.color = currentToolMode == PlacementToolMode.Place ? toolButtonSelectedColor : toolButtonNormalColor;
+
+        if (deleteModeButtonBackground != null)
+            deleteModeButtonBackground.color = currentToolMode == PlacementToolMode.Delete ? toolButtonSelectedColor : toolButtonNormalColor;
     }
 
     private void SetupObjectSlots()
@@ -942,6 +1322,57 @@ public class PlacementManager : MonoBehaviour
         previewCamera.enabled = false;
         worldObject.SetActive(false);
         return worldObject;
+    }
+
+    private bool TryGetLocalRendererFootprintSize(GameObject target, out Vector2 size)
+    {
+        size = Vector2.one;
+
+        Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0)
+            return false;
+
+        Bounds localBounds = new Bounds();
+        bool hasBounds = false;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Bounds rendererBounds = renderers[i].bounds;
+            Vector3 min = rendererBounds.min;
+            Vector3 max = rendererBounds.max;
+
+            for (int x = 0; x < 2; x++)
+            {
+                for (int y = 0; y < 2; y++)
+                {
+                    for (int z = 0; z < 2; z++)
+                    {
+                        Vector3 corner = new Vector3(
+                            x == 0 ? min.x : max.x,
+                            y == 0 ? min.y : max.y,
+                            z == 0 ? min.z : max.z
+                        );
+
+                        Vector3 localCorner = target.transform.InverseTransformPoint(corner);
+                        if (!hasBounds)
+                        {
+                            localBounds = new Bounds(localCorner, Vector3.zero);
+                            hasBounds = true;
+                        }
+                        else
+                        {
+                            localBounds.Encapsulate(localCorner);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!hasBounds)
+            return false;
+
+        size = new Vector2(Mathf.Abs(localBounds.size.x), Mathf.Abs(localBounds.size.z));
+        return true;
     }
 
     private Camera CreateSlotPreviewCamera(Transform parent, Bounds bounds, float maxSize, RenderTexture texture)
