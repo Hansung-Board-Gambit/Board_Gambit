@@ -437,13 +437,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
     private IEnumerator WaitForObjectPlacementCompleteRoutine()
     {
-        if (HasPlacedObject())
-            yield break;
-
-        Debug.LogWarning("Object placement phase is waiting for at least one placed object.");
-
-        while (!HasPlacedObject())
-            yield return null;
+        yield break;
     }
 
     private IEnumerator WaitForSpawnPlacementCompleteRoutine()
@@ -460,13 +454,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
     private bool CanFinishCurrentPhase()
     {
         if (currentPhaseIndex == 0)
-        {
-            if (HasPlacedObject())
-                return true;
-
-            Debug.LogWarning("Place at least one object before finishing object placement.");
-            return false;
-        }
+            return true;
 
         if (currentPhaseIndex == 1)
         {
