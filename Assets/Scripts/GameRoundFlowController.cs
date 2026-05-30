@@ -794,7 +794,9 @@ public class GameRoundFlowController : MonoBehaviour
     private Vector3 GetBattleSpawnPosition(PlayerRef player)
     {
         bool isHostPlayer = IsPlayerOnSide(player, 1);
-        bool spawnOwnerIsHost = LobbyState.Instance == null || LobbyState.Instance.objectPlacementAuthorityIsHost;
+        bool spawnOwnerIsHost = true;
+        if (LobbyState.Instance != null)
+            spawnOwnerIsHost = !LobbyState.Instance.objectPlacementAuthorityIsHost;
 
         bool hasMySpawn = prepDataStore != null && prepDataStore.spawnData != null && prepDataStore.spawnData.hasMySpawn;
         bool hasOpponentSpawn = prepDataStore != null && prepDataStore.spawnData != null && prepDataStore.spawnData.hasOpponentSpawn;

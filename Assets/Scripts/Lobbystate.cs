@@ -7,6 +7,7 @@ public class LobbyState : NetworkBehaviour
     public static LobbyState Instance;
     public static event Action<int> PrepPhaseSkipRequested;
     public static event Action<int, Vector3, Quaternion> PrepObjectPlaced;
+    public static event Action<Vector3> PrepObjectDeleted;
     public static event Action<bool, Vector3> PrepSpawnPlaced;
     public static event Action PrepEquipmentAllReady;
     public static event Action BattlePlayerSpawnRequested;
@@ -253,6 +254,29 @@ public class LobbyState : NetworkBehaviour
     private void RPC_BroadcastPlacePrepObject(int prefabIndex, Vector3 position, Quaternion rotation)
     {
         PrepObjectPlaced?.Invoke(prefabIndex, position, rotation);
+    }
+
+    public void RequestDeletePrepObject(Vector3 position)
+    {
+        if (Runner == null)
+            return;
+
+        if (Object.HasStateAuthority)
+            RPC_BroadcastDeletePrepObject(position);
+        else
+            RPC_RequestDeletePrepObject(position);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestDeletePrepObject(Vector3 position)
+    {
+        RPC_BroadcastDeletePrepObject(position);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_BroadcastDeletePrepObject(Vector3 position)
+    {
+        PrepObjectDeleted?.Invoke(position);
     }
 
     public void RequestPlacePrepSpawn(bool isMySpawn, Vector3 position)
