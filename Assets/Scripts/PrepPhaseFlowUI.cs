@@ -8,6 +8,10 @@ public class PrepPhaseFlowUI : MonoBehaviour
 {
     public event Action PrepFlowCompleted;
 
+    [Header("Turn Intro SFX")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip prepStartSfx;
+
     [Header("Flow")]
     public bool playOnStart = true;
 
@@ -163,6 +167,8 @@ public class PrepPhaseFlowUI : MonoBehaviour
         // 그 위에 턴 소개 오버레이
         yield return ShowTurnIntroRoutine(GetObjectPlacementTurnText);
 
+        FindFirstObjectByType<GameRoundFlowController>()?.StartPrepBgm();
+
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(
             currentPhaseIndex,
@@ -225,6 +231,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         turnIntroCanvasGroup.gameObject.SetActive(true);
         turnIntroCanvasGroup.alpha = 1f;
+
+        if (audioSource != null && prepStartSfx != null)
+            audioSource.PlayOneShot(prepStartSfx);
 
         float t = 0f;
 

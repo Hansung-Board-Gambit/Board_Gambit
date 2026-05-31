@@ -109,7 +109,6 @@ public class GameRoundFlowController : MonoBehaviour
         SetLocalBattleControlActive(false);
         SetBattleHudVisible(false);
         SetCountdownVisible(false);
-        PlayPrepBgm();
         UpdatePhaseText();
     }
 
@@ -923,5 +922,10 @@ public class GameRoundFlowController : MonoBehaviour
         bool isHost = LobbyState.Instance.Runner.IsServer;
         bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
         resultAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
+    }
+
+    public void StartPrepBgm()
+    {
+        PlayPrepBgm();
     }
 }

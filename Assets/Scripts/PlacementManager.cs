@@ -228,11 +228,13 @@ public class PlacementManager : MonoBehaviour
 
     public void SetPlaceMode()
     {
+        PlaySfx(selectSfx);
         SetPlacementToolMode(PlacementToolMode.Place);
     }
 
     public void SetDeleteMode()
     {
+        PlaySfx(selectSfx);
         SetPlacementToolMode(PlacementToolMode.Delete);
     }
 

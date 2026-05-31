@@ -47,6 +47,12 @@ public class SpawnPlacementManager : MonoBehaviour
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
 
+    [Header("Sound")]
+    [SerializeField] private AudioSource sfxSource;
+    [SerializeField] private AudioClip selectSfx;     // 버튼 전환
+    [SerializeField] private AudioClip placeSfx;      // 스폰 배치 성공
+    [SerializeField] private AudioClip errorSfx;      // 배치 불가
+
     private SpawnMode currentMode = SpawnMode.None;
     private GameObject previewMarker;
     private SpawnMode previewMarkerMode = SpawnMode.None;
@@ -113,6 +119,9 @@ public class SpawnPlacementManager : MonoBehaviour
 
         if (!CanPlaceSpawn(snappedPosition))
         {
+            if (Input.GetMouseButtonDown(0))
+                PlaySfx(errorSfx);
+
             SetPreviewMarkerActive(false);
             return;
         }
@@ -124,10 +133,12 @@ public class SpawnPlacementManager : MonoBehaviour
 
         if (currentMode == SpawnMode.MySpawn)
         {
+            PlaySfx(placeSfx);
             RequestSpawnPlacement(true, snappedPosition);
         }
         else if (currentMode == SpawnMode.OpponentSpawn)
         {
+            PlaySfx(placeSfx);
             RequestSpawnPlacement(false, snappedPosition);
         }
 
@@ -139,6 +150,9 @@ public class SpawnPlacementManager : MonoBehaviour
         if (!CanLocalControlSpawnPlacement())
             return;
 
+        if (currentMode != SpawnMode.MySpawn)
+            PlaySfx(selectSfx);
+
         currentMode = SpawnMode.MySpawn;
         UpdateSpawnButtonVisuals();
     }
@@ -147,6 +161,9 @@ public class SpawnPlacementManager : MonoBehaviour
     {
         if (!CanLocalControlSpawnPlacement())
             return;
+
+        if (currentMode != SpawnMode.OpponentSpawn)
+            PlaySfx(selectSfx);
 
         currentMode = SpawnMode.OpponentSpawn;
         UpdateSpawnButtonVisuals();
@@ -617,5 +634,13 @@ public class SpawnPlacementManager : MonoBehaviour
         target.layer = layer;
         foreach (Transform child in target.transform)
             SetLayerRecursively(child.gameObject, layer);
+    }
+
+    private void PlaySfx(AudioClip clip)
+    {
+        if (clip == null || sfxSource == null)
+            return;
+
+        sfxSource.PlayOneShot(clip);
     }
 }

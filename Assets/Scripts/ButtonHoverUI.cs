@@ -8,6 +8,9 @@ public class ButtonHoverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private Image buttonImage;
     private TMP_Text buttonText;
 
+    public AudioSource audioSource;
+    public AudioClip hoverSfx;
+
     public Color normalBg = new Color(1, 1, 1, 0);
     public Color hoverBg = new Color(1f, 0.4f, 0.7f, 1f);
 
@@ -51,6 +54,9 @@ public class ButtonHoverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
         if (buttonText != null)
             buttonText.color = hoverText;
+
+        if (audioSource != null && hoverSfx != null)
+            audioSource.PlayOneShot(hoverSfx);
     }
 
     public void OnPointerExit(PointerEventData eventData)
