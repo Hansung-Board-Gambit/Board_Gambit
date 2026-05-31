@@ -8,6 +8,7 @@ public class SoundManager : MonoBehaviour
     public AudioSource bgmSource;
     public AudioSource sfxSource;
     public AudioClip clickSound;
+    public AudioClip clickSound2;
     public AudioClip mainBgm;
     public AudioClip gameBgm;
 
@@ -22,6 +23,9 @@ public class SoundManager : MonoBehaviour
 
     public void ChangeBGM(AudioClip clip)
     {
+        if (bgmSource == null || clip == null)
+            return;
+
         if (bgmSource.clip == clip)
             return;
 
@@ -39,6 +43,17 @@ public class SoundManager : MonoBehaviour
 
     public void ButtonClick()
     {
+        if (sfxSource == null || clickSound == null)
+            return;
+
         sfxSource.PlayOneShot(clickSound);
+    }
+
+    public void ButtonClick2()
+    {
+        if (sfxSource == null || clickSound == null)
+            return;
+
+        sfxSource.PlayOneShot(clickSound2);
     }
 }

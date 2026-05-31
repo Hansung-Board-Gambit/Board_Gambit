@@ -34,7 +34,7 @@ public class Player : NetworkBehaviour
     [Header("시선처리 가면")]
     [SerializeField] public Transform headPivot;
 
-    [SerializeField] float footstepDistance = 3f;
+    [SerializeField] float footstepDistance = 2.6f;
 
     private Vector3 lastFootstepPosition;
     private bool wasOnTrail;
@@ -464,11 +464,10 @@ public class Player : NetworkBehaviour
                 // 점프 처리
                 if (data.jump && controller.Grounded)
                 {
-                    Debug.Log("JUMP");
                     controller.Jump();
                     AnimJumpCount++;
 
-                    if (HasInputAuthority)
+                    if (!Runner.IsResimulation)
                     {
                         localAudioSource.PlayOneShot(jumpSfx);
                     }

@@ -56,13 +56,15 @@ public class SelfieStick : WeaponBase
         // ¥≠∑∂¿ª ∂ß
         if (current && !previous)
         {
-            PlaySfx(enterTpsSfx);
+            if (!Runner.IsResimulation)
+                PlaySfx(enterTpsSfx);
         }
 
         // ∂√¿ª ∂ß
         if (!current && previous)
         {
-            PlaySfx(exitTpsSfx);
+            if (!Runner.IsResimulation)
+                PlaySfx(exitTpsSfx);
         }
 
         isTpsMode = current;

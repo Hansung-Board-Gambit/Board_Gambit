@@ -128,10 +128,13 @@ public class PaintGun : WeaponBase
         if (clip == null || localAudioSource == null)
             return;
 
+        if (Runner.IsResimulation)
+            return;
+
         localAudioSource.PlayOneShot(clip);
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
     void RPC_PlayNetworkSfx(PaintGunSfxType type)
     {
         if (networkAudioSource == null)

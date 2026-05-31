@@ -581,6 +581,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         if (localIndex < 0 || localIndex >= currentRandomPool.Count) return;
 
+        if (SoundManager.instance != null)
+            SoundManager.instance.ButtonClick2();
+
         selectedEquipmentIndex = localIndex;
         WeaponData selectedWeapon = currentRandomPool[localIndex];
 

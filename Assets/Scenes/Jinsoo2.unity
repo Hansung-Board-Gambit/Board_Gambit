@@ -3767,6 +3767,7 @@ MonoBehaviour:
   bgmSource: {fileID: 600037917}
   sfxSource: {fileID: 600037919}
   clickSound: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
+  clickSound2: {fileID: 0}
   mainBgm: {fileID: 8300000, guid: 600b602535956da4abe67883ba600629, type: 3}
   gameBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
 --- !u!82 &600037917
@@ -11129,7 +11130,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3136952384230047436, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
       propertyPath: footstepDistance
-      value: 3
+      value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 3323580841963928926, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
       propertyPath: m_Name

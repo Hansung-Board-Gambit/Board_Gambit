@@ -134,7 +134,7 @@ public class Gauntlet : WeaponBase
 
     protected override void SkillQ() { }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
     void RPC_PlayNetworkSfx(GauntletSfxType type)
     {
         if (networkAudioSource == null)

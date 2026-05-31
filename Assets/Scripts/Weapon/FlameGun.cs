@@ -171,10 +171,13 @@ public class FlameGun : WeaponBase
         if (localAudioSource == null || clip == null)
             return;
 
+        if (Runner.IsResimulation)
+            return;
+
         localAudioSource.PlayOneShot(clip);
     }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
     void RPC_PlayNetworkSfx(FlameSfxType type)
     {
         if (networkAudioSource == null)

@@ -343,7 +343,7 @@ public class Grappling : WeaponBase
 
     protected override void SkillQ() { }
 
-    [Rpc(RpcSources.All, RpcTargets.All)]
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
     void RPC_PlayNetworkSfx(GrappleSfxType type)
     {
         if (networkAudioSource == null)

@@ -57,6 +57,7 @@ public abstract class WeaponBase : NetworkBehaviour
 
     public virtual void ProcessInput(NetworkInputData data,NetworkButtons prevButtons, NetworkRunner runner)
     {
+
         //장전 중이면 return - 공격불가
         if (IsReloading) return;
 
@@ -64,7 +65,6 @@ public abstract class WeaponBase : NetworkBehaviour
 
         //장전 시작되면 공격 못하게 return
         if (IsReloading) return;
-
 
         CheckLeftClick(data, prevButtons);
         CheckRightClick(data, prevButtons);
