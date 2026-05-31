@@ -66,7 +66,6 @@ MonoBehaviour:
   networkAudioSource: {fileID: -8496558560700557949}
   normalShotSfx: {fileID: 8300000, guid: c47cc24083fad7d419353808d92acb0a, type: 3}
   bounceShotSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
-  bounceHitSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
   reloadSfx: {fileID: 8300000, guid: ef626014df7dfcc4d9b80c9dcf433ea4, type: 3}
 --- !u!114 &7142002999739653655
 MonoBehaviour:
@@ -510,15 +509,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3.3865
+      value: 1.5130094
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3.3865
+      value: 1.5130094
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3.3865
+      value: 1.5130094
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -530,7 +529,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.257
+      value: 0.031
       objectReference: {fileID: 0}
     - target: {fileID: 4335757967258933310, guid: f522c54373a647145bb732bdcd16f5ef, type: 3}
       propertyPath: m_LocalRotation.w

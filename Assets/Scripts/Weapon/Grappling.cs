@@ -27,6 +27,7 @@ public class Grappling : WeaponBase
     [Header("그래플링 시각 효과")]
     [SerializeField] LineRenderer lr;
     [SerializeField] Transform grappleMuzzle;
+    [SerializeField] GameObject flyingKunaiPrefab;
 
     [Header("사운드")]
     [SerializeField] AudioSource networkAudioSource;
@@ -49,6 +50,8 @@ public class Grappling : WeaponBase
 
     [Networked] public TickTimer HookTravelTimer { get; set; }
     [Networked] public float InitialTravelTime { get; set; }
+
+    private GameObject activeFlyingKunai;
 
     public enum GrappleSfxType
     {
@@ -266,6 +269,14 @@ public class Grappling : WeaponBase
     }
     */
 
+    private void OnDisable()
+    {
+        if (activeFlyingKunai != null)
+        {
+            Destroy(activeFlyingKunai);
+        }
+    }
+
     public override void Render()
     {
         if (lr == null || grappleMuzzle == null) return;
@@ -273,11 +284,26 @@ public class Grappling : WeaponBase
         if (!IsFiring && !IsPulling)
         {
             lr.enabled = false;
+            if (activeFlyingKunai != null)
+            {
+                Destroy(activeFlyingKunai);
+
+                PlayerWeapon ownerWeapon = GetComponentInParent<PlayerWeapon>();
+                if (ownerWeapon != null) ownerWeapon.SetLeftHandVisualActive(true);
+            }
             return;
         }
 
         lr.enabled = true;
         lr.SetPosition(0, grappleMuzzle.position);
+
+        if (activeFlyingKunai == null && flyingKunaiPrefab != null)
+        {
+            activeFlyingKunai = Instantiate(flyingKunaiPrefab, grappleMuzzle.position, Quaternion.identity);
+            activeFlyingKunai.transform.localScale = new Vector3(10f, 10f, 10f);
+            PlayerWeapon ownerWeapon = GetComponentInParent<PlayerWeapon>();
+            if (ownerWeapon != null) ownerWeapon.SetLeftHandVisualActive(false);
+        }
 
         //시각 연출: 날아가던 도중 2번째 갈고리를 쏘면, 기존 줄이 사라지고 2번째 줄이 뻗어나가는 걸 보여줍니다.
         if (IsFiring)
@@ -288,10 +314,23 @@ public class Grappling : WeaponBase
 
             Vector3 currentRopeEnd = Vector3.Lerp(grappleMuzzle.position, FireTarget, progress);
             lr.SetPosition(1, currentRopeEnd);
+
+            if (activeFlyingKunai != null)
+            {
+                activeFlyingKunai.transform.position = currentRopeEnd;
+                // 쿠나이가 날아가는 방향을 바라보게 회전
+                if (FireTarget - grappleMuzzle.position != Vector3.zero)
+                    activeFlyingKunai.transform.forward = (FireTarget - grappleMuzzle.position).normalized;
+            }
         }
         else if (IsPulling)
         {
             lr.SetPosition(1, PullTarget);
+
+            if (activeFlyingKunai != null)
+            {
+                activeFlyingKunai.transform.position = PullTarget;
+            }
         }
     }
 

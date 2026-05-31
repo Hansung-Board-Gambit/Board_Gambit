@@ -20,6 +20,7 @@ MonoBehaviour:
   range: 0.8
   weaponIcon: {fileID: 21300000, guid: c05fa15ebb1350d4fb7f1858c63fb9fe, type: 3}
   weaponDescription: 
+  leftHandVisualPrefab: {fileID: 4672435651866746877, guid: 1e51de2c82d4ee646b2da62011a404b4, type: 3}
   leftClickCoolTime: 1
   rightClickCoolTime: 3
   skillQCoolTime: 0

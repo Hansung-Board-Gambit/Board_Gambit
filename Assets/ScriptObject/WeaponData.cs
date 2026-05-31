@@ -16,4 +16,7 @@ public class WeaponData : ScriptableObject
     public Sprite weaponIcon;
     [TextArea]
     public string weaponDescription;
+
+    [Header("양쪽 무기 전용 칸")]
+    public GameObject leftHandVisualPrefab;
 }

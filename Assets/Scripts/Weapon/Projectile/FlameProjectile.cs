@@ -27,7 +27,10 @@ public class FlameProjectile : NetworkBehaviour
             if(hit.Hitbox != null)
             {
                 NetworkObject hitNetObj = hit.Hitbox.Root.GetComponent<NetworkObject>();
-                if (hitNetObj != null && hitNetObj.InputAuthority == Shooter) { }
+                if (hitNetObj != null && hitNetObj.InputAuthority == Shooter) 
+                {
+                    //transform.position += displacement;
+                }
                 else
                 {
                     CreateFlameArea(hit.Point, hit.Normal);

@@ -7,6 +7,7 @@ public class PlayerWeapon : NetworkBehaviour
     [SerializeField] public Camera fpsCameraObject;
     //[SerializeField] public Transform firePoint;
     [SerializeField] public Transform handPosition;
+    [SerializeField] public Transform leftHandPosition;
 
     [Header("해당 so삽입")]
     [SerializeField] WeaponData weaponData;
@@ -32,6 +33,7 @@ public class PlayerWeapon : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnWeaponIndexChanged))]
     public int SyncWeaponIndex { get; set; } = -1;
 
+    public GameObject currentLeftHandVisual;
 
     private void OnEnable()
     {
@@ -156,6 +158,11 @@ public class PlayerWeapon : NetworkBehaviour
         {
             weaponData = weaponCatalog[SyncWeaponIndex];
         }
+        if (currentLeftHandVisual != null)
+        {
+            Destroy(currentLeftHandVisual);
+            currentLeftHandVisual = null;
+        }
 
         // 2. 무기 손에 붙이고 초기화
         if (NetWeaponObj != null)
@@ -164,12 +171,32 @@ public class PlayerWeapon : NetworkBehaviour
             NetWeaponObj.transform.localPosition = Vector3.zero;
             NetWeaponObj.transform.localRotation = Quaternion.identity;
 
+            NetWeaponObj.transform.localScale = new Vector3(100f, 100f, 100f);
+
+            if (weaponData != null && weaponData.leftHandVisualPrefab != null && leftHandPosition != null)
+            {
+                // 왼손에 가짜 껍데기를 소환하고 위치/크기를 맞추기
+                currentLeftHandVisual = Instantiate(weaponData.leftHandVisualPrefab, leftHandPosition);
+                currentLeftHandVisual.transform.localPosition = Vector3.zero;
+                currentLeftHandVisual.transform.localRotation = Quaternion.identity;
+
+                currentLeftHandVisual.transform.localScale = new Vector3(100f, 100f, 100f);
+            }
+
             currentWeapon = NetWeaponObj.GetComponent<WeaponBase>();
             if (currentWeapon != null && weaponData != null)
             {
                 currentWeapon.Init(this, weaponData);
                 Debug.Log($"<color=green><b>[무기 장착 끝!] {weaponData.name}</b></color>");
             }
+        }
+    }
+
+    public void SetLeftHandVisualActive(bool isActive)
+    {
+        if (currentLeftHandVisual != null)
+        {
+            currentLeftHandVisual.SetActive(isActive);
         }
     }
     /*
@@ -272,7 +299,7 @@ public class PlayerWeapon : NetworkBehaviour
             myPlayer = GetComponentInParent<Player>();
             if(myPlayer != null && myPlayer.fpsCamera != null)
             {
-                myPlayer.fpsCamera.transform.localRotation = Quaternion.Euler(data.pitch,0,0);
+                //myPlayer.fpsCamera.transform.localRotation = Quaternion.Euler(data.pitch,0,0);
             }
             /*
             if(firePoint != null)

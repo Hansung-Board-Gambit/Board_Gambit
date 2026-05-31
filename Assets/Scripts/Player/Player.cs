@@ -31,11 +31,15 @@ public class Player : NetworkBehaviour
     [SerializeField] AudioClip footstepSfx;
     [SerializeField] AudioClip trailEnterSfx;
     [SerializeField] AudioClip jumpSfx;
+    [Header("시선처리 가면")]
+    [SerializeField] public Transform headPivot;
 
     [SerializeField] float footstepDistance = 1.3f;
 
     private Vector3 lastFootstepPosition;
     private bool wasOnTrail;
+    //고개 각도를 전달할 네트워크 변수
+    [Networked] public float NetPitch {  get; set; }
 
     //페인트 탄 관련 네트워크 변수
     [Networked] public TickTimer TrailDebuffTimer {  get; set; }
@@ -122,6 +126,10 @@ public class Player : NetworkBehaviour
     public override void Render()
     {
         UpdateAnimatorParameters();
+        if (!HasInputAuthority && headPivot != null)
+        {           
+            headPivot.localRotation = Quaternion.Euler(NetPitch, 0, 0);
+        }
     }
 
     private bool ShouldStartVisibleInBattle()
@@ -254,6 +262,10 @@ public class Player : NetworkBehaviour
         // 핵심 방어막: 내 화면(Local)에서는 60Hz로 뚝뚝 끊기는 FUN의 회전을 무시하고, 
         // 매 모니터 프레임마다 몸통(Y축)과 카메라(X축)를 최고로 부드럽게 실시간 회전시킵니다!
         //transform.rotation = Quaternion.Euler(0, playerYaw, 0);
+        if (headPivot != null)
+        {
+            headPivot.localRotation = Quaternion.Euler(camPitch, 0, 0);
+        }
 
         if (fpsCamera != null)
         {
@@ -325,6 +337,8 @@ public class Player : NetworkBehaviour
         {
             // 1. 회전값 계산만 미리 해둡니다. (적용은 맨 마지막에!)
             Quaternion playerRotation = Quaternion.Euler(0, data.yaw, 0);
+            //고개 각도 네트워크 변수에 실시간 동기화
+            NetPitch = data.pitch;
 
             // 2. 카메라 위치는 무조건 갱신해 줍니다.
             if (HasInputAuthority)

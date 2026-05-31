@@ -83,7 +83,18 @@ public class FlameGun : WeaponBase
                 targetPoint = camOrigin + camForward * rangedWeapon.range; // 허공이면 100m 앞의 좌표
             }
 
-            Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+            //Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+
+            Vector3 spawnPos = firePoint.position;
+            Vector3 shootDirection = (targetPoint - spawnPos).normalized;
+
+            //총구가 바닥이나 벽을 뚫었는지 검사
+            if (Vector3.Dot(camForward, shootDirection) < 0.5f)
+            {
+                shootDirection = camForward;
+
+                spawnPos = camOrigin;
+            }
 
             NetworkObject obj = Runner.Spawn(flameProjectilePrefab, firePoint.position,
                 Quaternion.LookRotation(shootDirection), null);
