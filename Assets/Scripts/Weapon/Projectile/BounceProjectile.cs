@@ -46,7 +46,7 @@ public class BounceProjectile : NetworkBehaviour
 
                 if (hitObj != null && hitObj.InputAuthority == Shooter)
                 {
-
+                    //transform.position += displacement;
                 }
                 else
                 {

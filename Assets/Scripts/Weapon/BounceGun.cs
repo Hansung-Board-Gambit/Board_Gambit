@@ -89,8 +89,19 @@ public class BounceGun : WeaponBase
                 targetPoint = camOrigin + camForward * rangedWeapon.range;
             }
 
-            Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
-         
+            //Vector3 shootDirection = (targetPoint - firePoint.position).normalized;
+
+            Vector3 spawnPos = firePoint.position;
+            Vector3 shootDirection = (targetPoint - spawnPos).normalized;
+
+            //총구가 바닥이나 벽을 뚫었는지 검사
+            if (Vector3.Dot(camForward, shootDirection) < 0.5f)
+            {
+                shootDirection = camForward;
+            
+                spawnPos = camOrigin;
+            }
+
             //허공에 투사체 프리팹 소환
             NetworkObject obj = Runner.Spawn(bulletPrefab,firePoint.position, Quaternion.LookRotation(shootDirection), null);
 

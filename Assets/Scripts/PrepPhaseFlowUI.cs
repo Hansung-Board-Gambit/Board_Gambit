@@ -565,7 +565,8 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
     private void PrepareEquipmentSelection()
     {
-        selectedEquipmentIndex = dataStore != null ? dataStore.selectedEquipmentIndex : -1;
+        //selectedEquipmentIndex = dataStore != null ? dataStore.selectedEquipmentIndex : -1;
+        selectedEquipmentIndex = -1;
         UpdateEquipmentCardLabels();
         RefreshEquipmentCardVisuals();
     }
@@ -605,7 +606,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             selectedEquipmentIndex = -1;
             return;
         }
-
+        /*
         for (int i = 0; i < equipmentPool.Length; i++)
         {
             if (equipmentPool[i] != null)
@@ -620,6 +621,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
                 return;
             }
         }
+        */
+        int randomLocalIndex = UnityEngine.Random.Range(0, currentRandomPool.Count);
+        SelectEquipment(randomLocalIndex);
     }
 
     private void UpdateEquipmentCardLabels()

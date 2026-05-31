@@ -88,7 +88,6 @@ MonoBehaviour:
   networkAudioSource: {fileID: -4939690468829283650}
   shootSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
   flameBallSfx: {fileID: 8300000, guid: c47cc24083fad7d419353808d92acb0a, type: 3}
-  flameZoneSfx: {fileID: 0}
   reloadSfx: {fileID: 8300000, guid: ef626014df7dfcc4d9b80c9dcf433ea4, type: 3}
   flameProjectilePrefab: {fileID: 2168084721539009366, guid: d70e642a2a44a5e4590d4574c374ac58, type: 3}
   targetLayer:
@@ -321,15 +320,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3.5367
+      value: 2.6301377
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3.5367
+      value: 2.6301377
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3.5367
+      value: 2.6301377
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalPosition.x
@@ -341,7 +340,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.324
+      value: 0.153
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalRotation.w
