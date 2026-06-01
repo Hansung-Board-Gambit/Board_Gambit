@@ -299,7 +299,7 @@ public class PlayerWeapon : NetworkBehaviour
             myPlayer = GetComponentInParent<Player>();
             if(myPlayer != null && myPlayer.fpsCamera != null)
             {
-                //myPlayer.fpsCamera.transform.localRotation = Quaternion.Euler(data.pitch,0,0);
+                myPlayer.fpsCamera.transform.localRotation = Quaternion.Euler(data.pitch,0,0);
             }
             /*
             if(firePoint != null)

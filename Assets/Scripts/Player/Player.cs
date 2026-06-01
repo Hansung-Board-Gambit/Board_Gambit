@@ -264,10 +264,12 @@ public class Player : NetworkBehaviour
         // 핵심 방어막: 내 화면(Local)에서는 60Hz로 뚝뚝 끊기는 FUN의 회전을 무시하고, 
         // 매 모니터 프레임마다 몸통(Y축)과 카메라(X축)를 최고로 부드럽게 실시간 회전시킵니다!
         //transform.rotation = Quaternion.Euler(0, playerYaw, 0);
+        /*
         if (headPivot != null)
         {
             headPivot.localRotation = Quaternion.Euler(camPitch, 0, 0);
         }
+        */
 
         if (fpsCamera != null)
         {

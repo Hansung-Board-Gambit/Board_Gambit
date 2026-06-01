@@ -300,7 +300,7 @@ public class Grappling : WeaponBase
         if (activeFlyingKunai == null && flyingKunaiPrefab != null)
         {
             activeFlyingKunai = Instantiate(flyingKunaiPrefab, grappleMuzzle.position, Quaternion.identity);
-            activeFlyingKunai.transform.localScale = new Vector3(10f, 10f, 10f);
+            activeFlyingKunai.transform.localScale = new Vector3(7f, 7f, 7f);
             PlayerWeapon ownerWeapon = GetComponentInParent<PlayerWeapon>();
             if (ownerWeapon != null) ownerWeapon.SetLeftHandVisualActive(false);
         }
