@@ -3,6 +3,8 @@ using UnityEngine;
 [ExecuteAlways]
 public class CircularBoardWall : MonoBehaviour
 {
+    private const string InvisibleTopLayerName = "UI";
+
     [Header("References")]
     public Collider boardCollider;
     public Material wallMaterial;
@@ -137,6 +139,7 @@ public class CircularBoardWall : MonoBehaviour
         GameObject topObject = new GameObject("CircularBoardWall_InvisibleTop");
         topObject.hideFlags = HideFlags.DontSave;
         topObject.transform.SetParent(generatedRoot.transform, false);
+        SetLayerIfExists(topObject, InvisibleTopLayerName);
 
         Mesh mesh = BuildRingMesh(bounds, innerRadius, wallThickness, invisibleTopHeight, safeSegments, bounds.max.y + wallHeight);
 
@@ -238,6 +241,16 @@ public class CircularBoardWall : MonoBehaviour
             if (squareWallsToHide[i] != null && squareWallsToHide[i].activeSelf)
                 squareWallsToHide[i].SetActive(false);
         }
+    }
+
+    private void SetLayerIfExists(GameObject target, string layerName)
+    {
+        if (target == null)
+            return;
+
+        int layer = LayerMask.NameToLayer(layerName);
+        if (layer != -1)
+            target.layer = layer;
     }
 
     private void DestroyGeneratedObject(Object target)

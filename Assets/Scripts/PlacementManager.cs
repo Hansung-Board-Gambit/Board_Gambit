@@ -750,8 +750,15 @@ public class PlacementManager : MonoBehaviour
 
     private void ApplyFootprintScale(GameObject target, PlaceableObject info, Quaternion rotation)
     {
-        if (!autoScaleObjectsToFootprint || target == null || info == null)
+        if (target == null || info == null)
             return;
+
+        float directScale = GetFootprintScaleMultiplier(info);
+        if (!autoScaleObjectsToFootprint)
+        {
+            target.transform.localScale *= directScale;
+            return;
+        }
 
         Bounds bounds;
         if (!TryGetRendererBounds(target, out bounds))
@@ -770,6 +777,14 @@ public class PlacementManager : MonoBehaviour
             return;
 
         target.transform.localScale *= scaleFactor;
+    }
+
+    private float GetFootprintScaleMultiplier(PlaceableObject info)
+    {
+        if (info == null || info.sizeControlMode != PlaceableSizeControlMode.ScaleMultiplier)
+            return 1f;
+
+        return Mathf.Max(0.01f, info.footprintScaleMultiplier);
     }
 
     private void AlignObjectToBoardSurface(GameObject target)
@@ -828,7 +843,11 @@ public class PlacementManager : MonoBehaviour
             footprintZ = footprintX;
         }
 
-        return new Vector2(Mathf.Max(1f, footprintX), Mathf.Max(1f, footprintZ));
+        float scaleMultiplier = GetFootprintScaleMultiplier(info);
+        return new Vector2(
+            Mathf.Max(0.01f, footprintX * scaleMultiplier),
+            Mathf.Max(0.01f, footprintZ * scaleMultiplier)
+        );
     }
 
     private void RotateSelection()
