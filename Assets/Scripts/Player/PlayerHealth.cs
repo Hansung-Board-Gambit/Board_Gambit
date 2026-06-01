@@ -52,6 +52,10 @@ public class PlayerHealth : NetworkBehaviour
         if( CurrentHP <= 0 )
         {
             CurrentHP = 0;
+            if (HasInputAuthority && PlayerUI.instance != null)
+            {
+                PlayerUI.instance.UpdateHP(0, maxHP);
+            }
             Debug.Log("플레이어 사망");
         }
 

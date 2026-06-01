@@ -32,12 +32,7 @@ public class PaintGun : WeaponBase
         if(CurrentAmmo >= 1 && LeftClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 1;
-
-            if (HasStateAuthority)
-            {
-                RPC_PlayNetworkSfx(PaintGunSfxType.Shoot);
-            }
-
+            RPC_PlayNetworkSfx(PaintGunSfxType.Shoot);
             Shoot();
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, rangedData.leftClickCoolTime);
         }

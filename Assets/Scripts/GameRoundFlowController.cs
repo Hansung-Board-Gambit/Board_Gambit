@@ -487,12 +487,19 @@ public class GameRoundFlowController : MonoBehaviour
         return hostHp > guestHp ? 1 : 2;
     }
 
+    private IEnumerator DelayedRoundEnd()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        CompleteRoundAndPrepareNext();
+    }
+
     public void NotifyPlayerHealthDepleted(PlayerHealth depletedHealth)
     {
         if (depletedHealth == null || CurrentPhase != GameRoundPhase.Battle || !CanResolveRound())
             return;
 
-        CompleteRoundAndPrepareNext();
+        StartCoroutine(DelayedRoundEnd());
     }
 
     private bool TryGetPlayerHealth(int side, out PlayerHealth health)
@@ -875,6 +882,32 @@ public class GameRoundFlowController : MonoBehaviour
         );
     }
 
+    private IEnumerator FadeInPanel(GameObject panel, float duration = 2.5f)
+    {
+        if (panel == null)
+            yield break;
+
+        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+            canvasGroup = panel.AddComponent<CanvasGroup>();
+
+        panel.SetActive(true);
+
+        canvasGroup.alpha = 0f;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = 1f;
+    }
+
     private void ShowRoundResultUI()
     {
         PlayResultSfx();
@@ -891,9 +924,9 @@ public class GameRoundFlowController : MonoBehaviour
             return;
 
         if (isWinner)
-            victoryPanel.SetActive(true);
+            StartCoroutine(FadeInPanel(victoryPanel));
         else
-            defeatPanel.SetActive(true);
+            StartCoroutine(FadeInPanel(defeatPanel));
     }
 
     private void PlayPrepBgm()
