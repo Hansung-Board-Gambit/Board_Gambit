@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 286727710912284554}
   m_Layer: 0
-  m_Name: LeftGrappling
+  m_Name: GrapplingHooklPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,43 +42,43 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.069
+      value: -0.004
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.055
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.08
+      value: -0.009
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.92526865
+      value: 0.9999214
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.37828073
+      value: -0.009271661
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.021858461
+      value: 0.0012266783
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.017433435
+      value: 0.008358631
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: -44.49
+      value: -1.064
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 2.19
+      value: 0.132
       objectReference: {fileID: 0}
     - target: {fileID: 1302737924724173398, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 1.263
+      value: 0.957
       objectReference: {fileID: 0}
     - target: {fileID: 1828340026164736236, guid: 51974ed7a10bbf148b951aae89d64465, type: 3}
       propertyPath: m_Name

@@ -617,7 +617,7 @@ MonoBehaviour:
   grappleRechargeTime: 4
   lr: {fileID: 6924867443147764012}
   grappleMuzzle: {fileID: 4743654835637065397}
-  flyingKunaiPrefab: {fileID: 8062316620607733816, guid: 845dbe0f3e7b0fb40af4baa263e28587, type: 3}
+  flyingKunaiPrefab: {fileID: 8062316620607733816, guid: 093fa6fff6032a94b863e8f782724698, type: 3}
   networkAudioSource: {fileID: 4098740725084830782}
   swingSfx: {fileID: 8300000, guid: 5bab647da42c45945a8660b1cc85f461, type: 3}
   grappleSfx: {fileID: 8300000, guid: c992c6dd6b7a3bd47ad76f42a2754de8, type: 3}
@@ -1130,61 +1130,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7226213859685136725}
     m_Modifications:
-    - target: {fileID: 4125139759156341042, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.84974
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.84974
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.84974
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.000000048429
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.0000000033586
-      objectReference: {fileID: 0}
-    - target: {fileID: 4934973198260220628, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0.1394
-      objectReference: {fileID: 0}
     - target: {fileID: 6270801006863730838, guid: eb360b06ee92a194fa6a456126902349, type: 3}
       propertyPath: m_Name
       value: (Prb)LongSword
       objectReference: {fileID: 0}
     - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.371348
-      objectReference: {fileID: 0}
-    - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.371348
-      objectReference: {fileID: 0}
-    - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.371348
-      objectReference: {fileID: 0}
-    - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.034
+      value: -0.016
       objectReference: {fileID: 0}
     - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.006
+      value: -0.071
       objectReference: {fileID: 0}
     - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.01
+      value: -0.117
       objectReference: {fileID: 0}
     - target: {fileID: 6651127145205994028, guid: eb360b06ee92a194fa6a456126902349, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1214,8 +1174,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4125139759156341042, guid: eb360b06ee92a194fa6a456126902349, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
