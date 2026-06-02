@@ -20,6 +20,11 @@ public class PlacementManager : MonoBehaviour
         public GameObject worldObject;
     }
 
+    private class RendererMaterialState
+    {
+        public Material[] materials;
+    }
+
     [Header("References")]
     public Camera mainCamera;
     public GameObject objectPlacementPanel;
@@ -53,6 +58,10 @@ public class PlacementManager : MonoBehaviour
     public bool repeatPrefabsForExtraSlots = true;
     public string emptySlotLabel = "Empty";
 
+    [Header("Placement Shadows")]
+    public bool hideShadowsDuringObjectPlacement = true;
+    public Light[] objectPlacementShadowLights;
+
     [Header("Slot Preview")]
     public bool showSlotPrefabPreview = true;
     public int slotPreviewTextureSize = 128;
@@ -71,6 +80,7 @@ public class PlacementManager : MonoBehaviour
 
     [Header("Delete")]
     public float deletePositionTolerance = 0.2f;
+    public Color deleteHoverColor = new Color(1f, 0f, 0f, 0.65f);
 
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
@@ -94,6 +104,11 @@ public class PlacementManager : MonoBehaviour
     private GameObject slotPreviewRoot;
     private Image placeModeButtonBackground;
     private Image deleteModeButtonBackground;
+    private GameObject deleteHoverObject;
+    private Material deleteHoverMaterial;
+    private bool objectPlacementShadowsHidden;
+    private readonly Dictionary<Renderer, RendererMaterialState> deleteHoverOriginalMaterials = new Dictionary<Renderer, RendererMaterialState>();
+    private readonly Dictionary<Light, LightShadows> originalPlacementLightShadows = new Dictionary<Light, LightShadows>();
     private readonly List<SlotPreviewBinding> slotPreviewBindings = new List<SlotPreviewBinding>();
     private HashSet<Vector3> deleteSfxCooldown = new HashSet<Vector3>();
 
@@ -113,10 +128,15 @@ public class PlacementManager : MonoBehaviour
     {
         LobbyState.PrepObjectPlaced -= HandleNetworkObjectPlaced;
         LobbyState.PrepObjectDeleted -= HandleNetworkObjectDeleted;
+        RestoreDeleteHover();
+        RestoreObjectPlacementShadows();
     }
 
     private void OnDestroy()
     {
+        RestoreDeleteHover();
+        RestoreObjectPlacementShadows();
+        DestroyDeleteHoverMaterial();
         DestroySlotPreviews();
     }
 
@@ -130,9 +150,13 @@ public class PlacementManager : MonoBehaviour
 
     private void Update()
     {
-        if (objectPlacementPanel == null || !objectPlacementPanel.activeInHierarchy)
+        bool objectPlacementActive = objectPlacementPanel != null && objectPlacementPanel.activeInHierarchy;
+        SetObjectPlacementShadowsHidden(objectPlacementActive && hideShadowsDuringObjectPlacement);
+
+        if (!objectPlacementActive)
         {
             SetPreviewActive(false);
+            RestoreDeleteHover();
             return;
         }
 
@@ -141,6 +165,7 @@ public class PlacementManager : MonoBehaviour
         if (!CanLocalControlPlacement())
         {
             SetPreviewActive(false);
+            RestoreDeleteHover();
             return;
         }
 
@@ -149,7 +174,12 @@ public class PlacementManager : MonoBehaviour
             SetPreviewActive(false);
 
             if (IsPointerBlockedByUi())
+            {
+                RestoreDeleteHover();
                 return;
+            }
+
+            UpdateDeleteHover();
 
             if (Input.GetMouseButtonDown(0))
                 TryDeletePlacedObject();
@@ -247,6 +277,7 @@ public class PlacementManager : MonoBehaviour
 
     public void RefreshObjectSlots()
     {
+        CancelSelection();
         SetupObjectSlots();
     }
 
@@ -473,6 +504,7 @@ public class PlacementManager : MonoBehaviour
             return;
 
         Vector3 deletePosition = placedObject.transform.position;
+        RestoreDeleteHover();
         if (LobbyState.Instance != null)
         {
             LobbyState.Instance.RequestDeletePrepObject(deletePosition);
@@ -510,6 +542,9 @@ public class PlacementManager : MonoBehaviour
 
         if (placedObject != null)
         {
+            if (placedObject == deleteHoverObject)
+                RestoreDeleteHover();
+
             Destroy(placedObject);
 
             // 중복 방지 (한 프레임/한 위치 기준)
@@ -695,6 +730,9 @@ public class PlacementManager : MonoBehaviour
 
     private void SetPlacementToolMode(PlacementToolMode mode)
     {
+        if (currentToolMode != mode)
+            RestoreDeleteHover();
+
         currentToolMode = mode;
 
         if (currentToolMode == PlacementToolMode.Delete)
@@ -1534,6 +1572,215 @@ public class PlacementManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
     }
 
+    private void UpdateDeleteHover()
+    {
+        SetDeleteHoverObject(GetDeleteHoverObject());
+    }
+
+    private GameObject GetDeleteHoverObject()
+    {
+        if (mainCamera == null)
+            mainCamera = Camera.main;
+
+        if (mainCamera == null)
+            return null;
+
+        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (!Physics.Raycast(ray, out hit, 500f, placedObjectMask, QueryTriggerInteraction.Ignore))
+            return GetDeleteHoverObjectFromBoardPoint(ray);
+
+        return FindPlacedObjectRoot(hit.collider);
+    }
+
+    private GameObject GetDeleteHoverObjectFromBoardPoint(Ray ray)
+    {
+        RaycastHit boardHit;
+        if (!TryRaycastBoard(ray, out boardHit))
+            return null;
+
+        return FindPlacedObjectByBoardPoint(boardHit.point);
+    }
+
+    private GameObject FindPlacedObjectByBoardPoint(Vector3 boardPoint)
+    {
+        if (placedParent == null)
+            return null;
+
+        GameObject closestObject = null;
+        float closestDistanceSqr = float.PositiveInfinity;
+        float fallbackRadius = Mathf.Max(Mathf.Max(0.001f, deletePositionTolerance), Mathf.Abs(gridSize) * 0.5f);
+        float fallbackRadiusSqr = fallbackRadius * fallbackRadius;
+
+        for (int i = 0; i < placedParent.childCount; i++)
+        {
+            Transform child = placedParent.GetChild(i);
+            if (child == null)
+                continue;
+
+            Bounds bounds;
+            if (TryGetRendererBounds(child.gameObject, out bounds))
+            {
+                float padding = Mathf.Max(0.05f, Mathf.Abs(gridSize) * 0.1f);
+                bool insideBounds =
+                    boardPoint.x >= bounds.min.x - padding &&
+                    boardPoint.x <= bounds.max.x + padding &&
+                    boardPoint.z >= bounds.min.z - padding &&
+                    boardPoint.z <= bounds.max.z + padding;
+
+                if (insideBounds)
+                    return child.gameObject;
+            }
+
+            Vector2 childXZ = new Vector2(child.position.x, child.position.z);
+            Vector2 pointXZ = new Vector2(boardPoint.x, boardPoint.z);
+            float distanceSqr = (childXZ - pointXZ).sqrMagnitude;
+            if (distanceSqr > fallbackRadiusSqr || distanceSqr >= closestDistanceSqr)
+                continue;
+
+            closestDistanceSqr = distanceSqr;
+            closestObject = child.gameObject;
+        }
+
+        return closestObject;
+    }
+
+    private void SetDeleteHoverObject(GameObject target)
+    {
+        if (deleteHoverObject == target)
+            return;
+
+        RestoreDeleteHover();
+        deleteHoverObject = target;
+
+        if (deleteHoverObject != null)
+            ApplyDeleteHoverColor(deleteHoverObject);
+    }
+
+    private void ApplyDeleteHoverColor(GameObject target)
+    {
+        Material hoverMaterial = GetDeleteHoverMaterial();
+        if (hoverMaterial == null)
+            return;
+
+        Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null || deleteHoverOriginalMaterials.ContainsKey(renderer))
+                continue;
+
+            Material[] originalMaterials = renderer.materials;
+            deleteHoverOriginalMaterials.Add(renderer, new RendererMaterialState
+            {
+                materials = originalMaterials
+            });
+
+            Material[] hoverMaterials = new Material[Mathf.Max(1, originalMaterials.Length)];
+            for (int j = 0; j < hoverMaterials.Length; j++)
+                hoverMaterials[j] = hoverMaterial;
+
+            renderer.materials = hoverMaterials;
+        }
+    }
+
+    private Material GetDeleteHoverMaterial()
+    {
+        if (deleteHoverMaterial != null)
+            return deleteHoverMaterial;
+
+        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null)
+            shader = Shader.Find("Standard");
+        if (shader == null)
+            shader = Shader.Find("Unlit/Color");
+        if (shader == null)
+            return null;
+
+        deleteHoverMaterial = new Material(shader);
+        deleteHoverMaterial.name = "DeleteHoverMaterial_Runtime";
+        deleteHoverMaterial.hideFlags = HideFlags.DontSave;
+
+        if (deleteHoverMaterial.HasProperty("_BaseColor"))
+            deleteHoverMaterial.SetColor("_BaseColor", deleteHoverColor);
+
+        if (deleteHoverMaterial.HasProperty("_Color"))
+            deleteHoverMaterial.SetColor("_Color", deleteHoverColor);
+
+        return deleteHoverMaterial;
+    }
+
+    private void RestoreDeleteHover()
+    {
+        foreach (KeyValuePair<Renderer, RendererMaterialState> entry in deleteHoverOriginalMaterials)
+        {
+            if (entry.Key != null && entry.Value != null && entry.Value.materials != null)
+                entry.Key.materials = entry.Value.materials;
+        }
+
+        deleteHoverOriginalMaterials.Clear();
+        deleteHoverObject = null;
+    }
+    private void DestroyDeleteHoverMaterial()
+    {
+        if (deleteHoverMaterial == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(deleteHoverMaterial);
+        else
+            DestroyImmediate(deleteHoverMaterial);
+
+        deleteHoverMaterial = null;
+    }
+    private void SetObjectPlacementShadowsHidden(bool hidden)
+    {
+        if (hidden)
+            HideObjectPlacementShadows();
+        else
+            RestoreObjectPlacementShadows();
+    }
+
+    private void HideObjectPlacementShadows()
+    {
+        Light[] lights = GetObjectPlacementShadowLights();
+        for (int i = 0; i < lights.Length; i++)
+        {
+            Light light = lights[i];
+            if (light == null)
+                continue;
+
+            if (!originalPlacementLightShadows.ContainsKey(light))
+                originalPlacementLightShadows.Add(light, light.shadows);
+
+            light.shadows = LightShadows.None;
+        }
+
+        objectPlacementShadowsHidden = true;
+    }
+
+    private void RestoreObjectPlacementShadows()
+    {
+        if (!objectPlacementShadowsHidden && originalPlacementLightShadows.Count == 0)
+            return;
+
+        foreach (KeyValuePair<Light, LightShadows> entry in originalPlacementLightShadows)
+        {
+            if (entry.Key != null)
+                entry.Key.shadows = entry.Value;
+        }
+
+        originalPlacementLightShadows.Clear();
+        objectPlacementShadowsHidden = false;
+    }
+
+    private Light[] GetObjectPlacementShadowLights()
+    {
+        if (objectPlacementShadowLights != null && objectPlacementShadowLights.Length > 0)
+            return objectPlacementShadowLights;
+
+        return FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    }
     private void PlaySfx(AudioClip clip)
     {
         if (clip == null || sfxSource == null) return;

@@ -13,12 +13,12 @@ public class CircularBoardWall : MonoBehaviour
     [Header("Wall Shape")]
     public float radiusOffset = 0.25f;
     public float wallThickness = 0.5f;
-    public float wallHeight = 4f;
+    public float wallHeight = 6f;
     public int segments = 128;
 
     [Header("Invisible Top Collider")]
     public bool createInvisibleTopCollider = true;
-    public float invisibleTopHeight = 8f;
+    public float invisibleTopHeight = 14f;
 
     [Header("Generated Objects")]
     public string generatedRootName = "CircularBoardWall_Generated";
