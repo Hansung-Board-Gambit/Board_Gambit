@@ -591,6 +591,10 @@ MonoBehaviour:
   - {fileID: 8261624860209068613, guid: 9786a9df393f4134491c67fabcb6c95e, type: 3}
   - {fileID: 7705379498693962746, guid: ec071114b8fd5d5468111c87b27093d6, type: 3}
   - {fileID: 3561579029745449286, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+  - {fileID: 4844452223093545786, guid: d8f9fe6bdf6e85345a8d521f1c982806, type: 3}
+  - {fileID: 5642499610892450038, guid: 4e87d1f695a238c4c8a85057ff94d0bf, type: 3}
+  - {fileID: 227443186172811304, guid: a4011b4ca34c7f54d96481b62ed852dc, type: 3}
+  - {fileID: 1967167016130352128, guid: fef1b0947acc91840a6cff215a47ede0, type: 3}
   rotateKey: 114
   autoScaleObjectsToFootprint: 1
   footprintFitPadding: 0.85
@@ -3869,6 +3873,12 @@ MonoBehaviour:
   nameText: {fileID: 278673685}
   descriptionText: {fileID: 0}
   weaponIconImage: {fileID: 1138410727}
+  showDescriptionOnHover: 1
+  hoverFadeDuration: 0.18
+  hoverOverlayColor: {r: 0, g: 0, b: 0, a: 0.88}
+  hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverDescriptionFontSize: 24
+  hoverTextPadding: {x: 28, y: 28}
 --- !u!1 &856437957
 GameObject:
   m_ObjectHideFlags: 0
@@ -5342,6 +5352,12 @@ MonoBehaviour:
   nameText: {fileID: 443781098}
   descriptionText: {fileID: 0}
   weaponIconImage: {fileID: 892066952}
+  showDescriptionOnHover: 1
+  hoverFadeDuration: 0.18
+  hoverOverlayColor: {r: 0, g: 0, b: 0, a: 0.88}
+  hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverDescriptionFontSize: 24
+  hoverTextPadding: {x: 28, y: 28}
 --- !u!1 &966280956
 GameObject:
   m_ObjectHideFlags: 0
@@ -5917,6 +5933,12 @@ MonoBehaviour:
   matchScoreText: {fileID: 0}
   hostScoreText: {fileID: 700578163}
   guestScoreText: {fileID: 1374066128}
+  matchResultPanel: {fileID: 0}
+  winnerText: {fileID: 0}
+  hostNameText: {fileID: 0}
+  guestNameText: {fileID: 0}
+  hostFinalScoreText: {fileID: 0}
+  guestFinalScoreText: {fileID: 0}
   bgmSource: {fileID: 1024786537}
   prepBgm: {fileID: 8300000, guid: c76d0fe11299c944ca23a307c3c2dcbb, type: 3}
   battleBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
@@ -7115,6 +7137,12 @@ MonoBehaviour:
   nameText: {fileID: 1204728079}
   descriptionText: {fileID: 0}
   weaponIconImage: {fileID: 981400035}
+  showDescriptionOnHover: 1
+  hoverFadeDuration: 0.18
+  hoverOverlayColor: {r: 0, g: 0, b: 0, a: 0.88}
+  hoverTextColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverDescriptionFontSize: 24
+  hoverTextPadding: {x: 28, y: 28}
 --- !u!1 &1138410725
 GameObject:
   m_ObjectHideFlags: 0
@@ -7663,6 +7691,8 @@ MonoBehaviour:
   useCircularBoardBounds: 1
   markerYOffset: 0.3
   spawnCheckHalfExtents: {x: 0.4, y: 1, z: 0.4}
+  hideShadowsDuringSpawnPlacement: 1
+  spawnPlacementShadowLights: []
   allowEditorLocalTest: 1
   sfxSource: {fileID: 1209979574}
   selectSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}

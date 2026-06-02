@@ -105,6 +105,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
   footprint: {x: 9, y: 9}
   sizeControlMode: 1
-  footprintScaleMultiplier: 0.6666667
+  footprintScaleMultiplier: 1
   yOffset: 0.5
   prefabId: Object
