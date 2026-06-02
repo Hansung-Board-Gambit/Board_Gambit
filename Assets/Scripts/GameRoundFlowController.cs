@@ -58,6 +58,12 @@ public class GameRoundFlowController : MonoBehaviour
     public TextMeshProUGUI matchScoreText;
     public TextMeshProUGUI hostScoreText;
     public TextMeshProUGUI guestScoreText;
+    public GameObject matchResultPanel;
+    public TextMeshProUGUI winnerText;
+    public TextMeshProUGUI hostNameText;
+    public TextMeshProUGUI guestNameText;
+    public TextMeshProUGUI hostFinalScoreText;
+    public TextMeshProUGUI guestFinalScoreText;
 
     [Header("BGM")]
     [SerializeField] AudioSource bgmSource;
@@ -102,6 +108,9 @@ public class GameRoundFlowController : MonoBehaviour
 
         if (preparationCamera == null)
             preparationCamera = Camera.main;
+
+        if (matchResultPanel != null)
+            matchResultPanel.SetActive(false);
 
         AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.5f);
 
@@ -349,9 +358,9 @@ public class GameRoundFlowController : MonoBehaviour
             SetLocalBattleControlActive(false);
             SetPreparationCameraVisible(true);
             SetSpawnMarkersVisible(false);
-            SetBattleHudVisible(true);
-            resultHudRoot.SetActive(false);
+            SetBattleHudVisible(false);
             SetCountdownVisible(false);
+            resultHudRoot.SetActive(true);
             Debug.Log("Match completed after round " + roundIndex + ".");
             UpdatePhaseText();
             UpdateRoundResultText();
@@ -970,6 +979,51 @@ public class GameRoundFlowController : MonoBehaviour
             StartCoroutine(FadeInPanel(victoryPanel));
         else
             StartCoroutine(FadeInPanel(defeatPanel));
+    }
+
+    private void ShowMatchResultUI()
+    {
+        if (matchResultPanel == null)
+            return;
+
+        matchResultPanel.SetActive(true);
+
+        string hostName = "Host";
+        string guestName = "Guest";
+
+        NetworkRunner runner = LobbyState.Instance.Runner;
+
+        foreach (PlayerRef player in runner.ActivePlayers)
+        {
+            string nickname = LobbyState.Instance.GetPlayerNickname(player);
+
+            if (player == runner.LocalPlayer && runner.IsServer)
+                hostName = nickname;
+            else if (player != runner.LocalPlayer && runner.IsServer)
+                guestName = nickname;
+        }
+
+        if (hostNameText != null)
+            hostNameText.text = hostName;
+
+        if (guestNameText != null)
+            guestNameText.text = guestName;
+
+        if (hostFinalScoreText != null)
+            hostFinalScoreText.text = latestHostScore.ToString();
+
+        if (guestFinalScoreText != null)
+            guestFinalScoreText.text = latestGuestScore.ToString();
+
+        if (winnerText != null)
+        {
+            if (latestHostScore > latestGuestScore)
+                winnerText.text = $"{hostName} 铰府!";
+            else if (latestGuestScore > latestHostScore)
+                winnerText.text = $"{guestName} 铰府!";
+            else
+                winnerText.text = "公铰何";
+        }
     }
 
     private void PlayPrepBgm()
