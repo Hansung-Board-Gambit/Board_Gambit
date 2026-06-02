@@ -4,6 +4,8 @@ using UnityEngine;
 public class CircularBoardWall : MonoBehaviour
 {
     private const string InvisibleTopLayerName = "UI";
+    private const string VisibleWallObjectName = "CircularBoardWall";
+    private const string InvisibleTopObjectName = "CircularBoardWall_InvisibleTop";
 
     [Header("References")]
     public Collider boardCollider;
@@ -33,7 +35,9 @@ public class CircularBoardWall : MonoBehaviour
     private float lastThickness;
     private float lastHeight;
     private float lastInvisibleTopHeight;
+    private float lastTextureRepeatPerMeter;
     private int lastSegments;
+    private Material lastWallMaterial;
 
     private void OnEnable()
     {
@@ -58,6 +62,7 @@ public class CircularBoardWall : MonoBehaviour
         radiusOffset = Mathf.Max(0f, radiusOffset);
         wallThickness = Mathf.Max(0.05f, wallThickness);
         wallHeight = Mathf.Max(0.1f, wallHeight);
+        textureRepeatPerMeter = Mathf.Max(0.01f, textureRepeatPerMeter);
         invisibleTopHeight = Mathf.Max(0f, invisibleTopHeight);
         segments = Mathf.Clamp(segments, 16, 256);
         RebuildIfNeeded(true);
@@ -86,6 +91,7 @@ public class CircularBoardWall : MonoBehaviour
         float boardRadius = Mathf.Min(bounds.extents.x, bounds.extents.z);
         float innerRadius = boardRadius + radiusOffset;
         int safeSegments = Mathf.Clamp(segments, 16, 256);
+        float safeTextureRepeat = Mathf.Max(0.01f, textureRepeatPerMeter);
 
         if (!force &&
             generatedRoot != null &&
@@ -93,12 +99,44 @@ public class CircularBoardWall : MonoBehaviour
             Mathf.Approximately(lastThickness, wallThickness) &&
             Mathf.Approximately(lastHeight, wallHeight) &&
             Mathf.Approximately(lastInvisibleTopHeight, invisibleTopHeight) &&
+            Mathf.Approximately(lastTextureRepeatPerMeter, safeTextureRepeat) &&
             lastSegments == safeSegments)
         {
+            if (lastWallMaterial != wallMaterial)
+                ApplyWallMaterialToGeneratedWall();
+
             return;
         }
 
-        DestroyGeneratedObject(generatedRoot);
+        generatedRoot = GetOrCreateGeneratedRoot();
+
+        CreateOrUpdateVisibleWall(bounds, innerRadius, safeSegments);
+
+        if (createInvisibleTopCollider && invisibleTopHeight > 0f)
+            CreateOrUpdateInvisibleTopCollider(bounds, innerRadius, safeSegments);
+        else
+            DestroyGeneratedChild(InvisibleTopObjectName);
+
+        lastRadius = innerRadius;
+        lastThickness = wallThickness;
+        lastHeight = wallHeight;
+        lastInvisibleTopHeight = invisibleTopHeight;
+        lastTextureRepeatPerMeter = safeTextureRepeat;
+        lastSegments = safeSegments;
+        lastWallMaterial = wallMaterial;
+    }
+
+    private GameObject GetOrCreateGeneratedRoot()
+    {
+        if (generatedRoot != null)
+            return generatedRoot;
+
+        Transform existingRoot = transform.Find(generatedRootName);
+        if (existingRoot != null)
+        {
+            generatedRoot = existingRoot.gameObject;
+            return generatedRoot;
+        }
 
         generatedRoot = new GameObject(generatedRootName);
         generatedRoot.hideFlags = HideFlags.DontSave;
@@ -106,48 +144,85 @@ public class CircularBoardWall : MonoBehaviour
         generatedRoot.transform.position = Vector3.zero;
         generatedRoot.transform.rotation = Quaternion.identity;
         generatedRoot.transform.localScale = Vector3.one;
-
-        CreateVisibleWall(bounds, innerRadius, safeSegments);
-
-        if (createInvisibleTopCollider && invisibleTopHeight > 0f)
-            CreateInvisibleTopCollider(bounds, innerRadius, safeSegments);
-
-        lastRadius = innerRadius;
-        lastThickness = wallThickness;
-        lastHeight = wallHeight;
-        lastInvisibleTopHeight = invisibleTopHeight;
-        lastSegments = safeSegments;
+        return generatedRoot;
     }
 
-    private void CreateVisibleWall(Bounds bounds, float innerRadius, int safeSegments)
+    private GameObject GetOrCreateGeneratedChild(string childName)
     {
-        GameObject wallObject = new GameObject("CircularBoardWall");
-        wallObject.hideFlags = HideFlags.DontSave;
+        GameObject root = GetOrCreateGeneratedRoot();
+        Transform existingChild = root.transform.Find(childName);
+        if (existingChild != null)
+            return existingChild.gameObject;
+
+        GameObject child = new GameObject(childName);
+        child.hideFlags = HideFlags.DontSave;
+        child.transform.SetParent(root.transform, false);
+        child.transform.localPosition = Vector3.zero;
+        child.transform.localRotation = Quaternion.identity;
+        child.transform.localScale = Vector3.one;
+        return child;
+    }
+
+    private void CreateOrUpdateVisibleWall(Bounds bounds, float innerRadius, int safeSegments)
+    {
+        GameObject wallObject = GetOrCreateGeneratedChild(VisibleWallObjectName);
         wallObject.transform.SetParent(generatedRoot.transform, false);
 
         Mesh mesh = BuildRingMesh(bounds, innerRadius, wallThickness, wallHeight, safeSegments, bounds.max.y);
 
-        MeshFilter meshFilter = wallObject.AddComponent<MeshFilter>();
-        meshFilter.sharedMesh = mesh;
+        MeshFilter meshFilter = GetOrAddComponent<MeshFilter>(wallObject);
 
-        MeshRenderer meshRenderer = wallObject.AddComponent<MeshRenderer>();
-        meshRenderer.sharedMaterial = GetWallMaterial();
+        MeshRenderer meshRenderer = GetOrAddComponent<MeshRenderer>(wallObject);
+        if (wallMaterial != null || meshRenderer.sharedMaterial == null)
+            meshRenderer.sharedMaterial = GetWallMaterial();
 
-        MeshCollider meshCollider = wallObject.AddComponent<MeshCollider>();
-        meshCollider.sharedMesh = mesh;
+        MeshCollider meshCollider = GetOrAddComponent<MeshCollider>(wallObject);
+        ReplaceSharedMesh(meshFilter, meshCollider, mesh);
     }
 
-    private void CreateInvisibleTopCollider(Bounds bounds, float innerRadius, int safeSegments)
+    private void CreateOrUpdateInvisibleTopCollider(Bounds bounds, float innerRadius, int safeSegments)
     {
-        GameObject topObject = new GameObject("CircularBoardWall_InvisibleTop");
-        topObject.hideFlags = HideFlags.DontSave;
-        topObject.transform.SetParent(generatedRoot.transform, false);
+        GameObject topObject = GetOrCreateGeneratedChild(InvisibleTopObjectName);
         SetLayerIfExists(topObject, InvisibleTopLayerName);
 
         Mesh mesh = BuildRingMesh(bounds, innerRadius, wallThickness, invisibleTopHeight, safeSegments, bounds.max.y + wallHeight);
 
-        MeshCollider meshCollider = topObject.AddComponent<MeshCollider>();
+        MeshCollider meshCollider = GetOrAddComponent<MeshCollider>(topObject);
+        Mesh oldMesh = meshCollider.sharedMesh;
+        meshCollider.sharedMesh = null;
         meshCollider.sharedMesh = mesh;
+
+        DestroyGeneratedObject(oldMesh);
+    }
+
+    private T GetOrAddComponent<T>(GameObject target) where T : Component
+    {
+        T component = target.GetComponent<T>();
+        if (component != null)
+            return component;
+
+        return target.AddComponent<T>();
+    }
+
+    private void ReplaceSharedMesh(MeshFilter meshFilter, MeshCollider meshCollider, Mesh mesh)
+    {
+        Mesh oldMesh = meshFilter.sharedMesh;
+        meshFilter.sharedMesh = mesh;
+
+        meshCollider.sharedMesh = null;
+        meshCollider.sharedMesh = mesh;
+
+        DestroyGeneratedObject(oldMesh);
+    }
+
+    private void DestroyGeneratedChild(string childName)
+    {
+        if (generatedRoot == null)
+            return;
+
+        Transform child = generatedRoot.transform.Find(childName);
+        if (child != null)
+            DestroyGeneratedObject(child.gameObject);
     }
 
     private Mesh BuildRingMesh(Bounds bounds, float innerRadius, float thickness, float height, int safeSegments, float bottomY)
@@ -285,6 +360,23 @@ public class CircularBoardWall : MonoBehaviour
             runtimeMaterial.SetColor("_Color", fallbackWallColor);
 
         return runtimeMaterial;
+    }
+
+    private void ApplyWallMaterialToGeneratedWall()
+    {
+        if (generatedRoot == null)
+            return;
+
+        Transform wallTransform = generatedRoot.transform.Find("CircularBoardWall");
+        if (wallTransform == null)
+            return;
+
+        MeshRenderer meshRenderer = wallTransform.GetComponent<MeshRenderer>();
+        if (meshRenderer == null)
+            return;
+
+        meshRenderer.sharedMaterial = GetWallMaterial();
+        lastWallMaterial = wallMaterial;
     }
 
     private void HideSquareWalls()
