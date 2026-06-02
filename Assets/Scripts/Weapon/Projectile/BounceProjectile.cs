@@ -31,7 +31,7 @@ public class BounceProjectile : NetworkBehaviour
     public override void FixedUpdateNetwork()
     {
         //포물선 계산
-        Velocity += Physics.gravity * Runner.DeltaTime;
+        Velocity += (Physics.gravity * 0.4f) * Runner.DeltaTime;
 
         //1틱에 얼마나 이동할지 거리 계산
         Vector3 displacement = Velocity * Runner.DeltaTime;
@@ -111,6 +111,7 @@ public class BounceProjectile : NetworkBehaviour
                     //중복 피격 막음
                     hitPlayers.Add(target);
                 }
+                target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedData.damage, gameObject.name);
             }
         }
 

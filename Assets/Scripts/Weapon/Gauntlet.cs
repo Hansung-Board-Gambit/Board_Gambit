@@ -75,6 +75,7 @@ public class Gauntlet : WeaponBase
             if (HasStateAuthority)
             {
                 hit.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
+                hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
     }
@@ -118,7 +119,7 @@ public class Gauntlet : WeaponBase
                         Debug.Log("벽 충돌!");
                     }
                     targetPlayer.GetComponent<PlayerHealth>()?.RPC_TakeDamage(finalDamage, myPlayer.gameObject.name);
-                
+                    
                     //넉백 시간 계산 : 시간 = 거리/속도
                     float duration = 0.1f;
                     if(shockPower > 0)

@@ -60,7 +60,7 @@ MonoBehaviour:
   debuffDuration: 5
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 577
 --- !u!114 &7276664176800779923
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -58,7 +58,8 @@ public class PaintGun : WeaponBase
             rangedWeapon.range,
             Object.InputAuthority,
             out LagCompensatedHit hit,
-            targetLayer
+            targetLayer,
+            HitOptions.IncludePhysX
         );
 
         if (!isHit)
@@ -90,6 +91,7 @@ public class PaintGun : WeaponBase
                 {
                     targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
                 }
+                target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedWeapon.damage, myPlayer.gameObject.name);
 
                 PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
                 if (targetWeapon != null)

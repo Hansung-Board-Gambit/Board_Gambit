@@ -92,7 +92,7 @@ MonoBehaviour:
   flameProjectilePrefab: {fileID: 2168084721539009366, guid: d70e642a2a44a5e4590d4574c374ac58, type: 3}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 577
 --- !u!114 &2896346359437097827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -332,31 +332,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.96944785
+      value: 0.93652236
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.23688969
+      value: 0.20151429
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.0041769673
+      value: -0.26568988
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.0635354
+      value: -0.1082904
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 27.308
+      value: 18.657
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -2.464
+      value: -34.842
       objectReference: {fileID: 0}
     - target: {fileID: 6114346395701529424, guid: 7ffd8f448dffaa140989b47b8be38027, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -8.098
+      value: -19.093
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -155,7 +155,7 @@ MonoBehaviour:
   cameraTransitionSpeed: 8
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 577
   audioSource: {fileID: 2200141972839464675}
   swingSfx: {fileID: 8300000, guid: 5bab647da42c45945a8660b1cc85f461, type: 3}
   enterTpsSfx: {fileID: 8300000, guid: 9a5183993072dcd4488f97edc1f7d5a0, type: 3}

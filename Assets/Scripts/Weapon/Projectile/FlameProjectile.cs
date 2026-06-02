@@ -18,7 +18,7 @@ public class FlameProjectile : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        Velocity += Physics.gravity * Runner.DeltaTime;
+        Velocity += (Physics.gravity*0.4f) * Runner.DeltaTime;
         Vector3 displacement = Velocity * Runner.DeltaTime;
 
         if(Runner.LagCompensation.Raycast(transform.position, Velocity.normalized, 

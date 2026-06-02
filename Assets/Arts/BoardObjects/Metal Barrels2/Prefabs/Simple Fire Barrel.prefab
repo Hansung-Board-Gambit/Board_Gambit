@@ -463,6 +463,10 @@ GameObject:
   - component: {fileID: 4100224141683259836}
   - component: {fileID: -8458560469967562753}
   - component: {fileID: 9207394661306959640}
+  - component: {fileID: 7408961385160723983}
+  - component: {fileID: 8622017429391921226}
+  - component: {fileID: 5856482776662352054}
+  - component: {fileID: 7952472446090973392}
   m_Layer: 0
   m_Name: Simple Fire Barrel
   m_TagString: Untagged
@@ -575,5 +579,84 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
   footprint: {x: 1, y: 1}
+  sizeControlMode: 0
+  footprintScaleMultiplier: 1
   yOffset: 0.5
   prefabId: Object
+--- !u!114 &7408961385160723983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7035482642403280837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df018bf2d986b854bbbb274b5979b04e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExplosiveBarrel
+  explosionRadius: 5
+  explosionDamage: 50
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  explosionVFX: {fileID: 0}
+  _IsExploded:
+    _value: 0
+--- !u!114 &8622017429391921226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7035482642403280837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 1994773074
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 7408961385160723983}
+  - {fileID: 5856482776662352054}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &5856482776662352054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7035482642403280837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1039544458, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.HitboxRoot
+  Config: 3
+  BroadRadius: 0
+  Offset: {x: 0, y: 0, z: 0}
+  GizmosColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  Hitboxes: []
+--- !u!114 &7952472446090973392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7035482642403280837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1014831617, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.Hitbox
+  Type: 3
+  SphereRadius: 0
+  CapsuleRadius: 0.3
+  BoxExtents: {x: 0, y: 0, z: 0}
+  CapsuleExtents: 0.95
+  Offset: {x: 0, y: 0.46, z: 0}
+  Root: {fileID: 0}
+  GizmosColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}

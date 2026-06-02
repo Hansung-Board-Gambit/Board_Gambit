@@ -151,7 +151,7 @@ MonoBehaviour:
     _value: 0
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 577
   punchWidth: 2
   hitRange: 8
   shockwaveRaius: 4

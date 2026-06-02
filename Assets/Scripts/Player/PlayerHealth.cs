@@ -70,6 +70,19 @@ public class PlayerHealth : NetworkBehaviour
         Debug.Log("±âÀý");
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_Heal(int amount)
+    {
+        if (CurrentHP <= 0) return;
+        CurrentHP += amount;
+        if(CurrentHP > maxHP)
+        {
+            CurrentHP = maxHP;
+        }
+
+    }
+
+
     public void OnHPChanged()
     {
         if (HasInputAuthority && PlayerUI.instance != null)

@@ -405,6 +405,7 @@ public class Player : NetworkBehaviour
                     currentSpeed = sitDownSpeed;
                     controller.maxSpeed = sitDownSpeed;
                     currentHeight = crouchExtents;
+                  
                     if (myHitbox != null)
                     {
                         myHitbox.CapsuleExtents = crouchExtents;
@@ -421,6 +422,7 @@ public class Player : NetworkBehaviour
                     currentSpeed = walkSpeed;
                     controller.maxSpeed = walkSpeed;
                     currentHeight = standExtents;
+                  
                     if (myHitbox != null)
                     {
                         myHitbox.CapsuleExtents = standExtents;

@@ -88,6 +88,17 @@ public class FlameGun : WeaponBase
             Vector3 spawnPos = firePoint.position;
             Vector3 shootDirection = (targetPoint - spawnPos).normalized;
 
+            float distanceToTarget = Vector3.Distance(camOrigin, targetPoint);
+
+            if (distanceToTarget < 0.5f)
+            {
+                shootDirection = camForward;
+            }
+            else
+            {  
+                shootDirection = (targetPoint - spawnPos).normalized;
+            }
+
             //ÃÑ±¸°¡ ¹Ù´ÚÀÌ³ª º®À» ¶Õ¾ú´ÂÁö °Ë»ç
             if (Vector3.Dot(camForward, shootDirection) < 0.5f)
             {
@@ -95,6 +106,8 @@ public class FlameGun : WeaponBase
 
                 spawnPos = camOrigin;
             }
+
+            Quaternion spawnRotation = Quaternion.LookRotation(shootDirection);
 
             NetworkObject obj = Runner.Spawn(flameProjectilePrefab, firePoint.position,
                 Quaternion.LookRotation(shootDirection), null);
@@ -118,7 +131,8 @@ public class FlameGun : WeaponBase
             rangedWeapon.range,
             Object.InputAuthority,
             out LagCompensatedHit hit,
-            targetLayer
+            targetLayer,
+            HitOptions.IncludePhysX
         );
 
         if (!isHit)
@@ -150,6 +164,7 @@ public class FlameGun : WeaponBase
                 {
                     targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
                 }
+                target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedWeapon.damage, myPlayer.gameObject.name);
 
                 PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
                 if (targetWeapon != null)
