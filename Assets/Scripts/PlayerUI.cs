@@ -43,6 +43,7 @@ public class PlayerUI : MonoBehaviour
         if (hpFillImage == null) return;
         float ratio = (float)currentHP / maxHP;
         hpFillImage.fillAmount = (float)currentHP / maxHP;
+        Debug.Log($"fillAmount = {hpFillImage.fillAmount}");
     }
 
     public void UpdateAmmoText(int currentAmmo, int maxAmmo)

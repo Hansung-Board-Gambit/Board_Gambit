@@ -64,15 +64,19 @@ public class GameRoundFlowController : MonoBehaviour
     [SerializeField] AudioClip prepBgm;
     [SerializeField] AudioClip battleBgm;
 
-    [Header("Result SFX")]
-    [SerializeField] AudioSource resultAudioSource;
+    [Header("SFX")]
+    [SerializeField] AudioSource SFXAudioSource;
     [SerializeField] AudioClip victorySfx;
     [SerializeField] AudioClip defeatSfx;
+    [SerializeField] AudioClip countdownTickSfx;
+    [SerializeField] AudioClip fightSfx;
+    [SerializeField] AudioClip dangerTimeSfx;
 
     public GameRoundPhase CurrentPhase { get; private set; } = GameRoundPhase.Preparation;
 
     private Coroutine battleRoutine;
     private Coroutine battleSpawnRoutine;
+    private bool dangerTimeSfxPlayed;
     private float battleTimeRemaining;
     private float countdownTimeRemaining;
     private int latestRoundWinnerSide = -1;
@@ -201,6 +205,9 @@ public class GameRoundFlowController : MonoBehaviour
 
     private IEnumerator BattleSequenceRoutine()
     {
+        if (battleTimerText != null)
+            battleTimerText.color = Color.white;
+
         CurrentPhase = GameRoundPhase.Countdown;
         latestRoundWinnerSide = -1;
         if (roundResultText != null)
@@ -216,12 +223,24 @@ public class GameRoundFlowController : MonoBehaviour
         SetCountdownVisible(true);
 
         float remain = Mathf.Max(0.1f, countdownDuration);
+        int lastNumber = -1;
+
         while (remain > 0f)
         {
             countdownTimeRemaining = remain;
 
+            int currentNumber = Mathf.CeilToInt(remain);
+
             if (countdownText != null)
                 countdownText.text = Mathf.CeilToInt(remain).ToString();
+
+            if (currentNumber != lastNumber)
+            {
+                lastNumber = currentNumber;
+
+                if (SFXAudioSource != null && countdownTickSfx != null)
+                    SFXAudioSource.PlayOneShot(countdownTickSfx);
+            }
 
             remain -= Time.deltaTime;
             yield return null;
@@ -230,8 +249,12 @@ public class GameRoundFlowController : MonoBehaviour
         if (countdownText != null)
             countdownText.text = "Fight!";
 
+        if (SFXAudioSource != null && fightSfx != null)
+            SFXAudioSource.PlayOneShot(fightSfx);
+
         yield return new WaitForSeconds(0.75f);
 
+        dangerTimeSfxPlayed = false;
         CurrentPhase = GameRoundPhase.Battle;
         PlayBattleBgm();
         RequestBattlePlayerSpawn();
@@ -262,11 +285,31 @@ public class GameRoundFlowController : MonoBehaviour
                 battleTimerFill.fillAmount = Mathf.Clamp01(remain / duration);
 
             if (battleTimerText != null)
+            {
                 battleTimerText.text = "Time: " + Mathf.CeilToInt(battleTimeRemaining);
 
-            if (CanResolveRound() && ShouldEndRoundByHealth())
-                break;
+                if (battleTimeRemaining <= 10f)
+                {
+                    battleTimerText.color = Color.red;
 
+                    if (!dangerTimeSfxPlayed)
+                    {
+                        dangerTimeSfxPlayed = true;
+
+                        if (SFXAudioSource != null && dangerTimeSfx != null)
+                            SFXAudioSource.PlayOneShot(dangerTimeSfx);
+                    }
+                }
+                else
+                {
+                    battleTimerText.color = Color.white;
+                }
+            }
+
+            //if (CanResolveRound() && ShouldEndRoundByHealth())
+            //{
+            //    break;
+            //}
             yield return null;
         }
 
@@ -487,12 +530,19 @@ public class GameRoundFlowController : MonoBehaviour
         return hostHp > guestHp ? 1 : 2;
     }
 
+    private IEnumerator DelayedRoundEnd()
+    {
+        yield return new WaitForSeconds(0.05f);
+
+        CompleteRoundAndPrepareNext();
+    }
+
     public void NotifyPlayerHealthDepleted(PlayerHealth depletedHealth)
     {
         if (depletedHealth == null || CurrentPhase != GameRoundPhase.Battle || !CanResolveRound())
             return;
 
-        CompleteRoundAndPrepareNext();
+        StartCoroutine(DelayedRoundEnd());
     }
 
     private bool TryGetPlayerHealth(int side, out PlayerHealth health)
@@ -875,6 +925,32 @@ public class GameRoundFlowController : MonoBehaviour
         );
     }
 
+    private IEnumerator FadeInPanel(GameObject panel, float duration = 2.5f)
+    {
+        if (panel == null)
+            yield break;
+
+        CanvasGroup canvasGroup = panel.GetComponent<CanvasGroup>();
+
+        if (canvasGroup == null)
+            canvasGroup = panel.AddComponent<CanvasGroup>();
+
+        panel.SetActive(true);
+
+        canvasGroup.alpha = 0f;
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            canvasGroup.alpha = Mathf.Clamp01(elapsed / duration);
+            yield return null;
+        }
+
+        canvasGroup.alpha = 1f;
+    }
+
     private void ShowRoundResultUI()
     {
         PlayResultSfx();
@@ -891,9 +967,9 @@ public class GameRoundFlowController : MonoBehaviour
             return;
 
         if (isWinner)
-            victoryPanel.SetActive(true);
+            StartCoroutine(FadeInPanel(victoryPanel));
         else
-            defeatPanel.SetActive(true);
+            StartCoroutine(FadeInPanel(defeatPanel));
     }
 
     private void PlayPrepBgm()
@@ -921,7 +997,7 @@ public class GameRoundFlowController : MonoBehaviour
 
         bool isHost = LobbyState.Instance.Runner.IsServer;
         bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
-        resultAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
+        SFXAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
     }
 
     public void StartPrepBgm()
