@@ -5565,9 +5565,12 @@ MonoBehaviour:
   bgmSource: {fileID: 1024786537}
   prepBgm: {fileID: 8300000, guid: c76d0fe11299c944ca23a307c3c2dcbb, type: 3}
   battleBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
-  resultAudioSource: {fileID: 1024786536}
+  SFXAudioSource: {fileID: 1024786536}
   victorySfx: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
   defeatSfx: {fileID: 8300000, guid: f81d52729cd1c2144a03be1a819750ad, type: 3}
+  countdownTickSfx: {fileID: 8300000, guid: c992c6dd6b7a3bd47ad76f42a2754de8, type: 3}
+  fightSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
+  dangerTimeSfx: {fileID: 8300000, guid: 9ff827eb2007b23429609d3deb443468, type: 3}
 --- !u!82 &1024786536
 AudioSource:
   m_ObjectHideFlags: 0
