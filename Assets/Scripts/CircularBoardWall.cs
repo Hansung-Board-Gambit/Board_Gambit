@@ -13,12 +13,15 @@ public class CircularBoardWall : MonoBehaviour
     [Header("Wall Shape")]
     public float radiusOffset = 0.25f;
     public float wallThickness = 0.5f;
-    public float wallHeight = 4f;
+    public float wallHeight = 6f;
     public int segments = 128;
+
+    [Header("Material Mapping")]
+    public float textureRepeatPerMeter = 1f;
 
     [Header("Invisible Top Collider")]
     public bool createInvisibleTopCollider = true;
-    public float invisibleTopHeight = 8f;
+    public float invisibleTopHeight = 14f;
 
     [Header("Generated Objects")]
     public string generatedRootName = "CircularBoardWall_Generated";
@@ -155,50 +158,103 @@ public class CircularBoardWall : MonoBehaviour
 
         float outerRadius = innerRadius + thickness;
         Vector3 center = new Vector3(bounds.center.x, 0f, bounds.center.z);
-        Vector3[] vertices = new Vector3[safeSegments * 4];
+        Vector3[] vertices = new Vector3[safeSegments * 16];
+        Vector2[] uv = new Vector2[vertices.Length];
         int[] triangles = new int[safeSegments * 24];
-
-        for (int i = 0; i < safeSegments; i++)
-        {
-            float angle = (Mathf.PI * 2f * i) / safeSegments;
-            Vector3 inner = new Vector3(Mathf.Cos(angle) * innerRadius, 0f, Mathf.Sin(angle) * innerRadius) + center;
-            Vector3 outer = new Vector3(Mathf.Cos(angle) * outerRadius, 0f, Mathf.Sin(angle) * outerRadius) + center;
-
-            int vertexIndex = i * 4;
-            vertices[vertexIndex] = transform.InverseTransformPoint(new Vector3(inner.x, bottomY, inner.z));
-            vertices[vertexIndex + 1] = transform.InverseTransformPoint(new Vector3(inner.x, bottomY + height, inner.z));
-            vertices[vertexIndex + 2] = transform.InverseTransformPoint(new Vector3(outer.x, bottomY, outer.z));
-            vertices[vertexIndex + 3] = transform.InverseTransformPoint(new Vector3(outer.x, bottomY + height, outer.z));
-        }
+        float repeat = Mathf.Max(0.01f, textureRepeatPerMeter);
+        float heightUv = height * repeat;
+        float thicknessUv = thickness * repeat;
 
         for (int i = 0; i < safeSegments; i++)
         {
             int next = (i + 1) % safeSegments;
-            int v = i * 4;
-            int n = next * 4;
+            float angle = (Mathf.PI * 2f * i) / safeSegments;
+            float nextAngle = (Mathf.PI * 2f * next) / safeSegments;
+            float innerU = innerRadius * angle * repeat;
+            float nextInnerU = innerRadius * nextAngle * repeat;
+            float outerU = outerRadius * angle * repeat;
+            float nextOuterU = outerRadius * nextAngle * repeat;
+
+            if (next == 0)
+            {
+                nextInnerU = innerRadius * Mathf.PI * 2f * repeat;
+                nextOuterU = outerRadius * Mathf.PI * 2f * repeat;
+            }
+
+            Vector3 inner = new Vector3(Mathf.Cos(angle) * innerRadius, 0f, Mathf.Sin(angle) * innerRadius) + center;
+            Vector3 nextInner = new Vector3(Mathf.Cos(nextAngle) * innerRadius, 0f, Mathf.Sin(nextAngle) * innerRadius) + center;
+            Vector3 outer = new Vector3(Mathf.Cos(angle) * outerRadius, 0f, Mathf.Sin(angle) * outerRadius) + center;
+            Vector3 nextOuter = new Vector3(Mathf.Cos(nextAngle) * outerRadius, 0f, Mathf.Sin(nextAngle) * outerRadius) + center;
+
+            Vector3 innerBottom = transform.InverseTransformPoint(new Vector3(inner.x, bottomY, inner.z));
+            Vector3 innerTop = transform.InverseTransformPoint(new Vector3(inner.x, bottomY + height, inner.z));
+            Vector3 nextInnerBottom = transform.InverseTransformPoint(new Vector3(nextInner.x, bottomY, nextInner.z));
+            Vector3 nextInnerTop = transform.InverseTransformPoint(new Vector3(nextInner.x, bottomY + height, nextInner.z));
+            Vector3 outerBottom = transform.InverseTransformPoint(new Vector3(outer.x, bottomY, outer.z));
+            Vector3 outerTop = transform.InverseTransformPoint(new Vector3(outer.x, bottomY + height, outer.z));
+            Vector3 nextOuterBottom = transform.InverseTransformPoint(new Vector3(nextOuter.x, bottomY, nextOuter.z));
+            Vector3 nextOuterTop = transform.InverseTransformPoint(new Vector3(nextOuter.x, bottomY + height, nextOuter.z));
+
+            int v = i * 16;
             int t = i * 24;
 
-            AddQuad(triangles, t, v, n, n + 1, v + 1);
-            AddQuad(triangles, t + 6, v + 2, v + 3, n + 3, n + 2);
-            AddQuad(triangles, t + 12, v + 1, n + 1, n + 3, v + 3);
-            AddQuad(triangles, t + 18, v, v + 2, n + 2, n);
+            SetQuad(vertices, uv, triangles, v, t,
+                innerBottom, nextInnerBottom, nextInnerTop, innerTop,
+                new Vector2(innerU, 0f), new Vector2(nextInnerU, 0f), new Vector2(nextInnerU, heightUv), new Vector2(innerU, heightUv));
+
+            SetQuad(vertices, uv, triangles, v + 4, t + 6,
+                outerBottom, outerTop, nextOuterTop, nextOuterBottom,
+                new Vector2(outerU, 0f), new Vector2(outerU, heightUv), new Vector2(nextOuterU, heightUv), new Vector2(nextOuterU, 0f));
+
+            SetQuad(vertices, uv, triangles, v + 8, t + 12,
+                innerTop, nextInnerTop, nextOuterTop, outerTop,
+                new Vector2(innerU, 0f), new Vector2(nextInnerU, 0f), new Vector2(nextOuterU, thicknessUv), new Vector2(outerU, thicknessUv));
+
+            SetQuad(vertices, uv, triangles, v + 12, t + 18,
+                innerBottom, outerBottom, nextOuterBottom, nextInnerBottom,
+                new Vector2(innerU, 0f), new Vector2(outerU, thicknessUv), new Vector2(nextOuterU, thicknessUv), new Vector2(nextInnerU, 0f));
         }
 
         mesh.vertices = vertices;
+        mesh.uv = uv;
         mesh.triangles = triangles;
         mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
         mesh.RecalculateBounds();
         return mesh;
     }
 
-    private void AddQuad(int[] triangles, int index, int a, int b, int c, int d)
+    private void SetQuad(
+        Vector3[] vertices,
+        Vector2[] uv,
+        int[] triangles,
+        int vertexIndex,
+        int triangleIndex,
+        Vector3 a,
+        Vector3 b,
+        Vector3 c,
+        Vector3 d,
+        Vector2 uvA,
+        Vector2 uvB,
+        Vector2 uvC,
+        Vector2 uvD)
     {
-        triangles[index] = a;
-        triangles[index + 1] = b;
-        triangles[index + 2] = c;
-        triangles[index + 3] = a;
-        triangles[index + 4] = c;
-        triangles[index + 5] = d;
+        vertices[vertexIndex] = a;
+        vertices[vertexIndex + 1] = b;
+        vertices[vertexIndex + 2] = c;
+        vertices[vertexIndex + 3] = d;
+
+        uv[vertexIndex] = uvA;
+        uv[vertexIndex + 1] = uvB;
+        uv[vertexIndex + 2] = uvC;
+        uv[vertexIndex + 3] = uvD;
+
+        triangles[triangleIndex] = vertexIndex;
+        triangles[triangleIndex + 1] = vertexIndex + 1;
+        triangles[triangleIndex + 2] = vertexIndex + 2;
+        triangles[triangleIndex + 3] = vertexIndex;
+        triangles[triangleIndex + 4] = vertexIndex + 2;
+        triangles[triangleIndex + 5] = vertexIndex + 3;
     }
 
     private Material GetWallMaterial()

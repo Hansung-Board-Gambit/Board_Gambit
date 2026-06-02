@@ -31,6 +31,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
     public GameObject objectPlacementPanel;
     public GameObject spawnPlacementPanel;
     public GameObject equipmentSelectionPanel;
+    public PlacementManager placementManager;
 
     [Header("Phase Durations")]
     public float objectPlacementDuration = 10f;
@@ -82,6 +83,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
         if (dataStore == null)
             dataStore = GetComponent<PrepDataStore>();
 
+        if (placementManager == null)
+            placementManager = FindFirstObjectByType<PlacementManager>();
+
         if (turnIntroCanvasGroup != null)
         {
             turnIntroCanvasGroup.alpha = 0f;
@@ -122,6 +126,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             StopCoroutine(flowRoutine);
 
         GenerateRandomEquipmentPool();
+        RefreshObjectPlacementSlotsForRound();
 
         skipRequested = false;
         equipmentAllReady = false;
@@ -231,6 +236,12 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
         turnIntroCanvasGroup.gameObject.SetActive(true);
         turnIntroCanvasGroup.alpha = 1f;
+        turnIntroCanvasGroup.interactable = false;
+        turnIntroCanvasGroup.blocksRaycasts = true;
+
+        Graphic introGraphic = turnIntroCanvasGroup.GetComponent<Graphic>();
+        if (introGraphic != null)
+            introGraphic.raycastTarget = true;
 
         if (audioSource != null && prepStartSfx != null)
             audioSource.PlayOneShot(prepStartSfx);
@@ -246,7 +257,18 @@ public class PrepPhaseFlowUI : MonoBehaviour
         }
 
         turnIntroCanvasGroup.alpha = 0f;
+        turnIntroCanvasGroup.interactable = false;
+        turnIntroCanvasGroup.blocksRaycasts = false;
         turnIntroCanvasGroup.gameObject.SetActive(false);
+    }
+
+    private void RefreshObjectPlacementSlotsForRound()
+    {
+        if (placementManager == null)
+            placementManager = FindFirstObjectByType<PlacementManager>();
+
+        if (placementManager != null)
+            placementManager.RefreshObjectSlots();
     }
 
     private void UpdateTurnIntroText(Func<string> turnTextProvider)
