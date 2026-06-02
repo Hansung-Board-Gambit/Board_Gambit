@@ -995,12 +995,12 @@ public class GameRoundFlowController : MonoBehaviour
 
         foreach (PlayerRef player in runner.ActivePlayers)
         {
-            string nickname = LobbyState.Instance.GetPlayerNickname(player);
+            //string nickname = LobbyState.Instance.GetPlayerNickname(player);
 
-            if (player == runner.LocalPlayer && runner.IsServer)
-                hostName = nickname;
-            else if (player != runner.LocalPlayer && runner.IsServer)
-                guestName = nickname;
+            if (player == runner.LocalPlayer && runner.IsServer) { }
+                //hostName = nickname;
+            else if (player != runner.LocalPlayer && runner.IsServer) { }
+                //guestName = nickname;
         }
 
         if (hostNameText != null)
