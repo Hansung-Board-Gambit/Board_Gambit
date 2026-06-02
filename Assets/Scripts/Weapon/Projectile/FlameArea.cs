@@ -80,6 +80,7 @@ public class FlameArea : NetworkBehaviour
                     health.RPC_TakeDamage(tickDamage, "»≠ø∞ ¿Â∆«");
                     burnedPlayers.Add(target);
                 }
+                target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(tickDamage, gameObject.name);
             }
         }
     }

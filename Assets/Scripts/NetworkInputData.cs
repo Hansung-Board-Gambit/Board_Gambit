@@ -6,7 +6,8 @@ public enum MyButtons
     LeftClick,
     RightClick,
     SkillQ,
-    Reload
+    Reload,
+    Jump
 }
 
 public struct NetworkInputData : INetworkInput

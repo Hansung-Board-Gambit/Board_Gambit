@@ -179,7 +179,7 @@ public class RechargeableLaser : WeaponBase
                 {
                     targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
                 }
-
+                //추후 화약통한테 데미지 들어가는 코드 조정
                 PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
                 if (targetWeapon != null)
                 {

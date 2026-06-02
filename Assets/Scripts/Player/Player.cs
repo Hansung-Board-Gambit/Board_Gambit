@@ -17,8 +17,10 @@ public class Player : NetworkBehaviour
     [SerializeField] float runSpeed = 7.5f;
     [SerializeField] float sitDownSpeed = 2f;
     [Header("앉기 관련 설정")] //앉기 관련 설정 나중에 다시 조정
-    [SerializeField] float standHeight = 2f;
-    [SerializeField] float sitHeight = 1f;
+    [SerializeField] float standExtents = 1.6f;
+    [SerializeField] Vector3 standOffset = new Vector3(0f, 0.3f, 0f);
+    [SerializeField] float crouchExtents = 1.4f;
+    [SerializeField] Vector3 crouchOffset = new Vector3(0f, 0.19f, 0f);
     [Header("페인트 총 관련 패시브/디버프 설정")]
     [SerializeField] GameObject trailPrefab;
     [SerializeField] LayerMask trailLayer;
@@ -33,6 +35,8 @@ public class Player : NetworkBehaviour
     [SerializeField] AudioClip jumpSfx;
     [Header("시선처리 가면")]
     [SerializeField] public Transform headPivot;
+    [Header("히트 박스 세팅")]
+    [SerializeField] Hitbox myHitbox;
 
     [SerializeField] float footstepDistance = 2.6f;
 
@@ -54,6 +58,8 @@ public class Player : NetworkBehaviour
     [Networked] private NetworkBool AnimIsRunning { get; set; }
     [Networked] private NetworkBool AnimIsCrouching { get; set; }
     [Networked] private int AnimJumpCount { get; set; }
+
+    [Networked] public NetworkButtons PrevPlayerButtons { get; set; }
 
     public static float NetworkedYaw = 0f;
     public static float NetworkedPitch;
@@ -186,7 +192,7 @@ public class Player : NetworkBehaviour
         TrailDebuffTimer = TickTimer.None;
         KnockbackVelocity = Vector3.zero;
         isDashing = false;
-        currentHeight = standHeight;
+        currentHeight = standExtents;
         weaponCameraOffset = Vector3.zero;
 
         if (controller != null)
@@ -356,7 +362,7 @@ public class Player : NetworkBehaviour
             //3. 그래플링 중이 아닐 때만 WASD 물리 이동 실행!
             if (!isGrappling)
             {
-                Vector3 feetPos = transform.position + Vector3.down * (standHeight / 2f);
+                Vector3 feetPos = transform.position + Vector3.down * (standExtents/ 2f);
 
                 // --- 패시브 트레일 생성 ---
                 if (HasStateAuthority && TrailDebuffTimer.IsRunning && TrailDebuffTimer.RemainingTime(Runner) > 0)
@@ -392,13 +398,19 @@ public class Player : NetworkBehaviour
                 Vector3 moveDirection = playerRotation * data.direction;
 
                 float currentSpeed;
-                currentHeight = standHeight;
+                currentHeight = standExtents;
 
                 if (data.sitDown == true)
                 {
                     currentSpeed = sitDownSpeed;
                     controller.maxSpeed = sitDownSpeed;
-                    currentHeight = sitHeight;
+                    currentHeight = crouchExtents;
+                  
+                    if (myHitbox != null)
+                    {
+                        myHitbox.CapsuleExtents = crouchExtents;
+                        myHitbox.Offset = crouchOffset;
+                    }
                 }
                 else if (data.speedUp == true)
                 {
@@ -409,6 +421,13 @@ public class Player : NetworkBehaviour
                 {
                     currentSpeed = walkSpeed;
                     controller.maxSpeed = walkSpeed;
+                    currentHeight = standExtents;
+                  
+                    if (myHitbox != null)
+                    {
+                        myHitbox.CapsuleExtents = standExtents;
+                        myHitbox.Offset = standOffset;
+                    }
                 }
 
                 // --- 패시브 트레일 밟기 ---
@@ -462,9 +481,10 @@ public class Player : NetworkBehaviour
                 {
                     lastFootstepPosition = transform.position;
                 }
+                bool isJumpJustPressed = data.buttons.WasPressed(PrevPlayerButtons, MyButtons.Jump);
 
                 // 점프 처리
-                if (data.jump && controller.Grounded)
+                if (isJumpJustPressed && controller.Grounded)
                 {
                     controller.Jump();
                     AnimJumpCount++;
@@ -482,6 +502,7 @@ public class Player : NetworkBehaviour
 
             //4. 몸통 회전 (유저님의 오리지널 코드처럼 무조건 Move 다음에 와야 화면이 안 튕깁니다!)
             transform.rotation = playerRotation;
+            PrevPlayerButtons = data.buttons;
         }
     }
 

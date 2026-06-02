@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: b624beb41e595664a9221c6e29fdf564
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- FusionPrefab
 AssetOrigin:
   serializedVersion: 1
   productId: 318755
@@ -13,3 +10,8 @@ AssetOrigin:
   assetPath: Assets/Game Assets/Aegis77/Customisable Metal Barrel/Prefabs/Simple
     Fire Barrel.prefab
   uploadId: 752727
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

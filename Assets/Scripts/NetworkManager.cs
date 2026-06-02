@@ -618,7 +618,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         data.yaw = Player.NetworkedYaw;
         data.pitch = Player.NetworkedPitch;
 
-        data.jump = Input.GetKey(KeyCode.Space);
+        //data.jump = Input.GetKey(KeyCode.Space);
         //누르고 있으면  true, 떼면 false
         //속도변환
         data.speedUp = Input.GetKey(KeyCode.LeftShift);
@@ -629,6 +629,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         data.buttons.Set(MyButtons.RightClick, Input.GetMouseButton(1));
         data.buttons.Set(MyButtons.SkillQ, Input.GetKey(KeyCode.Q));
         data.buttons.Set(MyButtons.Reload, Input.GetKey(KeyCode.R));
+        data.buttons.Set(MyButtons.Jump, Input.GetKey(KeyCode.Space));
         input.Set(data);
     }
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) { }

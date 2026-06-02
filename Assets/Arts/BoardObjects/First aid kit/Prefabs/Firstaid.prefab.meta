@@ -1,10 +1,7 @@
 fileFormatVersion: 2
 guid: b76de77e9e36a1c44b094c10711555eb
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+labels:
+- FusionPrefab
 AssetOrigin:
   serializedVersion: 1
   productId: 285565
@@ -12,3 +9,8 @@ AssetOrigin:
   packageVersion: 1.0
   assetPath: Assets/First aid jar/Prefabs/Firstaid.prefab
   uploadId: 665394
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

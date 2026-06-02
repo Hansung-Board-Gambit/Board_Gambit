@@ -147,12 +147,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 1
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.06, z: 0}
+  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!114 &4499376413764105962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,8 +191,10 @@ MonoBehaviour:
   walkSpeed: 5
   runSpeed: 7.5
   sitDownSpeed: 2
-  standHeight: 2
-  sitHeight: 1
+  standExtents: 1.6
+  standOffset: {x: 0, y: 0.31, z: 0}
+  crouchExtents: 1
+  crouchOffset: {x: 0, y: 0.1, z: 0}
   trailPrefab: {fileID: 3239536471282520838, guid: 8bd5a9db5d2cc9246b7fd5b130d7f327, type: 3}
   trailLayer:
     serializedVersion: 2
@@ -205,6 +207,7 @@ MonoBehaviour:
   trailEnterSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
   jumpSfx: {fileID: 8300000, guid: 0dd67eb54c81be74da126a59b9304132, type: 3}
   headPivot: {fileID: 6317322052285574974}
+  myHitbox: {fileID: 4370617674662528710}
   footstepDistance: 3
   _NetPitch: 0
   _LastTrailSpawnPos: {x: 0, y: 0, z: 0}
