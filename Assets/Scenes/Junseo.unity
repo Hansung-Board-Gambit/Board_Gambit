@@ -614,6 +614,7 @@ MonoBehaviour:
   toolButtonNormalColor: {r: 0.08, g: 0.09, b: 0.13, a: 0.95}
   toolButtonSelectedColor: {r: 0.12, g: 0.32, b: 0.58, a: 0.95}
   deletePositionTolerance: 0.2
+  deleteHoverColor: {r: 1, g: 0, b: 0, a: 0.65}
   allowEditorLocalTest: 1
   sfxSource: {fileID: 224800627}
   selectSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
@@ -4880,7 +4881,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CircularBoardWall
   boardCollider: {fileID: 2051830065}
-  wallMaterial: {fileID: 2100000, guid: 5fbc0ea41b5ef8341a6ed3bb76258bcf, type: 2}
+  wallMaterial: {fileID: 2100000, guid: 94f56123865054b62a3c385450ada42d, type: 2}
   squareWallsToHide:
   - {fileID: 910001001}
   - {fileID: 910002001}
@@ -4892,10 +4893,11 @@ MonoBehaviour:
   - {fileID: 910014001}
   radiusOffset: 0
   wallThickness: 0.5
-  wallHeight: 6
+  wallHeight: 8
   segments: 128
+  textureRepeatPerMeter: 1
   createInvisibleTopCollider: 1
-  invisibleTopHeight: 14
+  invisibleTopHeight: 60
   generatedRootName: CircularBoardWall_Generated
   fallbackWallColor: {r: 0.14, g: 0.42, b: 0.75, a: 1}
 --- !u!1 &910011001
@@ -5374,8 +5376,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -268}
-  m_SizeDelta: {x: 1500, y: 300}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 300, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &966280958
 MonoBehaviour:
@@ -5397,7 +5399,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Winner is
+  m_text: ':'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 819880c5bceef104b8cb1b5c7c6a3101, type: 2}
   m_sharedMaterial: {fileID: 5047752389488697016, guid: 819880c5bceef104b8cb1b5c7c6a3101, type: 2}
@@ -5424,8 +5426,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 80
-  m_fontSizeBase: 80
+  m_fontSize: 200
+  m_fontSizeBase: 200
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
