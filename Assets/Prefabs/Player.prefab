@@ -191,8 +191,10 @@ MonoBehaviour:
   walkSpeed: 5
   runSpeed: 7.5
   sitDownSpeed: 2
-  standHeight: 2
-  sitHeight: 1
+  standExtents: 1.6
+  standOffset: {x: 0, y: 0.3, z: 0}
+  crouchExtents: 1.4
+  crouchOffset: {x: 0, y: 0.19, z: 0}
   trailPrefab: {fileID: 3239536471282520838, guid: 8bd5a9db5d2cc9246b7fd5b130d7f327, type: 3}
   trailLayer:
     serializedVersion: 2
@@ -205,6 +207,7 @@ MonoBehaviour:
   trailEnterSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
   jumpSfx: {fileID: 8300000, guid: 0dd67eb54c81be74da126a59b9304132, type: 3}
   headPivot: {fileID: 6317322052285574974}
+  myHitbox: {fileID: 4370617674662528710}
   footstepDistance: 3
   _NetPitch: 0
   _LastTrailSpawnPos: {x: 0, y: 0, z: 0}
