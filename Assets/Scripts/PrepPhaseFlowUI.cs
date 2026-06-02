@@ -12,6 +12,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip prepStartSfx;
 
+    [Header("Warning SFX")]
+    [SerializeField] private AudioClip timerWarningSfx;
+
     [Header("Flow")]
     public bool playOnStart = true;
 
@@ -57,8 +60,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
     public Color equipmentCardNormalColor = new Color(0f, 0f, 0f, 0.392f);
     public Color equipmentCardSelectedColor = new Color(0.15f, 0.45f, 0.85f, 0.75f);
     //무작위 3개 담을 임시 리스트
-    private List<WeaponData> currentRandomPool = new List<WeaponData>(); 
+    private List<WeaponData> currentRandomPool = new List<WeaponData>();
 
+    private bool warningPlayed;
     private bool skipRequested;
     private bool equipmentAllReady;
     private int currentPhaseIndex = -1;
@@ -175,11 +179,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
         FindFirstObjectByType<GameRoundFlowController>()?.StartPrepBgm();
 
         // 오버레이가 사라진 뒤 타이머 진행
-        yield return RunPhaseTimerRoutine(
-            currentPhaseIndex,
-            objectPlacementDuration,
-            objectPlacementTimerFill
-        );
+        yield return RunPhaseTimerRoutine(currentPhaseIndex, objectPlacementDuration, objectPlacementTimerFill);
         yield return WaitForObjectPlacementCompleteRoutine();
 
         currentPhaseIndex = 1;
@@ -191,11 +191,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
         yield return ShowTurnIntroRoutine(GetSpawnPlacementTurnText);
 
         // 오버레이가 사라진 뒤 타이머 진행
-        yield return RunPhaseTimerRoutine(
-            currentPhaseIndex,
-            spawnPlacementDuration,
-            spawnPlacementTimerFill
-        );
+        yield return RunPhaseTimerRoutine(currentPhaseIndex, spawnPlacementDuration, spawnPlacementTimerFill);
         yield return WaitForSpawnPlacementCompleteRoutine();
 
         currentPhaseIndex = 2;
@@ -204,11 +200,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
         PrepareEquipmentSelection();
 
         // 3단계는 바로 타이머 진행
-        yield return RunPhaseTimerRoutine(
-            currentPhaseIndex,
-            equipmentSelectionDuration,
-            equipmentSelectionTimerFill
-        );
+        yield return RunPhaseTimerRoutine(currentPhaseIndex, equipmentSelectionDuration, equipmentSelectionTimerFill);
 
         yield return WaitForBothEquipmentSelectionsRoutine();
 
@@ -326,9 +318,13 @@ public class PrepPhaseFlowUI : MonoBehaviour
     private IEnumerator RunPhaseTimerRoutine(int phaseIndex, float duration, Image timerFill)
     {
         skipRequested = false;
+        warningPlayed = false;
 
         if (timerFill != null)
+        {
             timerFill.fillAmount = 1f;
+            timerFill.color = Color.white;
+        }
 
         LobbyState state = LobbyState.Instance;
         if (state != null && state.Runner != null)
@@ -340,14 +336,32 @@ public class PrepPhaseFlowUI : MonoBehaviour
             {
                 while (!skipRequested && !state.IsPrepPhaseTimerExpired(phaseIndex))
                 {
+                    float ratio = state.GetPrepPhaseTimerRatio(phaseIndex, duration);
+
                     if (timerFill != null)
-                        timerFill.fillAmount = state.GetPrepPhaseTimerRatio(phaseIndex, duration);
+                        timerFill.fillAmount = ratio;
+
+                    float remainTime = ratio * duration;
+
+                    if (!warningPlayed && (phaseIndex == 0 || phaseIndex == 1) && remainTime <= 10f)
+                    {
+                        warningPlayed = true;
+
+                        if (timerFill != null)
+                            timerFill.color = Color.red;
+
+                        if (audioSource != null && timerWarningSfx != null)
+                            audioSource.PlayOneShot(timerWarningSfx);
+                    }
 
                     yield return null;
                 }
 
                 if (timerFill != null)
+                {
                     timerFill.fillAmount = 0f;
+                    timerFill.color = Color.white;
+                }
 
                 yield break;
             }
@@ -362,11 +376,25 @@ public class PrepPhaseFlowUI : MonoBehaviour
             if (timerFill != null)
                 timerFill.fillAmount = Mathf.Clamp01(remain / duration);
 
+            if (!warningPlayed && (phaseIndex == 0 || phaseIndex == 1) && remain <= 10f)
+            {
+                warningPlayed = true;
+
+                if (timerFill != null)
+                    timerFill.color = Color.red;
+
+                if (audioSource != null && timerWarningSfx != null)
+                    audioSource.PlayOneShot(timerWarningSfx);
+            }
+
             yield return null;
         }
 
         if (timerFill != null)
+        {
             timerFill.fillAmount = 0f;
+            timerFill.color = Color.white;
+        }
     }
 
     private IEnumerator WaitForNetworkPhaseTimerReady(LobbyState state, int phaseIndex)

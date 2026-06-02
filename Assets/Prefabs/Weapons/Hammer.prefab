@@ -57,7 +57,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 3
+  MinDistance: 5
   MaxDistance: 20
   Pan2D: 0
   rolloffMode: 0
@@ -164,10 +164,10 @@ MonoBehaviour:
   hitDelay: 0.2
   localAudioSource: {fileID: -2073421006070031915}
   networkAudioSource: {fileID: 7682948686277455406}
-  swingSfx: {fileID: 8300000, guid: 5bab647da42c45945a8660b1cc85f461, type: 3}
-  dashSfx: {fileID: 8300000, guid: 2e17503c62e97b844a81c1963ea25418, type: 3}
-  plungeStartSfx: {fileID: 8300000, guid: c992c6dd6b7a3bd47ad76f42a2754de8, type: 3}
-  slamSfx: {fileID: 8300000, guid: 2e17503c62e97b844a81c1963ea25418, type: 3}
+  swingSfx: {fileID: 8300000, guid: 9ba93559f5542ee46a06e549a648c0a7, type: 3}
+  dashSfx: {fileID: 8300000, guid: 393c82ca1804dc944a71cc53e55f0c4c, type: 3}
+  plungeStartSfx: {fileID: 8300000, guid: f15d874d61cd78643882a6a5394f62ab, type: 3}
+  slamSfx: {fileID: 8300000, guid: f84303a212b334d4187dcb41c7795896, type: 3}
   _IsPlunging: 0
   _DashDir: {x: 0, y: 0, z: 0}
 --- !u!114 &4819285023648411092
