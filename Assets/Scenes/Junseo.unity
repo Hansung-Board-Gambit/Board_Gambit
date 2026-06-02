@@ -462,6 +462,8 @@ MonoBehaviour:
   randomizeSlotsOnStart: 1
   repeatPrefabsForExtraSlots: 1
   emptySlotLabel: Empty
+  hideShadowsDuringObjectPlacement: 1
+  objectPlacementShadowLights: []
   showSlotPrefabPreview: 1
   slotPreviewTextureSize: 128
   slotPreviewPadding: 10
@@ -4677,10 +4679,10 @@ MonoBehaviour:
   - {fileID: 910014001}
   radiusOffset: 0
   wallThickness: 0.5
-  wallHeight: 4
+  wallHeight: 6
   segments: 128
   createInvisibleTopCollider: 1
-  invisibleTopHeight: 8
+  invisibleTopHeight: 14
   generatedRootName: CircularBoardWall_Generated
   fallbackWallColor: {r: 0.14, g: 0.42, b: 0.75, a: 1}
 --- !u!1 &910011001
@@ -5470,6 +5472,7 @@ MonoBehaviour:
   objectPlacementPanel: {fileID: 1832151630}
   spawnPlacementPanel: {fileID: 1012031851}
   equipmentSelectionPanel: {fileID: 1368956989}
+  placementManager: {fileID: 224800626}
   objectPlacementDuration: 20
   spawnPlacementDuration: 20
   equipmentSelectionDuration: 10
