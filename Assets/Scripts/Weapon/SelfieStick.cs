@@ -125,7 +125,7 @@ public class SelfieStick : WeaponBase
             if (hit.Hitbox.Root.gameObject == myPlayer.gameObject) continue; // 자해 방지
             if (HasStateAuthority)
             {
-                hit.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
+                hit.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }

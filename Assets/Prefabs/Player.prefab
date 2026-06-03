@@ -216,7 +216,7 @@ MonoBehaviour:
   _isGrappling: 0
   currentHeight: 2
   isPitchLocked: 0
-  savedLockedPitch: 0
+  targetLockedPitch: 15
 --- !u!114 &2351707752928003460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +260,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c0254dd800e9fb4187df4df6606c9c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  hitConfirmAudioSource: {fileID: -8440530431625836288}
+  hitConfirmSfx: {fileID: 8300000, guid: cc73904ba599b564e8f178b825354f58, type: 3}
+  flameClip: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
   maxHP: 100
   _CurrentHP: 0
 --- !u!114 &-2942232682109906359

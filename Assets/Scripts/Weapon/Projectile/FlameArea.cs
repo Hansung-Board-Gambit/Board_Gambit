@@ -78,7 +78,8 @@ public class FlameArea : NetworkBehaviour
                 PlayerHealth health = target.GetComponent<PlayerHealth>();
                 if(health != null)
                 {
-                    health.RPC_TakeDamage(tickDamage, "»≠ø∞ ¿Â∆«");
+                    health.RPC_TakeDamage(tickDamage, "»≠ø∞ ¿Â∆«", health.Object.InputAuthority);
+                    health.SetFlameHit();
                     burnedPlayers.Add(target);
                 }
                 target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(tickDamage, gameObject.name);

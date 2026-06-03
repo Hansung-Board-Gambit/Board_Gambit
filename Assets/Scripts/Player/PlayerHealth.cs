@@ -1,13 +1,59 @@
 using Fusion;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : NetworkBehaviour
 {
+    [SerializeField] private AudioSource hitConfirmAudioSource;
+    [SerializeField] private AudioClip hitConfirmSfx;
+    [SerializeField] private AudioClip flameClip;
+
     [SerializeField] public int maxHP = 100;
 
     [Networked, OnChangedRender(nameof(OnHPChanged))]
     public int CurrentHP {  get; set; }
     [Networked] public TickTimer StunTimer {  get; set; }
+    private Coroutine flameLoopRoutine;
+    private bool isPlaying;
+    private float flameTimer;
+
+    private IEnumerator FlameWait()
+    {
+        yield return new WaitForSeconds(flameClip.length);
+
+        isPlaying = false;
+    }
+
+    public void SetFlameHit()
+    {
+        flameTimer = 0.25f;
+    }
+
+    private void Update()
+    {
+        if (!HasInputAuthority) return;
+
+        flameTimer -= Time.deltaTime;
+
+        if (flameTimer > 0f)
+        {
+            if (!hitConfirmAudioSource.isPlaying)
+            {
+                hitConfirmAudioSource.clip = flameClip;
+                hitConfirmAudioSource.loop = true;
+                hitConfirmAudioSource.Play();
+            }
+        }
+        else
+        {
+            if (hitConfirmAudioSource.isPlaying && hitConfirmAudioSource.clip == flameClip)
+            {
+                hitConfirmAudioSource.Stop();
+                hitConfirmAudioSource.loop = false;
+                hitConfirmAudioSource.clip = null;
+            }
+        }
+    }
 
     public bool IsStunned(NetworkRunner runner)
     {
@@ -36,20 +82,31 @@ public class PlayerHealth : NetworkBehaviour
             StunTimer = TickTimer.None;
         }
 
+        flameTimer = 0f;
+
+        if (hitConfirmAudioSource != null)
+        {
+            hitConfirmAudioSource.Stop();
+            hitConfirmAudioSource.loop = false;
+            hitConfirmAudioSource.clip = null;
+        }
+
         if (HasInputAuthority && PlayerUI.instance != null)
         {
             PlayerUI.instance.UpdateHP(CurrentHP, maxHP);
         }
     }
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_TakeDamage(int damage, string attackerName)
+    public void RPC_TakeDamage(int damage, string attackerName, PlayerRef attacker)
     {
         Debug.Log($"{attackerName}의 공격! {damage} 데미지 받음!");
 
         int previousHP = CurrentHP;
         CurrentHP -= damage;
+        RPC_PlayHitConfirm(attacker);
 
-        if( CurrentHP <= 0 )
+        if ( CurrentHP <= 0 )
         {
             CurrentHP = 0;
             if (HasInputAuthority && PlayerUI.instance != null)
@@ -86,6 +143,15 @@ public class PlayerHealth : NetworkBehaviour
 
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayHitConfirm(PlayerRef attacker)
+    {
+        if (Runner.LocalPlayer != attacker)
+            return;
+
+        if (hitConfirmAudioSource != null && hitConfirmSfx != null)
+            hitConfirmAudioSource.PlayOneShot(hitConfirmSfx);
+    }
 
     public void OnHPChanged()
     {

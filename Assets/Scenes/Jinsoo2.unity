@@ -2189,7 +2189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 327879886}
-  hoverSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -3150,7 +3150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 477396378}
-  hoverSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -3966,9 +3966,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmSource: {fileID: 600037917}
   sfxSource: {fileID: 600037919}
-  clickSound: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  clickSound2: {fileID: 0}
-  mainBgm: {fileID: 8300000, guid: 600b602535956da4abe67883ba600629, type: 3}
+  clickSound: {fileID: 8300000, guid: 26a52e98f5f127946b28ca8f2755cbc3, type: 3}
+  clickSound2: {fileID: 8300000, guid: 33d4063952525e84c9c843f49a114678, type: 3}
+  mainBgm: {fileID: 8300000, guid: ee729a03fe8278c439226ceb435c4362, type: 3}
   gameBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
 --- !u!82 &600037917
 AudioSource:
@@ -4871,7 +4871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 795363775}
-  hoverSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -6739,7 +6739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 1141381048}
-  hoverSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -8862,9 +8862,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1498392606}
-        m_TargetAssemblyTypeName: ButtonClick, Assembly-CSharp
-        m_MethodName: PlayClick
+      - m_Target: {fileID: 600037916}
+        m_TargetAssemblyTypeName: SoundManager, Assembly-CSharp
+        m_MethodName: ButtonClick2
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10887,7 +10887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 1898658873}
-  hoverSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
