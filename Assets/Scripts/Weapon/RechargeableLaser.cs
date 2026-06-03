@@ -200,7 +200,7 @@ public class RechargeableLaser : WeaponBase
 
                     if (HasStateAuthority)
                     {
-                        targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+                        targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
 
                         PlayerWeapon targetWeapon = targetHP.GetComponent<PlayerWeapon>();
                         if (targetWeapon != null)
