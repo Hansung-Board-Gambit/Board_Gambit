@@ -6077,17 +6077,17 @@ MonoBehaviour:
   hostFinalScoreText: {fileID: 1059772871}
   guestFinalScoreText: {fileID: 1025655085}
   bgmSource: {fileID: 1024786537}
-  prepBgm: {fileID: 8300000, guid: c76d0fe11299c944ca23a307c3c2dcbb, type: 3}
-  battleBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
+  prepBgm: {fileID: 8300000, guid: 4ef30ed69b18a884fbb289854c2cab63, type: 3}
+  battleBgm: {fileID: 8300000, guid: 07c979f8544a426488453acb2c1b6113, type: 3}
   SFXAudioSource: {fileID: 1024786536}
-  victorySfx: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
-  defeatSfx: {fileID: 8300000, guid: f81d52729cd1c2144a03be1a819750ad, type: 3}
-  drawSfx: {fileID: 8300000, guid: 2e17503c62e97b844a81c1963ea25418, type: 3}
-  countdownTickSfx: {fileID: 8300000, guid: c992c6dd6b7a3bd47ad76f42a2754de8, type: 3}
-  fightSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
+  victorySfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
+  defeatSfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
+  drawSfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
+  countdownTickSfx: {fileID: 8300000, guid: d1c1f6331b52e714299b13e976126209, type: 3}
+  fightSfx: {fileID: 8300000, guid: a6002813ee1ced54bb8f7d9377c5dd93, type: 3}
   dangerTimeSfx: {fileID: 8300000, guid: a2317b21b26fb32448bdd208644fc050, type: 3}
-  matchVictorySfx: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
-  matchDefeatSfx: {fileID: 8300000, guid: f81d52729cd1c2144a03be1a819750ad, type: 3}
+  matchVictorySfx: {fileID: 8300000, guid: ccb9b7cdf8a671e44a0b40999642126a, type: 3}
+  matchDefeatSfx: {fileID: 8300000, guid: 0281db308fadfe6438a94a551bc4e555, type: 3}
 --- !u!82 &1024786536
 AudioSource:
   m_ObjectHideFlags: 0

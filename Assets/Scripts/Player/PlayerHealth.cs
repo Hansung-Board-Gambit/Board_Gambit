@@ -37,8 +37,6 @@ public class PlayerHealth : NetworkBehaviour
 
         if (flameTimer > 0f)
         {
-            flameTimer -= Time.deltaTime;
-
             if (!hitConfirmAudioSource.isPlaying)
             {
                 hitConfirmAudioSource.clip = flameClip;
@@ -48,9 +46,11 @@ public class PlayerHealth : NetworkBehaviour
         }
         else
         {
-            if (!hitConfirmAudioSource.isPlaying)
+            if (hitConfirmAudioSource.isPlaying && hitConfirmAudioSource.clip == flameClip)
             {
                 hitConfirmAudioSource.Stop();
+                hitConfirmAudioSource.loop = false;
+                hitConfirmAudioSource.clip = null;
             }
         }
     }
@@ -80,6 +80,15 @@ public class PlayerHealth : NetworkBehaviour
         {
             CurrentHP = maxHP;
             StunTimer = TickTimer.None;
+        }
+
+        flameTimer = 0f;
+
+        if (hitConfirmAudioSource != null)
+        {
+            hitConfirmAudioSource.Stop();
+            hitConfirmAudioSource.loop = false;
+            hitConfirmAudioSource.clip = null;
         }
 
         if (HasInputAuthority && PlayerUI.instance != null)
