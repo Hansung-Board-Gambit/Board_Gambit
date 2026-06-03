@@ -619,11 +619,11 @@ MonoBehaviour:
   deleteHoverColor: {r: 1, g: 0, b: 0, a: 0.65}
   allowEditorLocalTest: 1
   sfxSource: {fileID: 224800627}
-  selectSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  placeSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  deleteSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
-  rotateSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
-  errorSfx: {fileID: 8300000, guid: a1aa5cb848655b8479c9b0cf92dc3457, type: 3}
+  selectSfx: {fileID: 8300000, guid: 683ba36eebb8cb7459c7968023cd2bba, type: 3}
+  placeSfx: {fileID: 8300000, guid: 00e2b693092d96e4ebc54a6320565314, type: 3}
+  deleteSfx: {fileID: 8300000, guid: d80ce062ee1d40c488ae8943a0117492, type: 3}
+  rotateSfx: {fileID: 8300000, guid: cb3bf16d9580f81499aa2ca9396b41e2, type: 3}
+  errorSfx: {fileID: 8300000, guid: ac0baaac713d73c428e6115159c80286, type: 3}
 --- !u!82 &224800627
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4422,8 +4422,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmSource: {fileID: 909335241}
   sfxSource: {fileID: 909335241}
-  clickSound: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  clickSound2: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
+  clickSound: {fileID: 8300000, guid: 26a52e98f5f127946b28ca8f2755cbc3, type: 3}
+  clickSound2: {fileID: 8300000, guid: 7bd2fad34d8f1a548bf05af794649bcd, type: 3}
   mainBgm: {fileID: 0}
   gameBgm: {fileID: 0}
 --- !u!4 &909335240
@@ -5965,8 +5965,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrepPhaseFlowUI
   audioSource: {fileID: 1024786536}
-  prepStartSfx: {fileID: 8300000, guid: f81d52729cd1c2144a03be1a819750ad, type: 3}
-  timerWarningSfx: {fileID: 8300000, guid: 9ff827eb2007b23429609d3deb443468, type: 3}
+  prepStartSfx: {fileID: 8300000, guid: 5d759e53246630044898e0558c9f554f, type: 3}
+  timerWarningSfx: {fileID: 8300000, guid: a2317b21b26fb32448bdd208644fc050, type: 3}
   playOnStart: 1
   allowEditorLocalTest: 1
   turnIntroCanvasGroup: {fileID: 1271981652}
@@ -6085,7 +6085,7 @@ MonoBehaviour:
   drawSfx: {fileID: 8300000, guid: 2e17503c62e97b844a81c1963ea25418, type: 3}
   countdownTickSfx: {fileID: 8300000, guid: c992c6dd6b7a3bd47ad76f42a2754de8, type: 3}
   fightSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
-  dangerTimeSfx: {fileID: 8300000, guid: 9ff827eb2007b23429609d3deb443468, type: 3}
+  dangerTimeSfx: {fileID: 8300000, guid: a2317b21b26fb32448bdd208644fc050, type: 3}
   matchVictorySfx: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
   matchDefeatSfx: {fileID: 8300000, guid: f81d52729cd1c2144a03be1a819750ad, type: 3}
 --- !u!82 &1024786536
@@ -7972,9 +7972,9 @@ MonoBehaviour:
   spawnPlacementShadowLights: []
   allowEditorLocalTest: 1
   sfxSource: {fileID: 1209979574}
-  selectSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  placeSfx: {fileID: 8300000, guid: 68becef7b3f30024abe8ca495ddf4cae, type: 3}
-  errorSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
+  selectSfx: {fileID: 8300000, guid: 683ba36eebb8cb7459c7968023cd2bba, type: 3}
+  placeSfx: {fileID: 8300000, guid: 00e2b693092d96e4ebc54a6320565314, type: 3}
+  errorSfx: {fileID: 8300000, guid: ac0baaac713d73c428e6115159c80286, type: 3}
 --- !u!82 &1209979574
 AudioSource:
   m_ObjectHideFlags: 0
