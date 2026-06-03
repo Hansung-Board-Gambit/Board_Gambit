@@ -88,6 +88,8 @@ public class Player : NetworkBehaviour
 
     public NetworkCharacterController Controller { get; private set; }
 
+    public bool isPitchLocked = false;
+    public float savedLockedPitch = 0f;
     
     private void Awake()
     {
@@ -235,6 +237,17 @@ public class Player : NetworkBehaviour
         isDashing = true;
     }
 
+    public void LockPitch()
+    {
+        isPitchLocked = true;
+        savedLockedPitch = camPitch;
+    }
+
+    public void UnlockPitch()
+    {
+        isPitchLocked = false;
+    }
+
 
     // ========================================================
     // 1. Update() : 내 화면에서만 카메라와 몸통을 144Hz로 아주 부드럽게 덮어씌웁니다!
@@ -259,10 +272,18 @@ public class Player : NetworkBehaviour
         if (!isCameraLocked && !isStunned)
         {
             playerYaw += Input.GetAxis("Mouse X") * mouseSens;
-            camPitch -= Input.GetAxis("Mouse Y") * mouseSens;
-            camPitch = Mathf.Clamp(camPitch, -90f, 90f);
 
-            // 네트워크 전송을 위해 저장
+            if(!isPitchLocked)
+            {
+                camPitch -= Input.GetAxis("Mouse Y") * mouseSens;
+                camPitch = Mathf.Clamp(camPitch, -90f, 90f);
+            }
+            else
+            {
+                camPitch = savedLockedPitch;
+            }
+
+                // 네트워크 전송을 위해 저장
             NetworkedYaw = playerYaw;
             NetworkedPitch = camPitch;
         }

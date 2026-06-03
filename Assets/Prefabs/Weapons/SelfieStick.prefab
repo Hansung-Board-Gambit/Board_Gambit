@@ -151,7 +151,7 @@ MonoBehaviour:
   stickModel: {fileID: 0}
   swingSpeed: 12
   hitDelay: 0.2
-  tpsCameraOffset: {x: 0, y: 0.5, z: -3}
+  tpsCameraOffset: {x: 0, y: 1.5, z: -3}
   cameraTransitionSpeed: 8
   targetLayer:
     serializedVersion: 2

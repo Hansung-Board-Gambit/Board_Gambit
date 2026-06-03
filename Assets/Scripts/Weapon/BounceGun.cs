@@ -46,14 +46,24 @@ public class BounceGun : WeaponBase
         }
     }
 
+    protected override void CheckRightClick(NetworkInputData data, NetworkButtons prevButtons)
+    {
+        if (data.buttons.IsSet(MyButtons.RightClick))
+        {
+            SecondAttack();
+        }
+    }
+
     protected override void SecondAttack()
     {
         //Åº¾àÀÌ 2¹ß¾¿ »ç¶óÁü
-        if(CurrentAmmo >= 2)
+        if(CurrentAmmo >= 2 && RightClickTimer.ExpiredOrNotRunning(Runner))
         {
             CurrentAmmo -= 2;
             RPC_PlayNetworkSfx(BounceGunSfxType.BounceShot);
             SpawnProjectile(bounceTime);
+
+            RightClickTimer = TickTimer.CreateFromSeconds(Runner, rangedWeapon.rightClickCoolTime);
         }
     }
 

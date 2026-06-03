@@ -20,8 +20,9 @@ MonoBehaviour:
   range: 500
   weaponIcon: {fileID: 21300000, guid: 9d97f8c7757c82346b31af684e970c84, type: 3}
   weaponDescription: 
+  leftHandVisualPrefab: {fileID: 0}
   MaxAmmo: 30
   leftClickCoolTime: 0.5
-  rightClickCoolTime: 0
+  rightClickCoolTime: 0.7
   skillQCoolTime: 0
   ReloadCoolTime: 2
