@@ -19,13 +19,21 @@ public class RechargeableLaser : WeaponBase
     [SerializeField] AudioClip zoomOutSfx;     // 줌 아웃 (로컬)
     [SerializeField] AudioClip shootSfx;       // 발사 (네트워크 공유)
 
+    [Header("시각 효과")]
+    [SerializeField] ParticleSystem chargeParticle;
+    [SerializeField] ParticleSystem muzzleEffect;
+    [SerializeField] float maxParticleScale = 2f;
+    
+    
     private RangedWeapon rangedWeapon;
 
     private bool isPressing;
     private bool wasFullyCharged;
 
     //현재 게이지
-    [Networked] public float currentGage {  get; set; }
+    [Networked, OnChangedRender(nameof(OnGageChanged))]
+    public float currentGage {  get; set; }
+
 
     public enum LaserSfxType
     {
@@ -37,6 +45,12 @@ public class RechargeableLaser : WeaponBase
         base.Init(owner, data);
 
         rangedWeapon = data as RangedWeapon;
+
+        if (chargeParticle != null)
+        {
+            chargeParticle.Stop();
+            chargeParticle.transform.localScale = Vector3.zero;
+        }
     }
 
     protected override void CheckLeftClick(NetworkInputData data, NetworkButtons prevButtons)
@@ -145,56 +159,139 @@ public class RechargeableLaser : WeaponBase
 
         Debug.DrawRay(origin, direction * rangedWeapon.range, Color.red, 2f);
 
-        bool isHit = Runner.LagCompensation.Raycast(
+        var hits = new System.Collections.Generic.List<LagCompensatedHit>();
+
+        int hitCount = Runner.LagCompensation.RaycastAll(
             origin,
             direction,
             rangedWeapon.range,
             Object.InputAuthority,
-            out LagCompensatedHit hit,
-            targetLayer
+            hits,
+            layerMask: targetLayer,
+            options: HitOptions.IncludePhysX
         );
 
-        if (!isHit)
+        if (hitCount <= 0)
         {
             Debug.Log("2. 허공에 빗나감");
             return;
         }
-        
-        if(hit.Hitbox != null)
-        {
-            GameObject target = hit.Hitbox.Root.gameObject;
-            Debug.Log($"4. 명중! 대상: {target.name}");
 
-            if (target == myPlayer.gameObject)
-            {
-                Debug.Log("내가 나를 맞춤 (자해 방지)");
-                return;
-            }
-            //맞췄을때 본인 화면에서 일어나게 할 거 가능
-            if (HasInputAuthority)
-            {
-                Debug.Log($"[내 화면] 내가 {target.name}을(를) 공격함!");
-            }
-            if (HasStateAuthority)
+        System.Collections.Generic.HashSet<GameObject> hitPlayers = new System.Collections.Generic.HashSet<GameObject>();
+        System.Collections.Generic.HashSet<ExplosiveBarrel> hitBarrels = new System.Collections.Generic.HashSet<ExplosiveBarrel>();
+
+        foreach (var hit in hits)
+        {
+            GameObject target = null;
+            if (hit.Hitbox != null) target = hit.Hitbox.Root.gameObject;
+            else if (hit.Collider != null) target = hit.Collider.gameObject;
+
+            if (target == null || target == myPlayer.gameObject) continue;
+
+
+            if (hit.Hitbox != null)
             {
                 PlayerHealth targetHP = target.GetComponent<PlayerHealth>();
-                if (targetHP != null)
+                if (targetHP == null) targetHP = target.GetComponentInParent<PlayerHealth>();
+
+                if (targetHP != null && !hitPlayers.Contains(targetHP.gameObject))
                 {
-                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+                    hitPlayers.Add(targetHP.gameObject); 
+
+                    if (HasStateAuthority)
+                    {
+                        targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+
+                        PlayerWeapon targetWeapon = targetHP.GetComponent<PlayerWeapon>();
+                        if (targetWeapon != null)
+                        {
+                            targetWeapon.RPC_TakeHitLog(myPlayer.gameObject.name);
+                        }
+                    }
                 }
-                //추후 화약통한테 데미지 들어가는 코드 조정
-                PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
-                if (targetWeapon != null)
+            }
+
+            bool isBarrelTag = target.CompareTag("fireBarrel") || (hit.Collider != null && hit.Collider.CompareTag("fireBarrel"));
+            ExplosiveBarrel barrel = target.GetComponentInParent<ExplosiveBarrel>();
+
+            if (barrel == null && hit.Collider != null) barrel = hit.Collider.GetComponentInParent<ExplosiveBarrel>();
+
+            if (isBarrelTag || barrel != null)
+            {
+                if (barrel == null) barrel = target.GetComponentInChildren<ExplosiveBarrel>();
+                if (barrel == null && hit.Collider != null) barrel = hit.Collider.GetComponentInChildren<ExplosiveBarrel>();
+
+                if (barrel != null && !hitBarrels.Contains(barrel))
                 {
-                    targetWeapon.RPC_TakeHitLog(myPlayer.gameObject.name);
+                    hitBarrels.Add(barrel); 
+
+                    if (HasStateAuthority)
+                    {
+                        barrel.RPC_TakeDamageBarrel(rangedWeapon.damage, myPlayer.gameObject.name);
+                    }
                 }
             }
         }
-        else if(hit.Collider != null)
+    }
+
+    /*
+    if(hit.Hitbox != null)
+    {
+        GameObject target = hit.Hitbox.Root.gameObject;
+        Debug.Log($"4. 명중! 대상: {target.name}");
+
+        if (target == myPlayer.gameObject)
         {
-            Debug.Log($"맞은 오브젝트 : {hit.Collider.gameObject.name}");
+            Debug.Log("내가 나를 맞춤 (자해 방지)");
+            return;
+        }
+        //맞췄을때 본인 화면에서 일어나게 할 거 가능
+        if (HasInputAuthority)
+        {
+            Debug.Log($"[내 화면] 내가 {target.name}을(를) 공격함!");
+        }
+        if (HasStateAuthority)
+        {
+            PlayerHealth targetHP = target.GetComponent<PlayerHealth>();
+            if (targetHP != null)
+            {
+                targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+            }
+            //추후 화약통한테 데미지 들어가는 코드 조정
+            PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();
+            if (targetWeapon != null)
+            {
+                targetWeapon.RPC_TakeHitLog(myPlayer.gameObject.name);
+            }
         }
     }
+    else if(hit.Collider != null)
+    {
+        Debug.Log($"맞은 오브젝트 : {hit.Collider.gameObject.name}");
+    }
+    */
+    private void OnGageChanged()
+    {
+        if (chargeParticle == null || rangedWeapon == null) return;
+
+        if (currentGage <= 0)
+        {
+            if (chargeParticle.isPlaying) chargeParticle.Stop();
+            chargeParticle.transform.localScale = Vector3.zero;
+            return;
+        }
+
+        if (!chargeParticle.isPlaying)
+        {
+            chargeParticle.Play();
+        }
+
+        float chargeRatio = currentGage / rangedWeapon.MaxAmmo;
+        float currentScale = Mathf.Lerp(0f, maxParticleScale, chargeRatio);
+        chargeParticle.transform.localScale = new Vector3(currentScale, currentScale, currentScale);
+    }
+
+
 
     void PlayLocalSfx(AudioClip clip)
     {

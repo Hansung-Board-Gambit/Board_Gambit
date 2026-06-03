@@ -1,6 +1,7 @@
 using Fusion;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Jobs;
 using UnityEngine;
 
@@ -74,6 +75,11 @@ public class BounceProjectile : NetworkBehaviour
                     // 내 캐릭터의 콜라이더라면 무시하고 통과!
                     transform.position += displacement;
                 }
+                else if (hit.Collider.CompareTag("fireBarrel") || hit.Collider.GetComponentInParent<ExplosiveBarrel>() != null)
+                {
+                    Explode();
+                    return;
+                }
                 else
                 {
                     RPC_PlayBounceSfx();
@@ -114,17 +120,24 @@ public class BounceProjectile : NetworkBehaviour
         {
             foreach (var p in hits)
             {
-                GameObject target = p.Hitbox.Root.gameObject;
-                if (hitPlayers.Contains(target)) continue; //겹쳐서 두 번 맞는거 방지 
+                GameObject target = null;
+                if (p.Hitbox != null) target = p.Hitbox.Root.gameObject;
+                else if (p.Collider != null) target = p.Collider.gameObject;
+
+                if (target == null || hitPlayers.Contains(target)) continue;
 
                 PlayerHealth health = target.GetComponent<PlayerHealth>();
                 if (health != null)
                 {
                     health.RPC_TakeDamage(rangedData.damage, "바운스 건");
                     //중복 피격 막음
-                    hitPlayers.Add(target);
                 }
-                target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedData.damage, gameObject.name);
+                ExplosiveBarrel barrel = target.GetComponentInParent<ExplosiveBarrel>();
+                if (barrel != null)
+                {
+                    barrel.RPC_TakeDamageBarrel(rangedData.damage, gameObject.name);
+                }
+                hitPlayers.Add(target);
             }
         }
 

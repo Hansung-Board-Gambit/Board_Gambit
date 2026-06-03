@@ -34,6 +34,9 @@ public class Grappling : WeaponBase
     [SerializeField] AudioClip swingSfx;
     [SerializeField] AudioClip grappleSfx;
 
+    [Header("시각 효과")]
+    [SerializeField] ParticleSystem hitEffect;
+
     [Networked] public int GrappleCharges { get; set; }
     [Networked] public TickTimer GrappleRechargeTimer { get; set; }
     [Networked] public bool IsInitialized { get; set; }
@@ -353,6 +356,7 @@ public class Grappling : WeaponBase
         switch (type)
         {
             case GrappleSfxType.Swing: networkAudioSource.PlayOneShot(swingSfx);
+                hitEffect.Play();
                 break;
 
             case GrappleSfxType.Grapple: networkAudioSource.PlayOneShot(grappleSfx);

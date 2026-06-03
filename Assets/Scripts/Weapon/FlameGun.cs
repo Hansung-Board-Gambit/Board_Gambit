@@ -14,6 +14,9 @@ public class FlameGun : WeaponBase
     [SerializeField] GameObject flameProjectilePrefab;
     [SerializeField] LayerMask targetLayer;
 
+    [Header("시각효과")]
+    [SerializeField] ParticleSystem muzzleFlash;
+
     private RangedWeapon rangedWeapon;
 
     public enum FlameSfxType
@@ -205,6 +208,10 @@ public class FlameGun : WeaponBase
         switch (type)
         {
             case FlameSfxType.Shoot: networkAudioSource.PlayOneShot(shootSfx);
+                if(muzzleFlash != null && !muzzleFlash.isPlaying)
+                {
+                    muzzleFlash.Play();
+                }
                 break;
 
             case FlameSfxType.FlameBall: networkAudioSource.PlayOneShot(flameBallSfx);

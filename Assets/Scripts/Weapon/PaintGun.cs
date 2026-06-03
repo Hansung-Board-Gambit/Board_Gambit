@@ -14,6 +14,9 @@ public class PaintGun : WeaponBase
     [SerializeField] float debuffDuration = 5f;
     [SerializeField] LayerMask targetLayer;
 
+    [Header("시각효과")]
+    [SerializeField] ParticleSystem muzzleFlash;
+
     private RangedWeapon rangedWeapon;
 
     public enum PaintGunSfxType
@@ -144,6 +147,10 @@ public class PaintGun : WeaponBase
         switch (type)
         {
             case PaintGunSfxType.Shoot: networkAudioSource.PlayOneShot(shootSfx);
+                if (muzzleFlash != null && !muzzleFlash.isPlaying)
+                {
+                    muzzleFlash.Play();
+                }
                 break;
         }
     }

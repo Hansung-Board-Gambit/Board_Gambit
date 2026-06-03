@@ -46,12 +46,25 @@ public abstract class WeaponBase : NetworkBehaviour
 
         if (HasStateAuthority && rangedData != null)
         {
-            CurrentAmmo = rangedData.MaxAmmo;
+           // CurrentAmmo = rangedData.MaxAmmo;
         }
 
         if(HasInputAuthority)
         {
             OnAmmoUIChanged();
+        }
+    }
+
+    public override void Spawned()
+    {
+        base.Spawned();
+      
+        if (HasStateAuthority && rangedData != null)
+        {
+            CurrentAmmo = rangedData.MaxAmmo;
+
+            IsReloading = false;
+            ReloadTimer = TickTimer.None;
         }
     }
 
@@ -132,6 +145,20 @@ public abstract class WeaponBase : NetworkBehaviour
         if(Object.HasInputAuthority && PlayerUI.instance != null && rangedData != null)
         {
             PlayerUI.instance.UpdateAmmoText(CurrentAmmo, rangedData.MaxAmmo);
+        }
+    }
+
+    public void ResetWeaponForNewRound()
+    {
+        if (HasStateAuthority && rangedData != null)
+        {
+            CurrentAmmo = rangedData.MaxAmmo; 
+
+            IsReloading = false;
+            ReloadTimer = TickTimer.None;
+            LeftClickTimer = TickTimer.None;
+            RightClickTimer = TickTimer.None;
+            SkillQTimer = TickTimer.None;
         }
     }
 
