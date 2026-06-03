@@ -150,7 +150,7 @@ public class Hammer : WeaponBase
             if (hit.Hitbox.Root.gameObject == myPlayer.gameObject) continue;
             if (HasStateAuthority)
             {
-                hit.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
+                hit.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
@@ -273,7 +273,8 @@ public class Hammer : WeaponBase
             foreach(var h in hits)
             {
                 if(h.Hitbox.Root.gameObject == myPlayer.gameObject) continue;
-                h.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
+                h.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
+                h.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
         

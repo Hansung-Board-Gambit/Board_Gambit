@@ -600,10 +600,14 @@ MonoBehaviour:
   explosionDamage: 50
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   explosionVFX: {fileID: 0}
   _IsExploded:
     _value: 0
+  _PlacementInitialized:
+    _value: 0
+  _PlacementPosition: {x: 0, y: 0, z: 0}
+  _PlacementRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &8622017429391921226
 MonoBehaviour:
   m_ObjectHideFlags: 0

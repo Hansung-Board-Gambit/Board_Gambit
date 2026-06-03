@@ -61,7 +61,7 @@ public class FlameProjectile : NetworkBehaviour
             if(Vector3.Angle(Vector3.up, hitNormal) > 45f)
             {
                 if(Physics.Raycast(hitPoint, Vector3.down, out RaycastHit floorHit
-                    , 10f, LayerMask.GetMask("Default")))
+                    , 10f, LayerMask.GetMask("Default","PlacedObject")))
                 {
                     spawnPos = floorHit.point;
                     floorNormal = floorHit.normal;

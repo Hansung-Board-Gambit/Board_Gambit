@@ -25,6 +25,6 @@ MonoBehaviour:
   leftHandVisualPrefab: {fileID: 0}
   MaxAmmo: 30
   leftClickCoolTime: 0.5
-  rightClickCoolTime: 0
+  rightClickCoolTime: 0.7
   skillQCoolTime: 0
   ReloadCoolTime: 2
