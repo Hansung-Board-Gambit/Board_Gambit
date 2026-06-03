@@ -44,6 +44,10 @@ public class SpawnPlacementManager : MonoBehaviour
     public float markerYOffset = 0.3f;
     public Vector3 spawnCheckHalfExtents = new Vector3(0.4f, 1f, 0.4f);
 
+    [Header("Spawn Shadows")]
+    public bool hideShadowsDuringSpawnPlacement = true;
+    public Light[] spawnPlacementShadowLights;
+
     [Header("Editor Test")]
     public bool allowEditorLocalTest = false;
 
@@ -59,6 +63,9 @@ public class SpawnPlacementManager : MonoBehaviour
     private Image mySpawnButtonBackground;
     private Image opponentSpawnButtonBackground;
 
+    private bool spawnPlacementShadowsHidden;
+    private readonly Dictionary<Light, LightShadows> originalSpawnLightShadows = new Dictionary<Light, LightShadows>();
+
     private void OnEnable()
     {
         LobbyState.PrepSpawnPlaced += HandleNetworkSpawnPlaced;
@@ -68,6 +75,12 @@ public class SpawnPlacementManager : MonoBehaviour
     {
         LobbyState.PrepSpawnPlaced -= HandleNetworkSpawnPlaced;
         DestroyPreviewMarker();
+        RestoreSpawnPlacementShadows();
+    }
+
+    private void OnDestroy()
+    {
+        RestoreSpawnPlacementShadows();
     }
 
     private void Start()
@@ -83,7 +96,10 @@ public class SpawnPlacementManager : MonoBehaviour
 
     private void Update()
     {
-        if (spawnPlacementPanel == null || !spawnPlacementPanel.activeInHierarchy)
+        bool spawnPlacementActive = spawnPlacementPanel != null && spawnPlacementPanel.activeInHierarchy;
+        SetSpawnPlacementShadowsHidden(spawnPlacementActive && hideShadowsDuringSpawnPlacement);
+
+        if (!spawnPlacementActive)
         {
             SetPreviewMarkerActive(false);
             return;
@@ -636,6 +652,54 @@ public class SpawnPlacementManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, layer);
     }
 
+    private void SetSpawnPlacementShadowsHidden(bool hidden)
+    {
+        if (hidden)
+            HideSpawnPlacementShadows();
+        else
+            RestoreSpawnPlacementShadows();
+    }
+
+    private void HideSpawnPlacementShadows()
+    {
+        Light[] lights = GetSpawnPlacementShadowLights();
+        for (int i = 0; i < lights.Length; i++)
+        {
+            Light light = lights[i];
+            if (light == null)
+                continue;
+
+            if (!originalSpawnLightShadows.ContainsKey(light))
+                originalSpawnLightShadows.Add(light, light.shadows);
+
+            light.shadows = LightShadows.None;
+        }
+
+        spawnPlacementShadowsHidden = true;
+    }
+
+    private void RestoreSpawnPlacementShadows()
+    {
+        if (!spawnPlacementShadowsHidden && originalSpawnLightShadows.Count == 0)
+            return;
+
+        foreach (KeyValuePair<Light, LightShadows> entry in originalSpawnLightShadows)
+        {
+            if (entry.Key != null)
+                entry.Key.shadows = entry.Value;
+        }
+
+        originalSpawnLightShadows.Clear();
+        spawnPlacementShadowsHidden = false;
+    }
+
+    private Light[] GetSpawnPlacementShadowLights()
+    {
+        if (spawnPlacementShadowLights != null && spawnPlacementShadowLights.Length > 0)
+            return spawnPlacementShadowLights;
+
+        return FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    }
     private void PlaySfx(AudioClip clip)
     {
         if (clip == null || sfxSource == null)

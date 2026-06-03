@@ -702,6 +702,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             if (card == null || i >= currentRandomPool.Count) continue;
 
             WeaponData data = currentRandomPool[i];
+            card.SetWeaponData(data);
 
             // 1. 이름 적용
             if (card.nameText != null)

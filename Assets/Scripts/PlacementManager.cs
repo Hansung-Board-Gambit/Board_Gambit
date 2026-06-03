@@ -494,12 +494,8 @@ public class PlacementManager : MonoBehaviour
         if (mainCamera == null)
             return;
 
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (!Physics.Raycast(ray, out hit, 500f, placedObjectMask, QueryTriggerInteraction.Ignore))
-            return;
+        GameObject placedObject = GetDeleteHoverObject();
 
-        GameObject placedObject = FindPlacedObjectRoot(hit.collider);
         if (placedObject == null)
             return;
 

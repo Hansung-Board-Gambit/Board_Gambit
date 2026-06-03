@@ -58,10 +58,35 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 48f20a4795090f847bbf0133c472280d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7576474516440098022}
     - targetCorrespondingSourceObject: {fileID: 4252757509886279472, guid: 48f20a4795090f847bbf0133c472280d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3469534856225460309}
   m_SourcePrefab: {fileID: 100100000, guid: 48f20a4795090f847bbf0133c472280d, type: 3}
+--- !u!1 &1967167016130352128 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 48f20a4795090f847bbf0133c472280d, type: 3}
+  m_PrefabInstance: {fileID: 1697204136147003729}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &-7576474516440098022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1967167016130352128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad1a0e6e4d955c143b4b7c182f4abaa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
+  footprint: {x: 1, y: 1}
+  sizeControlMode: 1
+  footprintScaleMultiplier: 2
+  yOffset: 0.5
+  prefabId: Object
 --- !u!1 &3209230655828842081 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4252757509886279472, guid: 48f20a4795090f847bbf0133c472280d, type: 3}
