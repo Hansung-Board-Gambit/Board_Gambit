@@ -87,7 +87,7 @@ public class ExplosiveBarrel : NetworkBehaviour, INetworkPlacedObject
         {
             PlayerHealth ph = hit.GetComponent<PlayerHealth>();
             if (ph != null && ph.CurrentHP > 0)
-                ph.RPC_TakeDamage(explosionDamage, "화약통");
+                ph.RPC_TakeDamage(explosionDamage, "화약통", Object.InputAuthority);
         }
     }
 

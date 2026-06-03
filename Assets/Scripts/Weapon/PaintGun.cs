@@ -84,7 +84,7 @@ public class PaintGun : WeaponBase
                 PlayerHealth targetHP = target.GetComponent<PlayerHealth>();
                 if (targetHP != null)
                 {
-                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
                 }
                 target.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedWeapon.damage, myPlayer.gameObject.name);
 

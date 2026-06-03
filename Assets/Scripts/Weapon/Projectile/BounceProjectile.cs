@@ -119,7 +119,7 @@ public class BounceProjectile : NetworkBehaviour
                 PlayerHealth health = target.GetComponent<PlayerHealth>();
                 if (health != null)
                 {
-                    health.RPC_TakeDamage(rangedData.damage, "바운스 건");
+                    health.RPC_TakeDamage(rangedData.damage, "바운스 건", Object.InputAuthority);
                     //중복 피격 막음
                     hitPlayers.Add(target);
                 }

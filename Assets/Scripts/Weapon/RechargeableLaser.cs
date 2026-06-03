@@ -180,7 +180,7 @@ public class RechargeableLaser : WeaponBase
                 PlayerHealth targetHP = target.GetComponent<PlayerHealth>();
                 if (targetHP != null)
                 {
-                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name);
+                    targetHP.RPC_TakeDamage(rangedWeapon.damage, myPlayer.gameObject.name, Object.InputAuthority);
                 }
                 //추후 화약통한테 데미지 들어가는 코드 조정
                 PlayerWeapon targetWeapon = target.GetComponent<PlayerWeapon>();

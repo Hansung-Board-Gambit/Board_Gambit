@@ -1,13 +1,66 @@
 using Fusion;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerHealth : NetworkBehaviour
 {
+    [SerializeField] private AudioSource hitConfirmAudioSource;
+    [SerializeField] private AudioClip hitConfirmSfx;
+    [SerializeField] private AudioClip flameClip;
+
     [SerializeField] public int maxHP = 100;
 
     [Networked, OnChangedRender(nameof(OnHPChanged))]
     public int CurrentHP {  get; set; }
+    public bool IsInFlameArea { get; private set; }
     [Networked] public TickTimer StunTimer {  get; set; }
+    private Coroutine flameLoopRoutine;
+    private float flameTimer;
+    private const float flameTimeout = 0.3f;
+
+    private IEnumerator FlameLoop()
+    {
+        while (true)
+        {
+            hitConfirmAudioSource.PlayOneShot(flameClip);
+
+            // 클립 끝날 때까지 대기
+            yield return new WaitForSeconds(flameClip.length);
+        }
+    }
+
+    public void StartFlameSfx()
+    {
+        if (!HasInputAuthority) return;
+
+        if (flameLoopRoutine != null)
+            return;
+
+        flameLoopRoutine = StartCoroutine(FlameLoop());
+    }
+
+    public void StopFlameSfx()
+    {
+        if (!HasInputAuthority) return;
+
+        if (flameLoopRoutine != null)
+        {
+            StopCoroutine(flameLoopRoutine);
+            flameLoopRoutine = null;
+        }
+    }
+
+    private void Update()
+    {
+        if (!HasInputAuthority) return;
+
+        flameTimer -= Time.deltaTime;
+
+        if (flameTimer <= 0f)
+        {
+            StopFlameSfx();
+        }
+    }
 
     public bool IsStunned(NetworkRunner runner)
     {
@@ -41,15 +94,17 @@ public class PlayerHealth : NetworkBehaviour
             PlayerUI.instance.UpdateHP(CurrentHP, maxHP);
         }
     }
+
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_TakeDamage(int damage, string attackerName)
+    public void RPC_TakeDamage(int damage, string attackerName, PlayerRef attacker)
     {
         Debug.Log($"{attackerName}의 공격! {damage} 데미지 받음!");
 
         int previousHP = CurrentHP;
         CurrentHP -= damage;
+        RPC_PlayHitConfirm(attacker);
 
-        if( CurrentHP <= 0 )
+        if ( CurrentHP <= 0 )
         {
             CurrentHP = 0;
             if (HasInputAuthority && PlayerUI.instance != null)
@@ -86,6 +141,15 @@ public class PlayerHealth : NetworkBehaviour
 
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayHitConfirm(PlayerRef attacker)
+    {
+        if (Runner.LocalPlayer != attacker)
+            return;
+
+        if (hitConfirmAudioSource != null && hitConfirmSfx != null)
+            hitConfirmAudioSource.PlayOneShot(hitConfirmSfx);
+    }
 
     public void OnHPChanged()
     {

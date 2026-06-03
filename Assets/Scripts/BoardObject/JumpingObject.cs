@@ -19,6 +19,9 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
     [Networked, OnChangedRender(nameof(OnPlacementChanged))]
     public Quaternion PlacementRotation { get; set; }
 
+    [Networked]
+    private TickTimer TriggerCooldown { get; set; }
+
     public override void Spawned()
     {
         if (HasStateAuthority && !PlacementInitialized)
@@ -62,18 +65,26 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!HasStateAuthority)
+            return;
+
+        if (!TriggerCooldown.ExpiredOrNotRunning(Runner))
+            return;
+
         Player player = other.GetComponent<Player>();
 
-        if (player != null)
-        {
-            player.ApplyJumpPadForce(jumpForce);
-            RPC_PlayJumpPadSfx();
-        }
+        if (player == null)
+            return;
+
+        TriggerCooldown = TickTimer.CreateFromSeconds(Runner, 0.2f);
+
+        player.ApplyJumpPadForce(jumpForce);
+        RPC_PlayJumpPadSfx();
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_PlayJumpPadSfx()
-    {
+    private void RPC_PlayJumpPadSfx() 
+    { 
         if (audioSource != null && jumpPadSfx != null)
             audioSource.PlayOneShot(jumpPadSfx);
     }

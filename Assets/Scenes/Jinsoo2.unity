@@ -3970,6 +3970,7 @@ MonoBehaviour:
   clickSound2: {fileID: 0}
   mainBgm: {fileID: 8300000, guid: 600b602535956da4abe67883ba600629, type: 3}
   gameBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
+  hitConfirmSfx: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
 --- !u!82 &600037917
 AudioSource:
   m_ObjectHideFlags: 0
