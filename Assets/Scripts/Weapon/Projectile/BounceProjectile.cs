@@ -103,8 +103,9 @@ public class BounceProjectile : NetworkBehaviour
         Debug.Log("투사체가 터졌습니다");
 
         List<LagCompensatedHit> hits = new List<LagCompensatedHit>();
+        int layerMask = LayerMask.GetMask("Player", "Default", "PlacedObject");
         int count = Runner.LagCompensation.OverlapSphere(transform.position,
-          explosionRadius, Shooter, hits, LayerMask.GetMask("Player"));
+          explosionRadius, Shooter, hits, layerMask);
 
         //데미지가 겹쳐서 들어오는걸 막기 위한 방명록
         HashSet<GameObject> hitPlayers = new HashSet<GameObject>();

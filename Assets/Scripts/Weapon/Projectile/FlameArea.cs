@@ -57,8 +57,9 @@ public class FlameArea : NetworkBehaviour
     private void BurnEnemies()
     {
         List<LagCompensatedHit> hits = new List<LagCompensatedHit>();
+        int layerMask = LayerMask.GetMask("Player", "Default", "PlacedObject");
         int count = Runner.LagCompensation.OverlapSphere(transform.position, radius, Shooter, 
-            hits, LayerMask.GetMask("Player"));
+            hits, layerMask);
         //파티클로 할땐
         //Vector3 extents = new Vector3(radius, 10f, radius);
         //int count = Runner.LagCompensation.OverlapBox 로 교체

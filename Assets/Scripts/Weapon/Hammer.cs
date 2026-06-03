@@ -274,6 +274,7 @@ public class Hammer : WeaponBase
             {
                 if(h.Hitbox.Root.gameObject == myPlayer.gameObject) continue;
                 h.Hitbox.Root.GetComponent<PlayerHealth>()?.RPC_TakeDamage(meleeWeapon.damage, myPlayer.gameObject.name);
+                h.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
         

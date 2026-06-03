@@ -89,7 +89,7 @@ public class Player : NetworkBehaviour
     public NetworkCharacterController Controller { get; private set; }
 
     public bool isPitchLocked = false;
-    public float savedLockedPitch = 0f;
+    public float targetLockedPitch = 15f;
     
     private void Awake()
     {
@@ -240,7 +240,7 @@ public class Player : NetworkBehaviour
     public void LockPitch()
     {
         isPitchLocked = true;
-        savedLockedPitch = camPitch;
+        camPitch = targetLockedPitch;
     }
 
     public void UnlockPitch()
@@ -280,7 +280,7 @@ public class Player : NetworkBehaviour
             }
             else
             {
-                camPitch = savedLockedPitch;
+                //camPitch = savedLockedPitch;
             }
 
                 // 네트워크 전송을 위해 저장

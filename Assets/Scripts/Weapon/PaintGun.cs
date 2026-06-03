@@ -105,6 +105,10 @@ public class PaintGun : WeaponBase
         else if (hit.Collider != null)
         {
             //Debug.Log($"맞은 오브젝트 : {hit.Collider.gameObject.name}");
+            if (HasStateAuthority)
+            {
+                hit.Collider.GetComponentInParent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(rangedWeapon.damage, myPlayer.gameObject.name);
+            }
         }
     }
 

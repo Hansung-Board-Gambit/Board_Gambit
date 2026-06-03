@@ -602,7 +602,7 @@ MonoBehaviour:
     _value: 0
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 577
   attackWidth: 1.5
   environmentLayer:
     serializedVersion: 2
