@@ -11,6 +11,10 @@ public class ExplosiveBarrel : NetworkBehaviour, INetworkPlacedObject
     [Header("시각 효과")]
     [SerializeField] GameObject explosionVFX; // 화약통 이펙트 추가용
 
+    [Header("사운드")]
+    [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioClip explosionSfx;
+
     [Networked, OnChangedRender(nameof(OnExplodedChanged))]
     public NetworkBool IsExploded { get; set; }
 
@@ -109,7 +113,17 @@ public class ExplosiveBarrel : NetworkBehaviour, INetworkPlacedObject
             col.enabled = !IsExploded;
 
         // 터지는 순간 이펙트 생성
-        if (IsExploded && explosionVFX != null)
-            Instantiate(explosionVFX, transform.position, Quaternion.identity);
+        if (IsExploded)
+        {
+            // VFX
+            if (explosionVFX != null)
+                Instantiate(explosionVFX, transform.position, Quaternion.identity);
+
+            // SFX 추가
+            if (audioSource != null && explosionSfx != null)
+            {
+                audioSource.PlayOneShot(explosionSfx);
+            }
+        }
     }
 }
