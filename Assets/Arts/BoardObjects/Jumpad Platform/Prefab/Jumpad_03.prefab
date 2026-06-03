@@ -71,7 +71,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::JumpingObject
   jumpForce: 15
   audioSource: {fileID: 1361896175828871951}
-  jumpPadSfx: {fileID: 8300000, guid: a2aa130c35dba3b459d7614b6cabacb2, type: 3}
+  jumpPadSfx: {fileID: 8300000, guid: 3827f48cccfbdcc49b862904d696e387, type: 3}
   _PlacementInitialized:
     _value: 0
   _PlacementPosition: {x: 0, y: 0, z: 0}

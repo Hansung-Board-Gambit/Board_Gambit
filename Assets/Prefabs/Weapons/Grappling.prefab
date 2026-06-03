@@ -620,8 +620,8 @@ MonoBehaviour:
   grappleMuzzle: {fileID: 4743654835637065397}
   flyingKunaiPrefab: {fileID: 8062316620607733816, guid: 093fa6fff6032a94b863e8f782724698, type: 3}
   networkAudioSource: {fileID: 4098740725084830782}
-  swingSfx: {fileID: 8300000, guid: 610cdb93d180d304d988b87557d67adc, type: 3}
-  grappleSfx: {fileID: 8300000, guid: 5c2e72fda6c49c445ae126bdb1816a85, type: 3}
+  swingSfx: {fileID: 8300000, guid: 429114cc40e20d640ade92461a6a00f9, type: 3}
+  grappleSfx: {fileID: 8300000, guid: d6844b2d03e8d4748a90f77f281a37d5, type: 3}
   hitEffect: {fileID: 7718016653649026206}
   _GrappleCharges: 0
   _IsInitialized: 0

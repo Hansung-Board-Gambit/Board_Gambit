@@ -357,6 +357,9 @@ public class GameRoundFlowController : MonoBehaviour
             battleRoutine = null;
         }
 
+        if (SFXAudioSource != null)
+            SFXAudioSource.Stop();
+
         latestRoundWinnerSide = winnerSide;
         CurrentPhase = GameRoundPhase.RoundResult;
         GameInputGate.Lock();

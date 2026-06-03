@@ -619,11 +619,11 @@ MonoBehaviour:
   deleteHoverColor: {r: 1, g: 0, b: 0, a: 0.65}
   allowEditorLocalTest: 1
   sfxSource: {fileID: 224800627}
-  selectSfx: {fileID: 8300000, guid: 683ba36eebb8cb7459c7968023cd2bba, type: 3}
-  placeSfx: {fileID: 8300000, guid: 00e2b693092d96e4ebc54a6320565314, type: 3}
-  deleteSfx: {fileID: 8300000, guid: d80ce062ee1d40c488ae8943a0117492, type: 3}
-  rotateSfx: {fileID: 8300000, guid: cb3bf16d9580f81499aa2ca9396b41e2, type: 3}
-  errorSfx: {fileID: 8300000, guid: ac0baaac713d73c428e6115159c80286, type: 3}
+  selectSfx: {fileID: 8300000, guid: 1cd6bd1395cedd94c81c42fb203aad82, type: 3}
+  placeSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
+  deleteSfx: {fileID: 8300000, guid: 03bec4d1bf6bb47458f5025a2d82e0f4, type: 3}
+  rotateSfx: {fileID: 8300000, guid: 0977fc6993725394698d5b63d6997b3f, type: 3}
+  errorSfx: {fileID: 8300000, guid: d427deb90cb0a4f41ac7c84c8e89d3db, type: 3}
 --- !u!82 &224800627
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4422,8 +4422,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmSource: {fileID: 909335241}
   sfxSource: {fileID: 909335241}
-  clickSound: {fileID: 8300000, guid: 26a52e98f5f127946b28ca8f2755cbc3, type: 3}
-  clickSound2: {fileID: 8300000, guid: 7bd2fad34d8f1a548bf05af794649bcd, type: 3}
+  clickSound: {fileID: 8300000, guid: 4d24cfc7e61029841a0cbfa0e77411d5, type: 3}
+  clickSound2: {fileID: 8300000, guid: 307b7f3b234b61d4398a8f6f90dab4c6, type: 3}
   mainBgm: {fileID: 0}
   gameBgm: {fileID: 0}
 --- !u!4 &909335240
@@ -5930,6 +5930,7 @@ GameObject:
   - component: {fileID: 1024786535}
   - component: {fileID: 1024786537}
   - component: {fileID: 1024786536}
+  - component: {fileID: 1024786538}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -5965,8 +5966,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrepPhaseFlowUI
   audioSource: {fileID: 1024786536}
-  prepStartSfx: {fileID: 8300000, guid: 5d759e53246630044898e0558c9f554f, type: 3}
-  timerWarningSfx: {fileID: 8300000, guid: a2317b21b26fb32448bdd208644fc050, type: 3}
+  prepStartSfx: {fileID: 8300000, guid: 460090bf5ad271f48ae020fdf2350b18, type: 3}
+  warningAudioSource: {fileID: 1024786538}
+  timerWarningSfx: {fileID: 8300000, guid: 5bd15a38a2bf1dd4da9724f5157679dd, type: 3}
   playOnStart: 1
   allowEditorLocalTest: 1
   turnIntroCanvasGroup: {fileID: 1271981652}
@@ -6077,17 +6079,17 @@ MonoBehaviour:
   hostFinalScoreText: {fileID: 1059772871}
   guestFinalScoreText: {fileID: 1025655085}
   bgmSource: {fileID: 1024786537}
-  prepBgm: {fileID: 8300000, guid: 4ef30ed69b18a884fbb289854c2cab63, type: 3}
-  battleBgm: {fileID: 8300000, guid: 07c979f8544a426488453acb2c1b6113, type: 3}
+  prepBgm: {fileID: 8300000, guid: 29cd1725affb2ec459beea7e3fe5875c, type: 3}
+  battleBgm: {fileID: 8300000, guid: 40ee76163522bd145b9730667ad78054, type: 3}
   SFXAudioSource: {fileID: 1024786536}
-  victorySfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
-  defeatSfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
-  drawSfx: {fileID: 8300000, guid: a783486b3855e264087d32ecd43832e4, type: 3}
-  countdownTickSfx: {fileID: 8300000, guid: d1c1f6331b52e714299b13e976126209, type: 3}
-  fightSfx: {fileID: 8300000, guid: a6002813ee1ced54bb8f7d9377c5dd93, type: 3}
-  dangerTimeSfx: {fileID: 8300000, guid: a2317b21b26fb32448bdd208644fc050, type: 3}
-  matchVictorySfx: {fileID: 8300000, guid: ccb9b7cdf8a671e44a0b40999642126a, type: 3}
-  matchDefeatSfx: {fileID: 8300000, guid: 0281db308fadfe6438a94a551bc4e555, type: 3}
+  victorySfx: {fileID: 8300000, guid: dff9a6594aef5764e97c90b64ec2e59d, type: 3}
+  defeatSfx: {fileID: 8300000, guid: dff9a6594aef5764e97c90b64ec2e59d, type: 3}
+  drawSfx: {fileID: 8300000, guid: dff9a6594aef5764e97c90b64ec2e59d, type: 3}
+  countdownTickSfx: {fileID: 8300000, guid: e5ad9cd1e26d8ed4ebfdd54b8a3d4247, type: 3}
+  fightSfx: {fileID: 8300000, guid: 0d2f13b2eafaff542a9028df1cfd8853, type: 3}
+  dangerTimeSfx: {fileID: 8300000, guid: 5bd15a38a2bf1dd4da9724f5157679dd, type: 3}
+  matchVictorySfx: {fileID: 8300000, guid: 626a071c825dc284192f7826c6fd1b68, type: 3}
+  matchDefeatSfx: {fileID: 8300000, guid: 34d1f226717f9c944a3a5e652cbf6eff, type: 3}
 --- !u!82 &1024786536
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6186,6 +6188,103 @@ AudioSource:
     m_PostInfinity: 2
     m_RotationOrder: 4
 --- !u!82 &1024786537
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1024786531}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!82 &1024786538
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -7972,9 +8071,9 @@ MonoBehaviour:
   spawnPlacementShadowLights: []
   allowEditorLocalTest: 1
   sfxSource: {fileID: 1209979574}
-  selectSfx: {fileID: 8300000, guid: 683ba36eebb8cb7459c7968023cd2bba, type: 3}
-  placeSfx: {fileID: 8300000, guid: 00e2b693092d96e4ebc54a6320565314, type: 3}
-  errorSfx: {fileID: 8300000, guid: ac0baaac713d73c428e6115159c80286, type: 3}
+  selectSfx: {fileID: 8300000, guid: 1cd6bd1395cedd94c81c42fb203aad82, type: 3}
+  placeSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
+  errorSfx: {fileID: 8300000, guid: d427deb90cb0a4f41ac7c84c8e89d3db, type: 3}
 --- !u!82 &1209979574
 AudioSource:
   m_ObjectHideFlags: 0

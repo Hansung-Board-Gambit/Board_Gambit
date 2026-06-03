@@ -22,13 +22,22 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
     [Networked]
     private TickTimer TriggerCooldown { get; set; }
 
+    private bool spawned;
+
     public override void Spawned()
     {
+        spawned = true;
+
         if (HasStateAuthority && !PlacementInitialized)
             InitializeNetworkPlacement(transform.position, transform.rotation);
 
         ApplyPlacement();
         Debug.Log("JumpPad Spawned!");
+    }
+
+    public override void Despawned(NetworkRunner runner, bool hasState)
+    {
+        spawned = false;
     }
 
     public void InitializeNetworkPlacement(Vector3 position, Quaternion rotation)
@@ -44,6 +53,9 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
 
     public void ResetForPreparationPhase()
     {
+        if (!spawned)
+            return;
+
         ApplyPlacement();
     }
 
@@ -54,7 +66,7 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
 
     private void ApplyPlacement()
     {
-        if (Object == null || !Object.IsValid)
+        if (!spawned)
             return;
 
         if (!PlacementInitialized)

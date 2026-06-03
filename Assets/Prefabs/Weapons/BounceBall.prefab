@@ -129,7 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BounceProjectile
   audioSource: {fileID: 2268863022619064340}
-  bounceSfx: {fileID: 8300000, guid: 889b6d9e2a2e94e4bbd9b1b2cc4a9650, type: 3}
+  bounceSfx: {fileID: 8300000, guid: 3dc8467c0b4a5aa40b62bab57d852b21, type: 3}
   speed: 20
   explosionRadius: 3
   lifeTime: 4

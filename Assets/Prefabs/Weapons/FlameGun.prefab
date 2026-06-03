@@ -87,9 +87,9 @@ MonoBehaviour:
     _value: 0
   localAudioSource: {fileID: 3580204838846262134}
   networkAudioSource: {fileID: -4939690468829283650}
-  shootSfx: {fileID: 8300000, guid: 298524b871987904bb9b7698357f01f1, type: 3}
-  flameBallSfx: {fileID: 8300000, guid: 6e9ed8ccf35c77d49941d668613dcd42, type: 3}
-  reloadSfx: {fileID: 8300000, guid: e09d1574c7d3fc44f9ea6f39df8ddad5, type: 3}
+  shootSfx: {fileID: 8300000, guid: 3a050e66a228750499d837b07df93121, type: 3}
+  flameBallSfx: {fileID: 8300000, guid: fddd44a28d7c4324791a9e0dd3afdf30, type: 3}
+  reloadSfx: {fileID: 8300000, guid: 954eef74300954748ab7b4a322528e4d, type: 3}
   flameProjectilePrefab: {fileID: 2168084721539009366, guid: d70e642a2a44a5e4590d4574c374ac58, type: 3}
   targetLayer:
     serializedVersion: 2

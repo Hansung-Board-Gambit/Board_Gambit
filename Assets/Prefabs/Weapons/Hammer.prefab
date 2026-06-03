@@ -165,10 +165,10 @@ MonoBehaviour:
   hitDelay: 0.2
   localAudioSource: {fileID: -2073421006070031915}
   networkAudioSource: {fileID: 7682948686277455406}
-  swingSfx: {fileID: 8300000, guid: 9ba93559f5542ee46a06e549a648c0a7, type: 3}
-  dashSfx: {fileID: 8300000, guid: 393c82ca1804dc944a71cc53e55f0c4c, type: 3}
-  plungeStartSfx: {fileID: 8300000, guid: f15d874d61cd78643882a6a5394f62ab, type: 3}
-  slamSfx: {fileID: 8300000, guid: f84303a212b334d4187dcb41c7795896, type: 3}
+  swingSfx: {fileID: 8300000, guid: 56c0a5c6c1c4af0409fc420859b38af7, type: 3}
+  dashSfx: {fileID: 8300000, guid: 1e3481acf0a0f8340ace7fef64208f55, type: 3}
+  plungeStartSfx: {fileID: 8300000, guid: 06cac64a1bbc29847b69edf0476fed81, type: 3}
+  slamSfx: {fileID: 8300000, guid: e7b33b2164340574393a83c87077190e, type: 3}
   _IsPlunging: 0
   _DashDir: {x: 0, y: 0, z: 0}
 --- !u!114 &4819285023648411092

@@ -604,7 +604,7 @@ MonoBehaviour:
     m_Bits: 576
   explosionVFX: {fileID: 0}
   audioSource: {fileID: 1132034924884224769}
-  explosionSfx: {fileID: 8300000, guid: 0690f460d2ca15148b0a88e9258d5618, type: 3}
+  explosionSfx: {fileID: 8300000, guid: 16100d3018cc6cc4db107d9438cd63a3, type: 3}
   _IsExploded:
     _value: 0
   _PlacementInitialized:

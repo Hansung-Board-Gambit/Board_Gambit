@@ -13,6 +13,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
     [SerializeField] private AudioClip prepStartSfx;
 
     [Header("Warning SFX")]
+    [SerializeField] AudioSource warningAudioSource;
     [SerializeField] private AudioClip timerWarningSfx;
 
     [Header("Flow")]
@@ -174,9 +175,8 @@ public class PrepPhaseFlowUI : MonoBehaviour
         yield return WaitForPrepAuthorityReadyRoutine();
 
         // 그 위에 턴 소개 오버레이
-        yield return ShowTurnIntroRoutine(GetObjectPlacementTurnText);
-
         FindFirstObjectByType<GameRoundFlowController>()?.StartPrepBgm();
+        yield return ShowTurnIntroRoutine(GetObjectPlacementTurnText);
 
         // 오버레이가 사라진 뒤 타이머 진행
         yield return RunPhaseTimerRoutine(currentPhaseIndex, objectPlacementDuration, objectPlacementTimerFill);
@@ -350,12 +350,15 @@ public class PrepPhaseFlowUI : MonoBehaviour
                         if (timerFill != null)
                             timerFill.color = Color.red;
 
-                        if (audioSource != null && timerWarningSfx != null)
-                            audioSource.PlayOneShot(timerWarningSfx);
+                        if (warningAudioSource != null && timerWarningSfx != null)
+                            warningAudioSource.PlayOneShot(timerWarningSfx);
                     }
 
                     yield return null;
                 }
+
+                if (warningAudioSource != null)
+                    warningAudioSource.Stop();
 
                 if (timerFill != null)
                 {
@@ -383,12 +386,15 @@ public class PrepPhaseFlowUI : MonoBehaviour
                 if (timerFill != null)
                     timerFill.color = Color.red;
 
-                if (audioSource != null && timerWarningSfx != null)
-                    audioSource.PlayOneShot(timerWarningSfx);
+                if (warningAudioSource != null && timerWarningSfx != null)
+                    warningAudioSource.PlayOneShot(timerWarningSfx);
             }
 
             yield return null;
         }
+
+        if (warningAudioSource != null)
+            warningAudioSource.Stop();
 
         if (timerFill != null)
         {

@@ -203,9 +203,9 @@ MonoBehaviour:
   trailSpawnDistance: 1
   flyingTime: 0.25
   localAudioSource: {fileID: -8440530431625836288}
-  footstepSfx: {fileID: 8300000, guid: b6df9a615afed8a4b95fdf76f8ff004c, type: 3}
-  trailEnterSfx: {fileID: 8300000, guid: a77914f13121f7d438943de37f2f02db, type: 3}
-  jumpSfx: {fileID: 8300000, guid: d48b681bf66ac3149b91a9d191f9a415, type: 3}
+  footstepSfx: {fileID: 8300000, guid: bb436be20e1fb914ebd3fb85797065b2, type: 3}
+  trailEnterSfx: {fileID: 8300000, guid: aa4ce566ebe9e0c4c82bc84c401d1da1, type: 3}
+  jumpSfx: {fileID: 8300000, guid: ee09e2c483f961b4883da3e3b001f918, type: 3}
   headPivot: {fileID: 6317322052285574974}
   myHitbox: {fileID: 4370617674662528710}
   footstepDistance: 2.8
@@ -261,7 +261,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   hitConfirmAudioSource: {fileID: -8440530431625836288}
-  hitConfirmSfx: {fileID: 8300000, guid: cc73904ba599b564e8f178b825354f58, type: 3}
+  hitConfirmSfx: {fileID: 8300000, guid: 1973e16e610f4174ba24c5d1a1cd76c8, type: 3}
   flameClip: {fileID: 8300000, guid: f5256471cf8b65f4bacb4433375873b7, type: 3}
   maxHP: 100
   _CurrentHP: 0
@@ -772,6 +772,10 @@ PrefabInstance:
     - target: {fileID: 4466026632830748709, guid: 5d653e89edba69b4ca68fc5386996c5e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 7.619
+      objectReference: {fileID: 0}
+    - target: {fileID: 5074772902976287755, guid: 5d653e89edba69b4ca68fc5386996c5e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

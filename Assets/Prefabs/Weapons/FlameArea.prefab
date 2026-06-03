@@ -164,7 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlameArea
   audioSource: {fileID: 4186205328315694219}
-  flameAreaSfx: {fileID: 8300000, guid: 6cae5d581995d54449022f9632ad111f, type: 3}
+  flameAreaSfx: {fileID: 8300000, guid: 76c891aff3b1e9b49b0fafe4205c79cd, type: 3}
   radius: 3
   lifeTime: 5
   damageInterval: 0.05

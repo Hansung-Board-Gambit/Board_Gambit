@@ -64,9 +64,9 @@ MonoBehaviour:
   lineSegments: 30
   localAudioSource: {fileID: -871684239580862892}
   networkAudioSource: {fileID: -8496558560700557949}
-  normalShotSfx: {fileID: 8300000, guid: 201172aca1120c14c92d41cbd334eb02, type: 3}
-  bounceShotSfx: {fileID: 8300000, guid: 4c16f51951b192040b4bf35103e72706, type: 3}
-  reloadSfx: {fileID: 8300000, guid: a8f6cfe8191fdfa4e8a5db855e83deaa, type: 3}
+  normalShotSfx: {fileID: 8300000, guid: d0112a861177ae0408fb4edc36a12ebb, type: 3}
+  bounceShotSfx: {fileID: 8300000, guid: 6c1d3af1fb4c6324d8abc3c4b65a1633, type: 3}
+  reloadSfx: {fileID: 8300000, guid: c7e54781a11cf104099ca001017be314, type: 3}
 --- !u!114 &7142002999739653655
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -125,11 +125,11 @@ MonoBehaviour:
     m_Bits: 577
   localAudioSource: {fileID: 36417623248650764}
   networkAudioSource: {fileID: -4767332237426356464}
-  chargeStartSfx: {fileID: 8300000, guid: 3ada5f2d2c790de40a80a585ec1b8ee3, type: 3}
-  fullChargeSfx: {fileID: 8300000, guid: 76ac529da5cb41942a6e98949bd04284, type: 3}
-  zoomInSfx: {fileID: 8300000, guid: 0c4bafa79429ef745814b96f48af3a68, type: 3}
-  zoomOutSfx: {fileID: 8300000, guid: 0c4bafa79429ef745814b96f48af3a68, type: 3}
-  shootSfx: {fileID: 8300000, guid: a2b565f7ba3c41a4c9039818e48cfcfa, type: 3}
+  chargeStartSfx: {fileID: 8300000, guid: ffa2c1d98ebbf5b48ac3b750540b7faf, type: 3}
+  fullChargeSfx: {fileID: 8300000, guid: 07ffb2d00dc4052448cffb3196fea4b4, type: 3}
+  zoomInSfx: {fileID: 8300000, guid: 8596e6a6cd8ef7b41acb1b84f1121e0b, type: 3}
+  zoomOutSfx: {fileID: 8300000, guid: 8596e6a6cd8ef7b41acb1b84f1121e0b, type: 3}
+  shootSfx: {fileID: 8300000, guid: b30b8cbb55e92d04c8096a94d500b1e5, type: 3}
   chargeParticle: {fileID: 619810163090007970}
   muzzleEffect: {fileID: 0}
   maxParticleScale: 0.05

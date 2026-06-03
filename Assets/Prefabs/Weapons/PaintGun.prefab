@@ -55,8 +55,8 @@ MonoBehaviour:
     _value: 0
   localAudioSource: {fileID: 6785472524395602452}
   networkAudioSource: {fileID: 6290489674786477755}
-  shootSfx: {fileID: 8300000, guid: 0833f48e2eb1d624a8f7b88bb8b5c0e2, type: 3}
-  reloadSfx: {fileID: 8300000, guid: 5a015e7cbc803e1439239c492cc596da, type: 3}
+  shootSfx: {fileID: 8300000, guid: 7e923c9c779ba5a42a8b62a1436df658, type: 3}
+  reloadSfx: {fileID: 8300000, guid: c3c3fbb742199c241ae32c63a435506b, type: 3}
   debuffDuration: 5
   targetLayer:
     serializedVersion: 2

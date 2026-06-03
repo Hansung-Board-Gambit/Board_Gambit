@@ -17,11 +17,36 @@ public class PlayerHealth : NetworkBehaviour
     private bool isPlaying;
     private float flameTimer;
 
+    private Renderer[] renderers;
+
+
     private IEnumerator FlameWait()
     {
         yield return new WaitForSeconds(flameClip.length);
 
         isPlaying = false;
+    }
+
+    private IEnumerator HitFlashRoutine()
+    {
+        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                r.enabled = false;
+        }
+
+        yield return new WaitForSeconds(0.05f);
+
+        if (this == null || !gameObject)
+            yield break;
+
+        foreach (var r in renderers)
+        {
+            if (r != null)
+                r.enabled = true;
+        }
     }
 
     public void SetFlameHit()
@@ -63,7 +88,9 @@ public class PlayerHealth : NetworkBehaviour
 
     public override void Spawned()
     {
-        if(HasStateAuthority)
+        renderers = GetComponentsInChildren<Renderer>(true);
+
+        if (HasStateAuthority)
         {
             CurrentHP = maxHP;
         }
@@ -105,6 +132,7 @@ public class PlayerHealth : NetworkBehaviour
         int previousHP = CurrentHP;
         CurrentHP -= damage;
         RPC_PlayHitConfirm(attacker);
+        RPC_PlayHitFlash();
 
         if ( CurrentHP <= 0 )
         {
@@ -140,7 +168,12 @@ public class PlayerHealth : NetworkBehaviour
         {
             CurrentHP = maxHP;
         }
+    }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayHitFlash()
+    {
+        StartCoroutine(HitFlashRoutine());
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

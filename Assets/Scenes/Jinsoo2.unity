@@ -2189,7 +2189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 327879886}
-  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
+  hoverSfx: {fileID: 8300000, guid: a542f68bf10638940be1fee6acb8e33c, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -3150,7 +3150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 477396378}
-  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
+  hoverSfx: {fileID: 8300000, guid: a542f68bf10638940be1fee6acb8e33c, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -3966,9 +3966,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   bgmSource: {fileID: 600037917}
   sfxSource: {fileID: 600037919}
-  clickSound: {fileID: 8300000, guid: 26a52e98f5f127946b28ca8f2755cbc3, type: 3}
-  clickSound2: {fileID: 8300000, guid: 33d4063952525e84c9c843f49a114678, type: 3}
-  mainBgm: {fileID: 8300000, guid: ee729a03fe8278c439226ceb435c4362, type: 3}
+  clickSound: {fileID: 8300000, guid: 4d24cfc7e61029841a0cbfa0e77411d5, type: 3}
+  clickSound2: {fileID: 8300000, guid: 914e02285e29e6e49ba092deffe70896, type: 3}
+  mainBgm: {fileID: 8300000, guid: 0f5a4a60d71f0c248a1077dfb7805340, type: 3}
   gameBgm: {fileID: 8300000, guid: d3e72900763c8964f87b1a1196c623a5, type: 3}
 --- !u!82 &600037917
 AudioSource:
@@ -4871,7 +4871,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 795363775}
-  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
+  hoverSfx: {fileID: 8300000, guid: a542f68bf10638940be1fee6acb8e33c, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -6739,7 +6739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 1141381048}
-  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
+  hoverSfx: {fileID: 8300000, guid: a542f68bf10638940be1fee6acb8e33c, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -10887,7 +10887,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonHoverUI
   audioSource: {fileID: 1898658873}
-  hoverSfx: {fileID: 8300000, guid: 58f13123b5809bc49ba32c2b3a64f992, type: 3}
+  hoverSfx: {fileID: 8300000, guid: a542f68bf10638940be1fee6acb8e33c, type: 3}
   normalBg: {r: 1, g: 1, b: 1, a: 0}
   hoverBg: {r: 1, g: 0.4, b: 0.7, a: 1}
   normalText: {r: 1, g: 1, b: 1, a: 1}
@@ -11629,6 +11629,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3136952384230047436, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
+      propertyPath: jumpSfx
+      value: 
+      objectReference: {fileID: 8300000, guid: ee09e2c483f961b4883da3e3b001f918, type: 3}
+    - target: {fileID: 3136952384230047436, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
+      propertyPath: footstepSfx
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fc885113d38f1d4d88e4fa4c7b35816, type: 3}
+    - target: {fileID: 3136952384230047436, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
+      propertyPath: trailEnterSfx
+      value: 
+      objectReference: {fileID: 8300000, guid: aa4ce566ebe9e0c4c82bc84c401d1da1, type: 3}
+    - target: {fileID: 3136952384230047436, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
       propertyPath: footstepDistance
       value: 2.6
       objectReference: {fileID: 0}
@@ -11636,6 +11648,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3966191007608186405, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
+      propertyPath: hitConfirmSfx
+      value: 
+      objectReference: {fileID: 8300000, guid: 1973e16e610f4174ba24c5d1a1cd76c8, type: 3}
     - target: {fileID: 7759935479703471914, guid: 0ccb10e9c269ce8408b0286dccb14931, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
