@@ -364,7 +364,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198138969723800794, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198138969723800794, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198162495504434620, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198162495504434620, guid: 40cb83d3af318b646855051384a4817b, type: 3}
@@ -372,7 +380,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198245303702156694, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198245303702156694, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198318533177290710, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198318533177290710, guid: 40cb83d3af318b646855051384a4817b, type: 3}
@@ -380,7 +396,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198401188122763948, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198401188122763948, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198601619665882458, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198601619665882458, guid: 40cb83d3af318b646855051384a4817b, type: 3}
@@ -392,12 +416,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198615011215934022, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 198615011215934022, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198615011215934022, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: moveWithTransform
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 198948882683994992, guid: 40cb83d3af318b646855051384a4817b, type: 3}
+      propertyPath: looping
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198948882683994992, guid: 40cb83d3af318b646855051384a4817b, type: 3}
       propertyPath: playOnAwake

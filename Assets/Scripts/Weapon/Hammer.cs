@@ -36,6 +36,10 @@ public class Hammer : WeaponBase
     [SerializeField] AudioClip plungeStartSfx; // Q 시작 - 로컬만
     [SerializeField] AudioClip slamSfx;        // 착지 강타 - 네트워크 공유
 
+    [Header("시각 효과")]
+    [SerializeField] GameObject swingAssetPrefab;
+    [SerializeField] GameObject slamVFXObject;
+
 
     //서버용 타이머
     [Networked] public TickTimer HitTimer {  get; set; }
@@ -66,6 +70,7 @@ public class Hammer : WeaponBase
         meleeWeapon = data as MeleeWeapon;
         
         if(hammerModel != null ) originalRotation = hammerModel.localRotation;
+
     }
     protected override void BasicAttack()
     {
@@ -74,9 +79,10 @@ public class Hammer : WeaponBase
             RPC_PlayNetworkSfx(HammerSfxType.Swing);
             //나중에 애니메이션 추가후 swingHammer는 제거 -> 애니메이션과 연결, add animation event 연결
             //모션 시작
-            if (hammerModel != null) StartCoroutine(SwingMotion());
+            //if (hammerModel != null) StartCoroutine(SwingMotion());
+            SwingHammer();
             //서버한테 일정 시간 후에 논리적 타격 지시
-            HitTimer = TickTimer.CreateFromSeconds(Runner,hitDelay);
+            //HitTimer = TickTimer.CreateFromSeconds(Runner,hitDelay);
             //전체 쿨타임
             LeftClickTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.leftClickCoolTime);
         }
@@ -154,56 +160,10 @@ public class Hammer : WeaponBase
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
-        //휘두르는 모션
+        RPC_SpawnSwingVFX(boxCenter, myPlayer.fpsCamera.transform.rotation, boxSize);
     }
 
-    //휘두르기 모션 코루틴
-    private IEnumerator SwingMotion()
-    {
-        isSwinging = true;
-        //출발점 기억하기
-        Vector3 startPos = hammerModel.localPosition;
-        Quaternion startRot = hammerModel.localRotation;
-        //목표 계산
-        Vector3 swingTargetPos = startPos + new Vector3(-0.2f, 0f, 0.5f);
-
-        // 2. 각도 회전: 망치를 가로로 눕히고(Z축), 플레이어 왼쪽으로 휙 돌립니다(Y축).
-        // (주의: 박스 조립 방향에 따라 각도가 다를 수 있습니다. 이상하게 돌면 아래 90, -90 숫자들을 요리조리 바꿔보세요!)
-        Quaternion swingTargetRot = startRot * Quaternion.Euler(10f, -90f, 90f);
-
-        // 1단계: 부채꼴 휘두르기 (오른쪽 -> 왼쪽)
-        float t = 0;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * swingSpeed; // (swingSpeed는 12 정도로 추천)
-            float smoothT = Mathf.SmoothStep(0, 1, t);
-
-            // 위치는 부드럽게 이동 (거의 제자리)
-            hammerModel.localPosition = Vector3.Lerp(startPos, swingTargetPos, smoothT);
-
-            //핵심: Slerp를 사용해서 손잡이 중심의 완벽한 둥근 궤적(부채꼴)을 만듭니다!
-            hammerModel.localRotation = Quaternion.Slerp(startRot, swingTargetRot, smoothT);
-
-            yield return null;
-        }
-
-        // 2단계: 원래 자리로 회수 (스르륵)
-        t = 0;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * (swingSpeed * 0.5f);
-            float smoothT = Mathf.SmoothStep(0, 1, t);
-
-            hammerModel.localPosition = Vector3.Lerp(swingTargetPos, startPos, smoothT);
-            hammerModel.localRotation = Quaternion.Slerp(swingTargetRot, startRot, smoothT);
-
-            yield return null;
-        }
-        hammerModel.localPosition = startPos;
-        hammerModel.localRotation = startRot;
-
-        isSwinging = false;
-    }
+    
 
     //낙하시작
     private void StartPlunge()
@@ -219,6 +179,7 @@ public class Hammer : WeaponBase
 
     public override void OnFixedUpdateNetwork()
     {
+        /*
         if(HitTimer.Expired(Runner))
         {
             //정해둔 시간이 지났을때 : 투명상자 소환후 피격 계산
@@ -226,6 +187,7 @@ public class Hammer : WeaponBase
             //타이머 끄기
             HitTimer = TickTimer.None;
         }
+        */
         if(IsPlunging && myPlayer != null)
         {
             myPlayer.Controller.Velocity = Vector3.down * plungeSpeed;
@@ -263,6 +225,7 @@ public class Hammer : WeaponBase
         }
         RPC_PlayNetworkSfx(HammerSfxType.Slam);
 
+        RPC_PlaySlamVFX(transform.position, slamRadius);
         if (HasStateAuthority)
         {
             RPC_PlaySlamSfx();
@@ -328,4 +291,40 @@ public class Hammer : WeaponBase
     {
         networkAudioSource?.PlayOneShot(slamSfx);
     }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_SpawnSwingVFX(Vector3 centerPosition, Quaternion cameraRotation, Vector3 targetScale)
+    {
+        if (swingAssetPrefab != null)
+        {
+            // 1. 각도를 90도 숙여서 소환
+            Quaternion tiltedRotation = cameraRotation * Quaternion.Euler(90f, 0f, 0f);
+            GameObject vfx = Instantiate(swingAssetPrefab, centerPosition, tiltedRotation);
+
+            // 2. 박스 크기 무시하고, 무조건 전체 크기를 0.7배로 고정!
+            vfx.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+
+            // 3. 2초 뒤 삭제
+            Destroy(vfx, 2f);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_PlaySlamVFX(Vector3 slamPosition, float radius)
+    {
+        if (slamVFXObject != null)
+        {
+            Quaternion flatRotation = Quaternion.Euler(0f, 0f, 0f);
+
+            // 2. 바닥 위치(slamPosition)에 눕힌 각도로 프리팹 짠! 소환
+            GameObject vfx = Instantiate(slamVFXObject, slamPosition, flatRotation);
+
+            // 3. 판정 범위 무시하고, 무조건 전체 크기를 2.3배로 고정!
+            vfx.transform.localScale = new Vector3(2.3f, 2.3f, 2.3f);
+
+            // 4. 메모리 정리를 위해 2초 뒤 깔끔하게 삭제
+            Destroy(vfx, 2f);
+        }
+    }
+
 }

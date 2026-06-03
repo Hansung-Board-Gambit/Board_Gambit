@@ -23,8 +23,14 @@ public class RechargeableLaser : WeaponBase
     [SerializeField] ParticleSystem chargeParticle;
     [SerializeField] ParticleSystem muzzleEffect;
     [SerializeField] float maxParticleScale = 2f;
-    
-    
+
+    [Header("레이저 빔 효과")]
+    [SerializeField] LineRenderer laserLine;
+    [SerializeField] Transform laserMuzzle;
+    [SerializeField] float laserFadeDuration = 0.5f;
+
+    private Coroutine laserFadeCoroutine;
+
     private RangedWeapon rangedWeapon;
 
     private bool isPressing;
@@ -157,6 +163,8 @@ public class RechargeableLaser : WeaponBase
         Vector3 origin = myPlayer.fpsCamera.transform.position;
         Vector3 direction = myPlayer.fpsCamera.transform.forward;
 
+        Vector3 endPoint = origin + (direction * rangedWeapon.range);
+
         Debug.DrawRay(origin, direction * rangedWeapon.range, Color.red, 2f);
 
         var hits = new System.Collections.Generic.List<LagCompensatedHit>();
@@ -175,6 +183,11 @@ public class RechargeableLaser : WeaponBase
         {
             Debug.Log("2. 허공에 빗나감");
             return;
+        }
+        if (hitCount > 0)
+        {
+            //무언가 맞았을때, 끝 지점 변경 
+            endPoint = hits[0].Point;
         }
 
         System.Collections.Generic.HashSet<GameObject> hitPlayers = new System.Collections.Generic.HashSet<GameObject>();
@@ -232,6 +245,7 @@ public class RechargeableLaser : WeaponBase
                 }
             }
         }
+        RPC_DrawLaser(laserMuzzle.position, endPoint);
     }
 
     /*
@@ -321,5 +335,62 @@ public class RechargeableLaser : WeaponBase
     protected override void CheckReload(NetworkInputData data, NetworkButtons prevButtons)
     {
         
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_DrawLaser(Vector3 startPos, Vector3 endPos)
+    {
+        if (laserLine == null) return;
+
+        // 1. 선의 시작점과 끝점 설정
+        laserLine.positionCount = 2;
+        laserLine.SetPosition(0, startPos);
+        laserLine.SetPosition(1, endPos);
+
+        /*
+        // 2. 피격 이펙트 소환 (선택 사항)
+        if (laserHitEffectPrefab != null)
+        {
+            // 맞은 지점(endPos)에 파티클 생성하고 1초 뒤 삭제
+            GameObject hitVfx = Instantiate(laserHitEffectPrefab, endPos, Quaternion.identity);
+            Destroy(hitVfx, 1f);
+        }
+        */
+        // 3. 기존에 페이드 효과가 돌고 있었다면 끄고 새로 시작 (연사 시 깜빡임 방지)
+        if (laserFadeCoroutine != null)
+        {
+            StopCoroutine(laserFadeCoroutine);
+        }
+        laserFadeCoroutine = StartCoroutine(FadeLaserRoutine());
+    }
+
+    private System.Collections.IEnumerator FadeLaserRoutine()
+    {
+        laserLine.enabled = true; // 라인 켜기
+
+        // 라인 렌더러의 원래 색상 가져오기
+        Color startColor = laserLine.startColor;
+        Color endColor = laserLine.endColor;
+
+        float t = 0;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / laserFadeDuration; // laserFadeDuration(예: 0.5초) 동안 서서히 증가
+
+            // 알파(투명도) 값을 1에서 0으로 부드럽게 감소
+            float alpha = Mathf.Lerp(1f, 0f, t);
+
+            // 색상에 새로운 투명도 적용
+            laserLine.startColor = new Color(startColor.r, startColor.g, startColor.b, alpha);
+            laserLine.endColor = new Color(endColor.r, endColor.g, endColor.b, alpha);
+
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        laserLine.enabled = false; // 완전히 투명해지면 선 끄기
+
+        // 다음 발사를 위해 색상 투명도 복구 (안 하면 다음번 쏠 때 안 보임!)
+        laserLine.startColor = new Color(startColor.r, startColor.g, startColor.b, 1f);
+        laserLine.endColor = new Color(endColor.r, endColor.g, endColor.b, 1f);
     }
 }

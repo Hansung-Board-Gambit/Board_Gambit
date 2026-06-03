@@ -35,7 +35,7 @@ public class Grappling : WeaponBase
     [SerializeField] AudioClip grappleSfx;
 
     [Header("시각 효과")]
-    [SerializeField] ParticleSystem hitEffect;
+    [SerializeField] GameObject hitEffect;
 
     [Networked] public int GrappleCharges { get; set; }
     [Networked] public TickTimer GrappleRechargeTimer { get; set; }
@@ -144,6 +144,7 @@ public class Grappling : WeaponBase
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
+        RPC_SpawnSwingVFX(boxCenter, myPlayer.fpsCamera.transform.rotation);
     }
 
     public override void OnFixedUpdateNetwork()
@@ -356,11 +357,29 @@ public class Grappling : WeaponBase
         switch (type)
         {
             case GrappleSfxType.Swing: networkAudioSource.PlayOneShot(swingSfx);
-                hitEffect.Play();
                 break;
 
             case GrappleSfxType.Grapple: networkAudioSource.PlayOneShot(grappleSfx);
                 break;
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_SpawnSwingVFX(Vector3 centerPosition, Quaternion cameraRotation)
+    {
+        if (hitEffect != null)
+        {
+
+            Quaternion tiltedRotation = cameraRotation * Quaternion.Euler(0f, 0f, 0f);
+
+            // 2. 이펙트 생성
+            GameObject vfx = Instantiate(hitEffect, centerPosition, tiltedRotation);
+
+            // 3. 요청하신 대로 무조건 전체 크기를 1.3배로 고정!
+            vfx.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
+
+            // 4. 메모리 누수 방지를 위해 2초 뒤 삭제
+            Destroy(vfx, 2f);
         }
     }
 }

@@ -23,6 +23,8 @@ public class SelfieStick : WeaponBase
     [SerializeField] AudioClip enterTpsSfx;   // 3인칭 진입
     [SerializeField] AudioClip exitTpsSfx;    // 1인칭 복귀
 
+    [Header("시각 효과")]
+    [SerializeField] GameObject hitEffect;
     [Networked] public TickTimer HitTimer { get; set; }
 
     private Quaternion originalRotation;
@@ -112,7 +114,7 @@ public class SelfieStick : WeaponBase
     {
         if (myPlayer == null) return;
 
-        Vector3 boxCenter = transform.position + 
+        Vector3 boxCenter = myPlayer.fpsCamera.transform.position + 
             myPlayer.fpsCamera.transform.forward * (meleeWeapon.range / 2f);
 
         Vector3 boxSize = new Vector3(2f, 2f, meleeWeapon.range);
@@ -129,6 +131,7 @@ public class SelfieStick : WeaponBase
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
+        RPC_SpawnSwingVFX(boxCenter, myPlayer.fpsCamera.transform.rotation);
     }
 
     private IEnumerator SwingMotion()
@@ -188,4 +191,23 @@ public class SelfieStick : WeaponBase
 
     protected override void SecondAttack() { }
     protected override void SkillQ() { }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_SpawnSwingVFX(Vector3 centerPosition, Quaternion cameraRotation)
+    {
+        if (hitEffect != null)
+        {
+            // 1. 카메라가 보는 방향을 기준으로 90도 눕힌 각도 계산
+            Quaternion tiltedRotation = cameraRotation * Quaternion.Euler(0f, 0f, 0f);
+
+            // 2. 이펙트 소환 (Instantiate)
+            GameObject vfx = Instantiate(hitEffect, centerPosition, tiltedRotation);
+
+            // 3. 전체 크기를 1.2배로 뻥튀기!
+            vfx.transform.localScale = new Vector3(1.2f, 1.2f, 1.2f);
+
+            // 4. 2초 뒤 깔끔하게 삭제
+            Destroy(vfx, 2f);
+        }
+    }
 }
