@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5dd9ec6ef6df84646a2581d23fde3075
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 381626
+  packageName: VFX Energy Core Vol1
+  packageVersion: 1.0
+  assetPath: Assets/EnergyCore/Prefabs/BuiltIn/Effect1.prefab
+  uploadId: 920694

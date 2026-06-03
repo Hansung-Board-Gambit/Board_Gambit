@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 871a5969e0480e344953f6b30dc29e33
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 381626
+  packageName: VFX Energy Core Vol1
+  packageVersion: 1.0
+  assetPath: Assets/EnergyCore/Materials/EnergyCoreEffect/BuiltIn/Effect1/Effect1
+    1.mat
+  uploadId: 920694
