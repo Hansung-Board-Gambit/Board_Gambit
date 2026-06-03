@@ -132,6 +132,7 @@ MonoBehaviour:
   bounceSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
   speed: 20
   explosionRadius: 3
+  lifeTime: 4
   rangedData: {fileID: 11400000, guid: 26b6f7a797bfdb240831c1cf42b09378, type: 2}
   hitLayer:
     serializedVersion: 2

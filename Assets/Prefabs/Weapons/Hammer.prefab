@@ -157,7 +157,7 @@ MonoBehaviour:
   Damage: 60
   minPlungeHeight: 1.5
   plungeSpeed: 30
-  slamRadius: 4
+  slamRadius: 2
   hammerModel: {fileID: 0}
   swingSpeed: 10
   swingRotation: {x: 0, y: -90, z: 0}

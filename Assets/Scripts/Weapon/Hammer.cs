@@ -210,6 +210,11 @@ public class Hammer : WeaponBase
     {
         IsPlunging = true;
         if (HasInputAuthority && myPlayer != null) myPlayer.StartPlungeCameraLock();
+
+        if (myPlayer != null && myPlayer.Controller != null)
+        {
+            myPlayer.Controller.Velocity = Vector3.zero;
+        }
     }
 
     public override void OnFixedUpdateNetwork()
@@ -223,9 +228,9 @@ public class Hammer : WeaponBase
         }
         if(IsPlunging && myPlayer != null)
         {
-            myPlayer.Controller.Move(Vector3.down * plungeSpeed * Runner.DeltaTime);
+            myPlayer.Controller.Velocity = Vector3.down * plungeSpeed;
 
-            if(myPlayer.Controller.Grounded && HasStateAuthority)
+            if (myPlayer.Controller.Grounded && HasStateAuthority)
             {
                 LandSlam();
             }
@@ -252,6 +257,10 @@ public class Hammer : WeaponBase
     private void LandSlam()
     {
         IsPlunging = false;
+        if (myPlayer != null && myPlayer.Controller != null)
+        {
+            myPlayer.Controller.Velocity = Vector3.zero;
+        }
         RPC_PlayNetworkSfx(HammerSfxType.Slam);
 
         if (HasStateAuthority)

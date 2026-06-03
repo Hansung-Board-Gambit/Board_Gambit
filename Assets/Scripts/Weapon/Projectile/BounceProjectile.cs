@@ -9,9 +9,10 @@ public class BounceProjectile : NetworkBehaviour
     [Header("사운드")]
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip bounceSfx;
-
+    [Header("투사체 세팅")]
     [SerializeField] float speed = 20f;
     [SerializeField] float explosionRadius = 3f;
+    [SerializeField] float lifeTime = 5f;
     [SerializeField] RangedWeapon rangedData;
     public LayerMask hitLayer;
     private BounceGun bounceGun;
@@ -19,6 +20,7 @@ public class BounceProjectile : NetworkBehaviour
     [Networked] public int BounceCount { get; set; }
     [Networked] public Vector3 Velocity { get; set; }
     [Networked] public PlayerRef Shooter { get; set; }
+    [Networked] public TickTimer LifeTimer { get; set; }
 
     public void InitProjectile(Vector3 dir, int bounces, PlayerRef shooter)
     {
@@ -26,10 +28,20 @@ public class BounceProjectile : NetworkBehaviour
         Velocity = dir * speed;
         BounceCount = bounces;
         Shooter = shooter;
+
+        if (HasStateAuthority)
+        {
+            LifeTimer = TickTimer.CreateFromSeconds(Runner, lifeTime);
+        }
     }
 
     public override void FixedUpdateNetwork()
     {
+        if (HasStateAuthority && LifeTimer.Expired(Runner))
+        {
+            Explode(); // 시간이 다 되면 허공에서 터지며 소멸
+            return;    
+        }
         //포물선 계산
         Velocity += (Physics.gravity * 0.4f) * Runner.DeltaTime;
 
