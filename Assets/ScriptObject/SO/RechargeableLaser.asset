@@ -19,7 +19,10 @@ MonoBehaviour:
   damage: 30
   range: 200
   weaponIcon: {fileID: 21300000, guid: 677ecb73818f7ea4fb18dee507d3e0d5, type: 3}
-  weaponDescription: 
+  weaponDescription: "\uC88C\uD074\uB9AD\uC744 \uAE38\uAC8C \uB20C\uB7EC \uCDA9\uC804\uD558\uACE0
+    \uB5BC\uBA74 \uB808\uC774\uC800\uB97C \uBC1C\uC0AC\uD558\uC5EC 30\uC758 \uD53C\uD574\uB97C
+    \uC900\uB2E4. \n\uC6B0\uD074\uB9AD : \uC870\uC900 \uC2DC\uC57C\uAC00 \uD655\uB300\uB41C\uB2E4."
+  leftHandVisualPrefab: {fileID: 0}
   MaxAmmo: 50
   leftClickCoolTime: 0
   rightClickCoolTime: 0
