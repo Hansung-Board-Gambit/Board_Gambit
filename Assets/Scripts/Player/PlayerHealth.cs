@@ -12,42 +12,21 @@ public class PlayerHealth : NetworkBehaviour
 
     [Networked, OnChangedRender(nameof(OnHPChanged))]
     public int CurrentHP {  get; set; }
-    public bool IsInFlameArea { get; private set; }
     [Networked] public TickTimer StunTimer {  get; set; }
     private Coroutine flameLoopRoutine;
+    private bool isPlaying;
     private float flameTimer;
-    private const float flameTimeout = 0.3f;
 
-    private IEnumerator FlameLoop()
+    private IEnumerator FlameWait()
     {
-        while (true)
-        {
-            hitConfirmAudioSource.PlayOneShot(flameClip);
+        yield return new WaitForSeconds(flameClip.length);
 
-            // 클립 끝날 때까지 대기
-            yield return new WaitForSeconds(flameClip.length);
-        }
+        isPlaying = false;
     }
 
-    public void StartFlameSfx()
+    public void SetFlameHit()
     {
-        if (!HasInputAuthority) return;
-
-        if (flameLoopRoutine != null)
-            return;
-
-        flameLoopRoutine = StartCoroutine(FlameLoop());
-    }
-
-    public void StopFlameSfx()
-    {
-        if (!HasInputAuthority) return;
-
-        if (flameLoopRoutine != null)
-        {
-            StopCoroutine(flameLoopRoutine);
-            flameLoopRoutine = null;
-        }
+        flameTimer = 0.25f;
     }
 
     private void Update()
@@ -56,9 +35,23 @@ public class PlayerHealth : NetworkBehaviour
 
         flameTimer -= Time.deltaTime;
 
-        if (flameTimer <= 0f)
+        if (flameTimer > 0f)
         {
-            StopFlameSfx();
+            flameTimer -= Time.deltaTime;
+
+            if (!hitConfirmAudioSource.isPlaying)
+            {
+                hitConfirmAudioSource.clip = flameClip;
+                hitConfirmAudioSource.loop = true;
+                hitConfirmAudioSource.Play();
+            }
+        }
+        else
+        {
+            if (!hitConfirmAudioSource.isPlaying)
+            {
+                hitConfirmAudioSource.Stop();
+            }
         }
     }
 
