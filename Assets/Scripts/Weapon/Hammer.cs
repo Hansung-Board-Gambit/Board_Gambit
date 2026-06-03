@@ -265,6 +265,7 @@ public class Hammer : WeaponBase
 
         if (HasStateAuthority)
         {
+            RPC_PlaySlamSfx();
             var hits = new System.Collections.Generic.List<LagCompensatedHit>();
             Runner.LagCompensation.OverlapSphere(transform.position, slamRadius,
                 Object.InputAuthority, hits, targetLayer);
@@ -318,9 +319,12 @@ public class Hammer : WeaponBase
 
             case HammerSfxType.Dash: networkAudioSource.PlayOneShot(dashSfx);
                 break;
-
-            case HammerSfxType.Slam: networkAudioSource.PlayOneShot(slamSfx);
-                break;
         }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_PlaySlamSfx()
+    {
+        networkAudioSource?.PlayOneShot(slamSfx);
     }
 }

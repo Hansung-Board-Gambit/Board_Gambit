@@ -64,9 +64,9 @@ MonoBehaviour:
   lineSegments: 30
   localAudioSource: {fileID: -871684239580862892}
   networkAudioSource: {fileID: -8496558560700557949}
-  normalShotSfx: {fileID: 8300000, guid: c47cc24083fad7d419353808d92acb0a, type: 3}
-  bounceShotSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
-  reloadSfx: {fileID: 8300000, guid: ef626014df7dfcc4d9b80c9dcf433ea4, type: 3}
+  normalShotSfx: {fileID: 8300000, guid: 201172aca1120c14c92d41cbd334eb02, type: 3}
+  bounceShotSfx: {fileID: 8300000, guid: 4c16f51951b192040b4bf35103e72706, type: 3}
+  reloadSfx: {fileID: 8300000, guid: a8f6cfe8191fdfa4e8a5db855e83deaa, type: 3}
 --- !u!114 &7142002999739653655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,7 +107,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 5
+  MinDistance: 10
   MaxDistance: 40
   Pan2D: 0
   rolloffMode: 0

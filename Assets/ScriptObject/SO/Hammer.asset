@@ -19,7 +19,11 @@ MonoBehaviour:
   damage: 50
   range: 1
   weaponIcon: {fileID: 21300000, guid: dc0d47e41d10f3e4aa609ddd5cdbe246, type: 3}
-  weaponDescription: 
+  weaponDescription: "\uC88C\uD074\uB9AD : \uD574\uBA38\uB97C \uD718\uB458\uB7EC
+    50\uC758 \uD53C\uD574\uB97C \uC900\uB2E4. \n\uC6B0\uD074\uB9AD : \uBC14\uB77C\uBCF4\uB294
+    \uBC29\uD5A5\uC73C\uB85C \uC9E7\uAC8C \uB3CC\uC9C4\uD55C\uB2E4. Q \uC2DC \uB0B4\uB824\uCC0D\uC5B4
+    \uBC94\uC704 \uD53C\uD574\uB97C \uC900\uB2E4."
+  leftHandVisualPrefab: {fileID: 0}
   leftClickCoolTime: 1
   rightClickCoolTime: 2
   skillQCoolTime: 2

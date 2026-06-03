@@ -86,9 +86,9 @@ MonoBehaviour:
     _value: 0
   localAudioSource: {fileID: 3580204838846262134}
   networkAudioSource: {fileID: -4939690468829283650}
-  shootSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
-  flameBallSfx: {fileID: 8300000, guid: c47cc24083fad7d419353808d92acb0a, type: 3}
-  reloadSfx: {fileID: 8300000, guid: ef626014df7dfcc4d9b80c9dcf433ea4, type: 3}
+  shootSfx: {fileID: 8300000, guid: 298524b871987904bb9b7698357f01f1, type: 3}
+  flameBallSfx: {fileID: 8300000, guid: 6e9ed8ccf35c77d49941d668613dcd42, type: 3}
+  reloadSfx: {fileID: 8300000, guid: e09d1574c7d3fc44f9ea6f39df8ddad5, type: 3}
   flameProjectilePrefab: {fileID: 2168084721539009366, guid: d70e642a2a44a5e4590d4574c374ac58, type: 3}
   targetLayer:
     serializedVersion: 2
@@ -133,8 +133,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 3
-  MaxDistance: 30
+  MinDistance: 10
+  MaxDistance: 40
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0

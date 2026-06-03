@@ -25,7 +25,7 @@ public class GameRoundFlowController : MonoBehaviour
     public float countdownDuration = 3f;
     public float roundDuration = 60f;
     public float roundResultDuration = 5f;
-    public float matchResultDuration = 5f;
+    public float matchResultDuration = 10f;
     public bool autoStartNextRoundOnTimer = true;
     public bool returnToLobbyAfterMatch = true;
     public bool showDebugOverlay = true;
@@ -74,9 +74,12 @@ public class GameRoundFlowController : MonoBehaviour
     [SerializeField] AudioSource SFXAudioSource;
     [SerializeField] AudioClip victorySfx;
     [SerializeField] AudioClip defeatSfx;
+    [SerializeField] AudioClip drawSfx;
     [SerializeField] AudioClip countdownTickSfx;
     [SerializeField] AudioClip fightSfx;
     [SerializeField] AudioClip dangerTimeSfx;
+    [SerializeField] AudioClip matchVictorySfx;
+    [SerializeField] AudioClip matchDefeatSfx;
 
     public GameRoundPhase CurrentPhase { get; private set; } = GameRoundPhase.Preparation;
 
@@ -376,6 +379,7 @@ public class GameRoundFlowController : MonoBehaviour
             Debug.Log("Match completed after round " + roundIndex + ".");
             UpdatePhaseText();
             UpdateRoundResultText();
+            ShowMatchResultUI();
 
             if (returnToLobbyAfterMatch)
                 ReturnToLobbyAfterMatchDelay();
@@ -980,12 +984,17 @@ public class GameRoundFlowController : MonoBehaviour
         resultHudRoot.SetActive(true);
         victoryPanel.SetActive(false);
         defeatPanel.SetActive(false);
+        drawPanel.SetActive(false);
 
         bool isHost = LobbyState.Instance.Runner.IsServer;
         bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
 
         if (latestRoundWinnerSide == 0)
+        {
+            if (drawPanel != null)
+                StartCoroutine(FadeInPanel(drawPanel));
             return;
+        }
 
         if (isWinner)
             StartCoroutine(FadeInPanel(victoryPanel));
@@ -998,28 +1007,33 @@ public class GameRoundFlowController : MonoBehaviour
         if (matchResultPanel == null)
             return;
 
+        bool isHost = LobbyState.Instance.Runner.IsServer;
+        bool localWon = (latestHostScore > latestGuestScore && isHost) || (latestGuestScore > latestHostScore && !isHost);
+
+        if (SFXAudioSource != null)
+        {
+            if (localWon)
+                SFXAudioSource.PlayOneShot(matchVictorySfx);
+            else
+                SFXAudioSource.PlayOneShot(matchDefeatSfx);
+        }
+
         matchResultPanel.SetActive(true);
 
-        string hostName = "Host";
-        string guestName = "Guest";
+        string hostNickname = LobbyState.Instance != null ? LobbyState.Instance.hostName.ToString(): "Host";
+        string guestNickname = LobbyState.Instance != null ? LobbyState.Instance.guestName.ToString(): "Guest";
 
-        NetworkRunner runner = LobbyState.Instance.Runner;
-
-        foreach (PlayerRef player in runner.ActivePlayers)
+        if (LobbyState.Instance != null)
         {
-            //string nickname = LobbyState.Instance.GetPlayerNickname(player);
-
-            if (player == runner.LocalPlayer && runner.IsServer) { }
-                //hostName = nickname;
-            else if (player != runner.LocalPlayer && runner.IsServer) { }
-                //guestName = nickname;
+            hostNickname = LobbyState.Instance.hostName.ToString();
+            guestNickname = LobbyState.Instance.guestName.ToString();
         }
 
         if (hostNameText != null)
-            hostNameText.text = hostName;
+            hostNameText.text = hostNickname;
 
         if (guestNameText != null)
-            guestNameText.text = guestName;
+            guestNameText.text = guestNickname;
 
         if (hostFinalScoreText != null)
             hostFinalScoreText.text = latestHostScore.ToString();
@@ -1030,11 +1044,13 @@ public class GameRoundFlowController : MonoBehaviour
         if (winnerText != null)
         {
             if (latestHostScore > latestGuestScore)
-                winnerText.text = $"{hostName} 铰府!";
+            {
+                winnerText.text = $"Winner is {hostNickname}";
+            }
             else if (latestGuestScore > latestHostScore)
-                winnerText.text = $"{guestName} 铰府!";
-            else
-                winnerText.text = "公铰何";
+            {
+                winnerText.text = $"Winner is {guestNickname}";
+            }
         }
     }
 
@@ -1063,7 +1079,11 @@ public class GameRoundFlowController : MonoBehaviour
 
         bool isHost = LobbyState.Instance.Runner.IsServer;
         bool isWinner = (latestRoundWinnerSide == 1 && isHost) || (latestRoundWinnerSide == 2 && !isHost);
-        SFXAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
+
+        if (latestRoundWinnerSide == 0)
+            SFXAudioSource.PlayOneShot(drawSfx);
+        else
+            SFXAudioSource.PlayOneShot(isWinner ? victorySfx : defeatSfx);
     }
 
     public void StartPrepBgm()

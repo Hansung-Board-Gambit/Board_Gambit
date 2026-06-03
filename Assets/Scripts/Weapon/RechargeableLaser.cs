@@ -127,6 +127,9 @@ public class RechargeableLaser : WeaponBase
 
     protected override void BasicAttack()
     {
+        if (!Object.HasStateAuthority)
+            return;
+
         RPC_PlayNetworkSfx(LaserSfxType.Shoot);
         Shoot();
     }    
@@ -204,7 +207,7 @@ public class RechargeableLaser : WeaponBase
         localAudioSource.PlayOneShot(clip);
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     void RPC_PlayNetworkSfx(LaserSfxType type)
     {
         if (networkAudioSource == null)

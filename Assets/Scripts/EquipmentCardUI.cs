@@ -20,9 +20,10 @@ public class EquipmentCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     private CanvasGroup hoverCanvasGroup;
     private Image hoverOverlayImage;
-    private TextMeshProUGUI hoverDescriptionText;
+    private Text hoverDescriptionText;
     private Coroutine hoverRoutine;
     private string hoverDescription = "";
+    private static Font hoverKoreanFont;
 
     private void Awake()
     {
@@ -138,17 +139,43 @@ public class EquipmentCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         textRect.offsetMax = -hoverTextPadding;
         textRect.localScale = Vector3.one;
 
-        hoverDescriptionText = textObject.GetComponent<TextMeshProUGUI>();
+        hoverDescriptionText = textObject.GetComponent<Text>();
         if (hoverDescriptionText == null)
-            hoverDescriptionText = textObject.AddComponent<TextMeshProUGUI>();
+            hoverDescriptionText = textObject.AddComponent<Text>();
 
         hoverDescriptionText.text = hoverDescription;
         hoverDescriptionText.color = hoverTextColor;
         hoverDescriptionText.fontSize = hoverDescriptionFontSize;
-        hoverDescriptionText.alignment = TextAlignmentOptions.Center;
-        hoverDescriptionText.enableWordWrapping = true;
-        hoverDescriptionText.overflowMode = TextOverflowModes.Ellipsis;
+        hoverDescriptionText.font = GetHoverKoreanFont();
+        hoverDescriptionText.alignment = TextAnchor.MiddleCenter;
+        hoverDescriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        hoverDescriptionText.verticalOverflow = VerticalWrapMode.Truncate;
+        hoverDescriptionText.supportRichText = false;
         hoverDescriptionText.raycastTarget = false;
+    }
+
+    private Font GetHoverKoreanFont()
+    {
+        if (hoverKoreanFont != null)
+            return hoverKoreanFont;
+
+        hoverKoreanFont = Font.CreateDynamicFontFromOSFont(
+            new[]
+            {
+                "Malgun Gothic",
+                "Apple SD Gothic Neo",
+                "Noto Sans CJK KR",
+                "Noto Sans KR",
+                "NanumGothic",
+                "Arial Unicode MS"
+            },
+            Mathf.Max(1, hoverDescriptionFontSize)
+        );
+
+        if (hoverKoreanFont == null)
+            hoverKoreanFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+
+        return hoverKoreanFont;
     }
 
     private string GetHoverDescription(WeaponData data)

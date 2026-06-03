@@ -92,11 +92,11 @@ MonoBehaviour:
     m_Bits: 64
   localAudioSource: {fileID: 36417623248650764}
   networkAudioSource: {fileID: -4767332237426356464}
-  chargeStartSfx: {fileID: 8300000, guid: 0233e7d09d0d56742a7d0551fca10c4b, type: 3}
-  fullChargeSfx: {fileID: 8300000, guid: 7f9b72c0364c4db409d1f1124031fc5f, type: 3}
-  zoomInSfx: {fileID: 8300000, guid: 2c1c5b8e37774e34faefb2d16635d0eb, type: 3}
-  zoomOutSfx: {fileID: 8300000, guid: 099582206444dfb4c9a66cc4b0b2400d, type: 3}
-  shootSfx: {fileID: 8300000, guid: c47cc24083fad7d419353808d92acb0a, type: 3}
+  chargeStartSfx: {fileID: 8300000, guid: 3ada5f2d2c790de40a80a585ec1b8ee3, type: 3}
+  fullChargeSfx: {fileID: 8300000, guid: 76ac529da5cb41942a6e98949bd04284, type: 3}
+  zoomInSfx: {fileID: 8300000, guid: 0c4bafa79429ef745814b96f48af3a68, type: 3}
+  zoomOutSfx: {fileID: 8300000, guid: 0c4bafa79429ef745814b96f48af3a68, type: 3}
+  shootSfx: {fileID: 8300000, guid: a2b565f7ba3c41a4c9039818e48cfcfa, type: 3}
   _currentGage: 0
 --- !u!114 &594279642734027852
 MonoBehaviour:

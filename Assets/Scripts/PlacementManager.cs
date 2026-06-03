@@ -107,6 +107,7 @@ public class PlacementManager : MonoBehaviour
     private Image deleteModeButtonBackground;
     private GameObject deleteHoverObject;
     private Material deleteHoverMaterial;
+    private Material previewTintMaterial;
     private bool objectPlacementShadowsHidden;
     private readonly Dictionary<Renderer, RendererMaterialState> deleteHoverOriginalMaterials = new Dictionary<Renderer, RendererMaterialState>();
     private readonly Dictionary<Light, LightShadows> originalPlacementLightShadows = new Dictionary<Light, LightShadows>();
@@ -139,6 +140,7 @@ public class PlacementManager : MonoBehaviour
         RestoreDeleteHover();
         RestoreObjectPlacementShadows();
         DestroyDeleteHoverMaterial();
+        DestroyPreviewTintMaterial();
         DestroySlotPreviews();
     }
 
@@ -832,15 +834,81 @@ public class PlacementManager : MonoBehaviour
         if (previewObject == null)
             return;
 
-        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>();
+        Material tintMaterial = GetPreviewTintMaterial(color);
+        if (tintMaterial == null)
+            return;
+
+        Renderer[] renderers = previewObject.GetComponentsInChildren<Renderer>(true);
         for (int i = 0; i < renderers.Length; i++)
         {
-            Material mat = renderers[i].material;
-            if (mat.HasProperty("_Color"))
-                mat.color = color;
-            if (mat.HasProperty("_BaseColor"))
-                mat.SetColor("_BaseColor", color);
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+                continue;
+
+            Material[] existingMaterials = renderer.sharedMaterials;
+            int materialCount = Mathf.Max(1, existingMaterials != null ? existingMaterials.Length : 0);
+            Material[] tintMaterials = new Material[materialCount];
+            for (int j = 0; j < tintMaterials.Length; j++)
+                tintMaterials[j] = tintMaterial;
+
+            renderer.sharedMaterials = tintMaterials;
         }
+    }
+
+    private Material GetPreviewTintMaterial(Color color)
+    {
+        if (previewTintMaterial == null)
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null)
+                shader = Shader.Find("Standard");
+            if (shader == null)
+                shader = Shader.Find("Unlit/Color");
+            if (shader == null)
+                return null;
+
+            previewTintMaterial = new Material(shader);
+            previewTintMaterial.name = "PlacementPreviewTintMaterial_Runtime";
+            previewTintMaterial.hideFlags = HideFlags.DontSave;
+            ConfigurePreviewTintMaterial(previewTintMaterial);
+        }
+
+        ApplyPreviewTintColor(previewTintMaterial, color);
+        return previewTintMaterial;
+    }
+
+    private void ConfigurePreviewTintMaterial(Material material)
+    {
+        if (material == null)
+            return;
+
+        if (material.HasProperty("_Surface"))
+            material.SetFloat("_Surface", 1f);
+        if (material.HasProperty("_AlphaClip"))
+            material.SetFloat("_AlphaClip", 0f);
+        if (material.HasProperty("_SrcBlend"))
+            material.SetFloat("_SrcBlend", 5f);
+        if (material.HasProperty("_DstBlend"))
+            material.SetFloat("_DstBlend", 10f);
+        if (material.HasProperty("_ZWrite"))
+            material.SetFloat("_ZWrite", 0f);
+
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.renderQueue = 3000;
+    }
+
+    private void ApplyPreviewTintColor(Material material, Color color)
+    {
+        if (material == null)
+            return;
+
+        Color visibleColor = color;
+        visibleColor.a = Mathf.Clamp(visibleColor.a, 0.35f, 1f);
+
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", visibleColor);
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", visibleColor);
     }
 
     private bool HasValidSelection()
@@ -953,6 +1021,12 @@ public class PlacementManager : MonoBehaviour
             return;
 
         float directScale = GetFootprintScaleMultiplier(info);
+        if (info.sizeControlMode == PlaceableSizeControlMode.ScaleMultiplier)
+        {
+            target.transform.localScale *= directScale;
+            return;
+        }
+
         if (!autoScaleObjectsToFootprint)
         {
             target.transform.localScale *= directScale;
@@ -1921,6 +1995,18 @@ public class PlacementManager : MonoBehaviour
             DestroyImmediate(deleteHoverMaterial);
 
         deleteHoverMaterial = null;
+    }
+    private void DestroyPreviewTintMaterial()
+    {
+        if (previewTintMaterial == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(previewTintMaterial);
+        else
+            DestroyImmediate(previewTintMaterial);
+
+        previewTintMaterial = null;
     }
     private void SetObjectPlacementShadowsHidden(bool hidden)
     {
