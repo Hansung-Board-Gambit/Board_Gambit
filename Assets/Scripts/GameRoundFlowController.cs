@@ -349,6 +349,8 @@ public class GameRoundFlowController : MonoBehaviour
 
     private IEnumerator CompleteRoundRoutine(int winnerSide)
     {
+        DespawnAllFlameAreas();
+
         if (battleRoutine != null)
         {
             StopCoroutine(battleRoutine);
@@ -1057,6 +1059,22 @@ public class GameRoundFlowController : MonoBehaviour
             {
                 winnerText.text = $"Winner is {guestNickname}";
             }
+        }
+    }
+
+    private void DespawnAllFlameAreas()
+    {
+        if (LobbyState.Instance == null || LobbyState.Instance.Runner == null || !LobbyState.Instance.Runner.IsServer)
+            return;
+
+        FlameArea[] flameAreas = FindObjectsByType<FlameArea>(FindObjectsSortMode.None);
+
+        foreach (FlameArea flame in flameAreas)
+        {
+            if (flame == null || flame.Object == null || !flame.Object.IsValid)
+                continue;
+
+            LobbyState.Instance.Runner.Despawn(flame.Object);
         }
     }
 
