@@ -59,6 +59,7 @@ public class SelfieStick : WeaponBase
         {
             if (!Runner.IsResimulation)
                 PlaySfx(enterTpsSfx);
+            if (myPlayer != null) myPlayer.LockPitch();
         }
 
         // ∂√¿ª ∂ß
@@ -66,6 +67,7 @@ public class SelfieStick : WeaponBase
         {
             if (!Runner.IsResimulation)
                 PlaySfx(exitTpsSfx);
+            if (myPlayer != null) myPlayer.UnlockPitch();
         }
 
         isTpsMode = current;
@@ -180,6 +182,7 @@ public class SelfieStick : WeaponBase
         if(myPlayer != null)
         {
             myPlayer.weaponCameraOffset = Vector3.zero;
+            myPlayer.UnlockPitch();
         }
     }
 
