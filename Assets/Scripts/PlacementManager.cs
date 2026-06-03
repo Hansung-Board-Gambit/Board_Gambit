@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections;
+using Fusion;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -110,6 +111,7 @@ public class PlacementManager : MonoBehaviour
     private readonly Dictionary<Renderer, RendererMaterialState> deleteHoverOriginalMaterials = new Dictionary<Renderer, RendererMaterialState>();
     private readonly Dictionary<Light, LightShadows> originalPlacementLightShadows = new Dictionary<Light, LightShadows>();
     private readonly List<SlotPreviewBinding> slotPreviewBindings = new List<SlotPreviewBinding>();
+    private readonly HashSet<GameObject> initializedNetworkPlacedObjects = new HashSet<GameObject>();
     private HashSet<Vector3> deleteSfxCooldown = new HashSet<Vector3>();
 
     private IEnumerator RemoveDeleteCooldown(Vector3 pos)
@@ -150,6 +152,8 @@ public class PlacementManager : MonoBehaviour
 
     private void Update()
     {
+        InitializeSpawnedNetworkPlacedObjects();
+
         bool objectPlacementActive = objectPlacementPanel != null && objectPlacementPanel.activeInHierarchy;
         SetObjectPlacementShadowsHidden(objectPlacementActive && hideShadowsDuringObjectPlacement);
 
@@ -426,6 +430,19 @@ public class PlacementManager : MonoBehaviour
             return;
 
         GameObject prefab = placeablePrefabs[prefabIndex];
+        PlaceableObject prefabInfo = prefab.GetComponent<PlaceableObject>();
+
+        if (ShouldNetworkSpawn(prefabInfo))
+        {
+            CreateNetworkPlacedObject(prefabIndex, prefab, prefabInfo, position, rotation);
+            return;
+        }
+
+        CreateLocalPlacedObject(prefab, prefabInfo, position, rotation);
+    }
+
+    private void CreateLocalPlacedObject(GameObject prefab, PlaceableObject prefabInfo, Vector3 position, Quaternion rotation)
+    {
         GameObject placed = Instantiate(prefab);
         if (placed == null)
             return;
@@ -433,15 +450,74 @@ public class PlacementManager : MonoBehaviour
         int placedCount = dataStore.placedObjects != null ? dataStore.placedObjects.Count + 1 : 1;
         placed.name = prefab.name + "_Placed_" + placedCount;
 
-        if (placedParent != null)
-            placed.transform.SetParent(placedParent, true);
-
-        PlaceableObject info = placed.GetComponent<PlaceableObject>();
-
         placed.transform.position = position;
         placed.transform.rotation = rotation;
         placed.transform.localScale = prefab.transform.localScale;
         placed.SetActive(true);
+
+        InitializePlacedObjectInstance(placed, prefab, prefabInfo, rotation, true);
+        RecordPlacedObject(prefab, placed.transform.position, placed.transform.rotation);
+        SetPreviewActive(false);
+    }
+
+    private void CreateNetworkPlacedObject(int prefabIndex, GameObject prefab, PlaceableObject prefabInfo, Vector3 position, Quaternion rotation)
+    {
+        NetworkObject networkPrefab = prefab.GetComponent<NetworkObject>();
+        if (networkPrefab == null)
+        {
+            Debug.LogWarning("NetworkSpawn placement requested, but prefab has no NetworkObject. Falling back to local instantiate. Prefab index=" + prefabIndex);
+            CreateLocalPlacedObject(prefab, prefabInfo, position, rotation);
+            return;
+        }
+
+        if (LobbyState.Instance == null || LobbyState.Instance.Runner == null)
+        {
+            Debug.LogWarning("NetworkSpawn placement requested without an active runner. Falling back to local instantiate. Prefab index=" + prefabIndex);
+            CreateLocalPlacedObject(prefab, prefabInfo, position, rotation);
+            return;
+        }
+
+        bool spawnedByStateAuthority = false;
+        if (CanSpawnNetworkPlacedObject())
+        {
+            NetworkRunner runner = LobbyState.Instance.Runner;
+            NetworkObject spawned = runner.Spawn(networkPrefab, position, rotation, null, (spawnRunner, spawnedObject) =>
+            {
+                GameObject placed = spawnedObject.gameObject;
+                int placedCount = dataStore.placedObjects != null ? dataStore.placedObjects.Count + 1 : 1;
+                placed.name = prefab.name + "_Placed_" + placedCount;
+                placed.transform.localScale = prefab.transform.localScale;
+                initializedNetworkPlacedObjects.Add(placed);
+                InitializePlacedObjectInstance(placed, prefab, prefabInfo, rotation, false);
+
+                INetworkPlacedObject networkPlacedObject = placed.GetComponent<INetworkPlacedObject>();
+                if (networkPlacedObject != null)
+                    networkPlacedObject.InitializeNetworkPlacement(placed.transform.position, placed.transform.rotation);
+            });
+
+            spawnedByStateAuthority = spawned != null;
+            if (!spawnedByStateAuthority)
+                Debug.LogWarning("Runner.Spawn returned null for placed network object. Prefab index=" + prefabIndex);
+        }
+
+        RecordPlacedObject(prefab, position, rotation);
+        SetPreviewActive(false);
+
+        if (!spawnedByStateAuthority && CanLocalControlPlacement())
+            Debug.Log("Network placed object will be created by StateAuthority. Prefab index=" + prefabIndex);
+    }
+
+    private void InitializePlacedObjectInstance(GameObject placed, GameObject prefab, PlaceableObject prefabInfo, Quaternion rotation, bool allowParenting)
+    {
+        if (placed == null)
+            return;
+
+        if (allowParenting && placedParent != null)
+            placed.transform.SetParent(placedParent, true);
+
+        PlaceableObject info = placed.GetComponent<PlaceableObject>();
+        if (info == null)
+            info = prefabInfo;
 
         int enabledRenderers = EnableRenderers(placed);
         ApplyFootprintScale(placed, info, rotation);
@@ -462,14 +538,8 @@ public class PlacementManager : MonoBehaviour
             Debug.LogWarning("PlacedObject layer was not found. Keeping placed object on layer " + LayerMask.LayerToName(placed.layer));
         }
 
-        string id = info != null ? info.prefabId : prefab.name;
-
-        dataStore.SavePlacedObject(id, placed.transform.position, placed.transform.rotation);
-        dataStore.SpendPoint();
-        UpdatePointText();
-
         Debug.Log(
-            "Placed object created: name=" + placed.name +
+            "Placed object initialized: name=" + placed.name +
             ", position=" + placed.transform.position +
             ", rotation=" + placed.transform.rotation.eulerAngles +
             ", scale=" + placed.transform.lossyScale +
@@ -482,10 +552,17 @@ public class PlacementManager : MonoBehaviour
             ", rigidbodiesFrozen=" + frozenRigidbodies +
             ", materialsFixed=" + fixedMaterials
         );
-
-        SetPreviewActive(false);
     }
 
+    private void RecordPlacedObject(GameObject prefab, Vector3 position, Quaternion rotation)
+    {
+        PlaceableObject info = prefab != null ? prefab.GetComponent<PlaceableObject>() : null;
+        string id = info != null ? info.prefabId : prefab != null ? prefab.name : "Object";
+
+        dataStore.SavePlacedObject(id, position, rotation);
+        dataStore.SpendPoint();
+        UpdatePointText();
+    }
     private void TryDeletePlacedObject()
     {
         if (mainCamera == null)
@@ -541,7 +618,7 @@ public class PlacementManager : MonoBehaviour
             if (placedObject == deleteHoverObject)
                 RestoreDeleteHover();
 
-            Destroy(placedObject);
+            DespawnOrDestroyPlacedObject(placedObject);
 
             // 중복 방지 (한 프레임/한 위치 기준)
             if (!deleteSfxCooldown.Contains(position))
@@ -559,18 +636,46 @@ public class PlacementManager : MonoBehaviour
         }
     }
 
+    private void DespawnOrDestroyPlacedObject(GameObject placedObject)
+    {
+        if (placedObject == null)
+            return;
+
+        PlaceableObject info = placedObject.GetComponent<PlaceableObject>();
+        NetworkObject networkObject = placedObject.GetComponent<NetworkObject>();
+        if (ShouldNetworkSpawn(info) && networkObject != null && networkObject.IsValid)
+        {
+            if (CanDespawnNetworkPlacedObject(networkObject))
+                networkObject.Runner.Despawn(networkObject);
+
+            return;
+        }
+
+        Destroy(placedObject);
+    }
     private GameObject FindPlacedObjectByPosition(Vector3 position)
     {
-        if (placedParent == null)
-            return null;
-
         float toleranceSqr = Mathf.Max(0.001f, deletePositionTolerance) * Mathf.Max(0.001f, deletePositionTolerance);
         GameObject closestObject = null;
         float closestDistanceSqr = float.PositiveInfinity;
 
+        FindClosestPlacedParentChild(position, toleranceSqr, ref closestObject, ref closestDistanceSqr);
+        FindClosestNetworkPlacedObject(position, toleranceSqr, ref closestObject, ref closestDistanceSqr);
+
+        return closestObject;
+    }
+
+    private void FindClosestPlacedParentChild(Vector3 position, float toleranceSqr, ref GameObject closestObject, ref float closestDistanceSqr)
+    {
+        if (placedParent == null)
+            return;
+
         for (int i = 0; i < placedParent.childCount; i++)
         {
             Transform child = placedParent.GetChild(i);
+            if (child == null)
+                continue;
+
             float distanceSqr = (child.position - position).sqrMagnitude;
             if (distanceSqr > toleranceSqr || distanceSqr >= closestDistanceSqr)
                 continue;
@@ -578,10 +683,29 @@ public class PlacementManager : MonoBehaviour
             closestDistanceSqr = distanceSqr;
             closestObject = child.gameObject;
         }
-
-        return closestObject;
     }
 
+    private void FindClosestNetworkPlacedObject(Vector3 position, float toleranceSqr, ref GameObject closestObject, ref float closestDistanceSqr)
+    {
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null || !ShouldNetworkSpawn(placeable))
+                continue;
+
+            NetworkObject networkObject = placeable.GetComponent<NetworkObject>();
+            if (networkObject == null || !networkObject.IsValid)
+                continue;
+
+            float distanceSqr = (placeable.transform.position - position).sqrMagnitude;
+            if (distanceSqr > toleranceSqr || distanceSqr >= closestDistanceSqr)
+                continue;
+
+            closestDistanceSqr = distanceSqr;
+            closestObject = placeable.gameObject;
+        }
+    }
     private void UpdatePointText()
     {
         if (pointText != null && dataStore != null)
@@ -755,6 +879,47 @@ public class PlacementManager : MonoBehaviour
                index >= 0 &&
                index < placeablePrefabs.Length &&
                placeablePrefabs[index] != null;
+    }
+    private bool ShouldNetworkSpawn(PlaceableObject info)
+    {
+        return info != null && info.spawnMode == PlaceableSpawnMode.NetworkSpawn;
+    }
+
+    private bool CanSpawnNetworkPlacedObject()
+    {
+        return LobbyState.Instance != null &&
+               LobbyState.Instance.Runner != null &&
+               LobbyState.Instance.Object != null &&
+               LobbyState.Instance.Object.HasStateAuthority;
+    }
+
+    private bool CanDespawnNetworkPlacedObject(NetworkObject networkObject)
+    {
+        return networkObject != null &&
+               networkObject.Runner != null &&
+               networkObject.HasStateAuthority;
+    }
+
+    private void InitializeSpawnedNetworkPlacedObjects()
+    {
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null || !ShouldNetworkSpawn(placeable))
+                continue;
+
+            GameObject placed = placeable.gameObject;
+            if (initializedNetworkPlacedObjects.Contains(placed))
+                continue;
+
+            NetworkObject networkObject = placed.GetComponent<NetworkObject>();
+            if (networkObject == null || !networkObject.IsValid)
+                continue;
+
+            initializedNetworkPlacedObjects.Add(placed);
+            InitializePlacedObjectInstance(placed, placed, placeable, placed.transform.rotation, false);
+        }
     }
 
     private bool TryRaycastBoard(Ray ray, out RaycastHit hit)
@@ -1600,45 +1765,73 @@ public class PlacementManager : MonoBehaviour
 
     private GameObject FindPlacedObjectByBoardPoint(Vector3 boardPoint)
     {
-        if (placedParent == null)
-            return null;
-
         GameObject closestObject = null;
         float closestDistanceSqr = float.PositiveInfinity;
         float fallbackRadius = Mathf.Max(Mathf.Max(0.001f, deletePositionTolerance), Mathf.Abs(gridSize) * 0.5f);
         float fallbackRadiusSqr = fallbackRadius * fallbackRadius;
 
-        for (int i = 0; i < placedParent.childCount; i++)
+        if (placedParent != null)
         {
-            Transform child = placedParent.GetChild(i);
-            if (child == null)
-                continue;
-
-            Bounds bounds;
-            if (TryGetRendererBounds(child.gameObject, out bounds))
+            for (int i = 0; i < placedParent.childCount; i++)
             {
-                float padding = Mathf.Max(0.05f, Mathf.Abs(gridSize) * 0.1f);
-                bool insideBounds =
-                    boardPoint.x >= bounds.min.x - padding &&
-                    boardPoint.x <= bounds.max.x + padding &&
-                    boardPoint.z >= bounds.min.z - padding &&
-                    boardPoint.z <= bounds.max.z + padding;
+                Transform child = placedParent.GetChild(i);
+                if (child == null)
+                    continue;
 
-                if (insideBounds)
-                    return child.gameObject;
+                GameObject matched = EvaluatePlacedObjectByBoardPoint(child.gameObject, boardPoint, fallbackRadiusSqr, ref closestObject, ref closestDistanceSqr);
+                if (matched != null)
+                    return matched;
             }
+        }
 
-            Vector2 childXZ = new Vector2(child.position.x, child.position.z);
-            Vector2 pointXZ = new Vector2(boardPoint.x, boardPoint.z);
-            float distanceSqr = (childXZ - pointXZ).sqrMagnitude;
-            if (distanceSqr > fallbackRadiusSqr || distanceSqr >= closestDistanceSqr)
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null || !ShouldNetworkSpawn(placeable))
                 continue;
 
-            closestDistanceSqr = distanceSqr;
-            closestObject = child.gameObject;
+            NetworkObject networkObject = placeable.GetComponent<NetworkObject>();
+            if (networkObject == null || !networkObject.IsValid)
+                continue;
+
+            GameObject matched = EvaluatePlacedObjectByBoardPoint(placeable.gameObject, boardPoint, fallbackRadiusSqr, ref closestObject, ref closestDistanceSqr);
+            if (matched != null)
+                return matched;
         }
 
         return closestObject;
+    }
+
+    private GameObject EvaluatePlacedObjectByBoardPoint(GameObject candidate, Vector3 boardPoint, float fallbackRadiusSqr, ref GameObject closestObject, ref float closestDistanceSqr)
+    {
+        if (candidate == null)
+            return null;
+
+        Bounds bounds;
+        if (TryGetRendererBounds(candidate, out bounds))
+        {
+            float padding = Mathf.Max(0.05f, Mathf.Abs(gridSize) * 0.1f);
+            bool insideBounds =
+                boardPoint.x >= bounds.min.x - padding &&
+                boardPoint.x <= bounds.max.x + padding &&
+                boardPoint.z >= bounds.min.z - padding &&
+                boardPoint.z <= bounds.max.z + padding;
+
+            if (insideBounds)
+                return candidate;
+        }
+
+        Vector2 candidateXZ = new Vector2(candidate.transform.position.x, candidate.transform.position.z);
+        Vector2 pointXZ = new Vector2(boardPoint.x, boardPoint.z);
+        float distanceSqr = (candidateXZ - pointXZ).sqrMagnitude;
+        if (distanceSqr <= fallbackRadiusSqr && distanceSqr < closestDistanceSqr)
+        {
+            closestDistanceSqr = distanceSqr;
+            closestObject = candidate;
+        }
+
+        return null;
     }
 
     private void SetDeleteHoverObject(GameObject target)

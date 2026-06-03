@@ -1,7 +1,7 @@
 using Fusion;
 using UnityEngine;
 
-public class ExplosiveBarrel : NetworkBehaviour
+public class ExplosiveBarrel : NetworkBehaviour, INetworkPlacedObject
 {
     [Header("화약통 설정")]
     [SerializeField] float explosionRadius = 5f;
@@ -14,12 +14,60 @@ public class ExplosiveBarrel : NetworkBehaviour
     [Networked, OnChangedRender(nameof(OnExplodedChanged))]
     public NetworkBool IsExploded { get; set; }
 
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public NetworkBool PlacementInitialized { get; set; }
+
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public Vector3 PlacementPosition { get; set; }
+
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public Quaternion PlacementRotation { get; set; }
+
     public override void Spawned()
     {
         if (HasStateAuthority)
         {
             IsExploded = false;
+            if (!PlacementInitialized)
+                InitializeNetworkPlacement(transform.position, transform.rotation);
         }
+
+        ApplyPlacement();
+        OnExplodedChanged();
+    }
+
+    public void InitializeNetworkPlacement(Vector3 position, Quaternion rotation)
+    {
+        if (!HasStateAuthority)
+            return;
+
+        PlacementPosition = position;
+        PlacementRotation = rotation;
+        PlacementInitialized = true;
+        transform.SetPositionAndRotation(position, rotation);
+    }
+
+    public void ResetForPreparationPhase()
+    {
+        if (!HasStateAuthority)
+            return;
+
+        IsExploded = false;
+        ApplyPlacement();
+        OnExplodedChanged();
+    }
+
+    private void OnPlacementChanged()
+    {
+        ApplyPlacement();
+    }
+
+    private void ApplyPlacement()
+    {
+        if (!PlacementInitialized)
+            return;
+
+        transform.SetPositionAndRotation(PlacementPosition, PlacementRotation);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -35,13 +83,11 @@ public class ExplosiveBarrel : NetworkBehaviour
     private void Explode()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, explosionRadius, playerLayer);
-        foreach(var hit in hitColliders)
+        foreach (var hit in hitColliders)
         {
             PlayerHealth ph = hit.GetComponent<PlayerHealth>();
-            if(ph != null && ph.CurrentHP > 0 )
-            {
+            if (ph != null && ph.CurrentHP > 0)
                 ph.RPC_TakeDamage(explosionDamage, "화약통");
-            }
         }
     }
 
@@ -50,16 +96,14 @@ public class ExplosiveBarrel : NetworkBehaviour
     {
         Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
         foreach (var rend in renderers)
-        {
             rend.enabled = !IsExploded;
-        }
+
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        foreach (var col in colliders)
+            col.enabled = !IsExploded;
 
         // 터지는 순간 이펙트 생성
         if (IsExploded && explosionVFX != null)
-        {
             Instantiate(explosionVFX, transform.position, Quaternion.identity);
-        }
     }
-
-
 }

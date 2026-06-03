@@ -134,6 +134,7 @@ MonoBehaviour:
   sizeControlMode: 0
   footprintScaleMultiplier: 1
   yOffset: 0.5
+  spawnMode: 1
   prefabId: Object
 --- !u!136 &6941577501948785249
 CapsuleCollider:

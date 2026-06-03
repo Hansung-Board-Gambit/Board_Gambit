@@ -1,7 +1,7 @@
 using Fusion;
 using UnityEngine;
 
-public class JumpingObject : NetworkBehaviour
+public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
 {
     [Header("Á¡ÇÁÈû ¼³Á¤")]
     [SerializeField] float jumpForce = 20f;
@@ -10,19 +10,60 @@ public class JumpingObject : NetworkBehaviour
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip jumpPadSfx;
 
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public NetworkBool PlacementInitialized { get; set; }
+
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public Vector3 PlacementPosition { get; set; }
+
+    [Networked, OnChangedRender(nameof(OnPlacementChanged))]
+    public Quaternion PlacementRotation { get; set; }
+
     public override void Spawned()
     {
+        if (HasStateAuthority && !PlacementInitialized)
+            InitializeNetworkPlacement(transform.position, transform.rotation);
+
+        ApplyPlacement();
         Debug.Log("JumpPad Spawned!");
+    }
+
+    public void InitializeNetworkPlacement(Vector3 position, Quaternion rotation)
+    {
+        if (!HasStateAuthority)
+            return;
+
+        PlacementPosition = position;
+        PlacementRotation = rotation;
+        PlacementInitialized = true;
+        transform.SetPositionAndRotation(position, rotation);
+    }
+
+    public void ResetForPreparationPhase()
+    {
+        ApplyPlacement();
+    }
+
+    private void OnPlacementChanged()
+    {
+        ApplyPlacement();
+    }
+
+    private void ApplyPlacement()
+    {
+        if (!PlacementInitialized)
+            return;
+
+        transform.SetPositionAndRotation(PlacementPosition, PlacementRotation);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         Player player = other.GetComponent<Player>();
 
-        if(player != null )
+        if (player != null)
         {
             player.ApplyJumpPadForce(jumpForce);
-            
             RPC_PlayJumpPadSfx();
         }
     }
@@ -30,6 +71,7 @@ public class JumpingObject : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_PlayJumpPadSfx()
     {
-        audioSource.PlayOneShot(jumpPadSfx);
+        if (audioSource != null && jumpPadSfx != null)
+            audioSource.PlayOneShot(jumpPadSfx);
     }
 }

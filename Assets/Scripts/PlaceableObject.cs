@@ -7,6 +7,12 @@ public enum PlaceableSizeControlMode
     ScaleMultiplier = 1
 }
 
+public enum PlaceableSpawnMode
+{
+    LocalInstantiate = 0,
+    NetworkSpawn = 1
+}
+
 public class PlaceableObject : MonoBehaviour
 {
     [Header("Footprint Size (X,Z)")]
@@ -24,6 +30,9 @@ public class PlaceableObject : MonoBehaviour
 
     [Header("Preview Height")]
     public float yOffset = 0.5f;
+
+    [Header("Spawn")]
+    public PlaceableSpawnMode spawnMode = PlaceableSpawnMode.LocalInstantiate;
 
     [Header("ID")]
     public string prefabId = "Object";

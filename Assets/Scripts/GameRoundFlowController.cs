@@ -179,6 +179,8 @@ public class GameRoundFlowController : MonoBehaviour
         if (prepDataStore != null)
             prepDataStore.ResetRoundPlacementPoints();
 
+        ResetNetworkPlacedObjectsForPreparation();
+
         CurrentPhase = GameRoundPhase.Preparation;
         GameInputGate.Unlock();
         SetLocalBattleControlActive(false);
@@ -199,6 +201,16 @@ public class GameRoundFlowController : MonoBehaviour
 
         if (prepFlow != null)
             prepFlow.BeginFlow();
+    }
+
+    private void ResetNetworkPlacedObjectsForPreparation()
+    {
+        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            if (behaviours[i] is INetworkPlacedObject networkPlacedObject)
+                networkPlacedObject.ResetForPreparationPhase();
+        }
     }
 
     public void CompleteRoundAndPrepareNext()

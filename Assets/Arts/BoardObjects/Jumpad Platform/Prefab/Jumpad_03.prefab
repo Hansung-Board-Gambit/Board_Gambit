@@ -55,6 +55,7 @@ MonoBehaviour:
   sizeControlMode: 0
   footprintScaleMultiplier: 1
   yOffset: 0.03
+  spawnMode: 1
   prefabId: Jumpad_03
 --- !u!114 &909110962332406849
 MonoBehaviour:

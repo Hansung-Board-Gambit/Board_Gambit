@@ -582,6 +582,7 @@ MonoBehaviour:
   sizeControlMode: 0
   footprintScaleMultiplier: 1
   yOffset: 0.5
+  spawnMode: 1
   prefabId: Object
 --- !u!114 &7408961385160723983
 MonoBehaviour:
