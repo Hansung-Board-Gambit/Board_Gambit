@@ -211,6 +211,12 @@ public class GameRoundFlowController : MonoBehaviour
         MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         for (int i = 0; i < behaviours.Length; i++)
         {
+            if (behaviours[i] is not NetworkBehaviour nb)
+                continue;
+
+            if (nb.Object == null || !nb.Object.IsValid)
+                continue;
+
             if (behaviours[i] is INetworkPlacedObject networkPlacedObject)
                 networkPlacedObject.ResetForPreparationPhase();
         }

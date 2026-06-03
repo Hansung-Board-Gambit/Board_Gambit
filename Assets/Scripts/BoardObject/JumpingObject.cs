@@ -51,6 +51,9 @@ public class JumpingObject : NetworkBehaviour, INetworkPlacedObject
 
     private void ApplyPlacement()
     {
+        if (Object == null || !Object.IsValid)
+            return;
+
         if (!PlacementInitialized)
             return;
 
