@@ -147,7 +147,7 @@ public class EquipmentCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         hoverDescriptionText.color = hoverTextColor;
         hoverDescriptionText.fontSize = hoverDescriptionFontSize;
         hoverDescriptionText.font = GetHoverKoreanFont();
-        hoverDescriptionText.alignment = TextAnchor.MiddleCenter;
+        hoverDescriptionText.alignment = TextAnchor.MiddleLeft;
         hoverDescriptionText.horizontalOverflow = HorizontalWrapMode.Wrap;
         hoverDescriptionText.verticalOverflow = VerticalWrapMode.Truncate;
         hoverDescriptionText.supportRichText = false;
