@@ -4984,8 +4984,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e7e4641a1a006f46a976ddf7bff36e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealPack
-  healAmount: 30
-  respawnTime: 5
+  healAmount: 50
+  respawnTime: 15
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
