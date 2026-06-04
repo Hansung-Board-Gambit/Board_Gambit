@@ -66,6 +66,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
     private bool warningPlayed;
     private bool skipRequested;
     private bool equipmentAllReady;
+    private bool equipmentSelectionLocked;
     private int currentPhaseIndex = -1;
     private int selectedEquipmentIndex = -1;
     private Coroutine flowRoutine;
@@ -421,6 +422,7 @@ public class PrepPhaseFlowUI : MonoBehaviour
             yield break;
 
         EnsureEquipmentSelection();
+        LockEquipmentSelection();
         equipmentAllReady = false;
        // LobbyState.Instance.RequestSelectEquipment(selectedEquipmentIndex);
         LobbyState.Instance.RequestEquipmentReady();
@@ -451,7 +453,10 @@ public class PrepPhaseFlowUI : MonoBehaviour
             return;
 
         if (currentPhaseIndex == 2)
+        {
             EnsureEquipmentSelection();
+            LockEquipmentSelection();
+        }
 
         if (currentPhaseIndex == 0 || currentPhaseIndex == 1)
         {
@@ -610,6 +615,8 @@ public class PrepPhaseFlowUI : MonoBehaviour
 
             equipmentButtons.Add(button);
         }
+
+        SetEquipmentCardsInteractable(!equipmentSelectionLocked);
     }
 
     private Transform[] FindEquipmentCards()
@@ -632,6 +639,8 @@ public class PrepPhaseFlowUI : MonoBehaviour
     {
         //selectedEquipmentIndex = dataStore != null ? dataStore.selectedEquipmentIndex : -1;
         selectedEquipmentIndex = -1;
+        equipmentSelectionLocked = false;
+        SetEquipmentCardsInteractable(true);
         UpdateEquipmentCardLabels();
         RefreshEquipmentCardVisuals();
     }
@@ -639,6 +648,9 @@ public class PrepPhaseFlowUI : MonoBehaviour
     private void SelectEquipment(int localIndex)
     {
         if (currentPhaseIndex != 2)
+            return;
+
+        if (equipmentSelectionLocked)
             return;
 
         //if (equipmentPool == null || index < 0 || index >= equipmentPool.Length || equipmentPool[index] == null)
@@ -766,6 +778,33 @@ public class PrepPhaseFlowUI : MonoBehaviour
                 image.color = (i == selectedEquipmentIndex) ? equipmentCardSelectedColor : equipmentCardNormalColor;
             }
         }
+    }
+
+    private void LockEquipmentSelection()
+    {
+        if (equipmentSelectionLocked)
+            return;
+
+        equipmentSelectionLocked = true;
+        SetEquipmentCardsInteractable(false);
+    }
+
+    private void SetEquipmentCardsInteractable(bool interactable)
+    {
+        for (int i = 0; i < equipmentButtons.Count; i++)
+        {
+            if (equipmentButtons[i] != null)
+                equipmentButtons[i].interactable = interactable;
+        }
+
+        if (currentPhaseIndex != 2)
+            return;
+
+        if (equipmentSelectionFinishButton != null)
+            equipmentSelectionFinishButton.interactable = interactable;
+
+        if (equipmentSkipButton != null)
+            equipmentSkipButton.interactable = interactable;
     }
 
     private string GetEquipmentDisplayName(WeaponData data)

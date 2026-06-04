@@ -45,6 +45,18 @@ public class PlacementManager : MonoBehaviour
     public bool useCircularBoardBounds = false;
     public GameObject[] placeablePrefabs;
 
+    [Header("Placement Tile Feedback")]
+    public bool showBlockedPlacementTiles = true;
+    public Color availablePlacementTileColor = new Color(0f, 1f, 0f, 0.28f);
+    public Color blockedPlacementTileColor = new Color(1f, 0f, 0f, 0.35f);
+    public bool showOccupiedPlacementTiles = true;
+    public Color occupiedPlacementTileColor = new Color(1f, 0f, 0f, 0.22f);
+    public float blockedPlacementTileInset = 0.08f;
+    public float blockedPlacementTileYOffset = 0.055f;
+
+    [Header("Overlap")]
+    public float visualOverlapTolerance = 0.02f;
+
     [Header("Rotation")]
     public KeyCode rotateKey = KeyCode.R;
 
@@ -107,6 +119,10 @@ public class PlacementManager : MonoBehaviour
     private Image deleteModeButtonBackground;
     private GameObject deleteHoverObject;
     private Material deleteHoverMaterial;
+    private GameObject blockedTileOverlayRoot;
+    private GameObject occupiedTileOverlayRoot;
+    private Material blockedTileOverlayMaterial;
+    private Material occupiedTileOverlayMaterial;
     private Material previewTintMaterial;
     private bool objectPlacementShadowsHidden;
     private readonly Dictionary<Renderer, RendererMaterialState> deleteHoverOriginalMaterials = new Dictionary<Renderer, RendererMaterialState>();
@@ -140,6 +156,10 @@ public class PlacementManager : MonoBehaviour
         RestoreDeleteHover();
         RestoreObjectPlacementShadows();
         DestroyDeleteHoverMaterial();
+        DestroyBlockedTileOverlay();
+        DestroyBlockedTileOverlayMaterial();
+        DestroyOccupiedTileOverlay();
+        DestroyOccupiedTileOverlayMaterial();
         DestroyPreviewTintMaterial();
         DestroySlotPreviews();
     }
@@ -162,6 +182,7 @@ public class PlacementManager : MonoBehaviour
         if (!objectPlacementActive)
         {
             SetPreviewActive(false);
+            HidePlacementTileFeedback();
             RestoreDeleteHover();
             return;
         }
@@ -171,6 +192,7 @@ public class PlacementManager : MonoBehaviour
         if (!CanLocalControlPlacement())
         {
             SetPreviewActive(false);
+            HidePlacementTileFeedback();
             RestoreDeleteHover();
             return;
         }
@@ -178,6 +200,7 @@ public class PlacementManager : MonoBehaviour
         if (currentToolMode == PlacementToolMode.Delete)
         {
             SetPreviewActive(false);
+            HidePlacementTileFeedback();
 
             if (IsPointerBlockedByUi())
             {
@@ -193,9 +216,12 @@ public class PlacementManager : MonoBehaviour
             return;
         }
 
+        ShowOccupiedPlacementTiles();
+
         if (!HasValidSelection())
         {
             SetPreviewActive(false);
+            HideCurrentPlacementTiles();
             return;
         }
 
@@ -203,7 +229,10 @@ public class PlacementManager : MonoBehaviour
             RotateSelection();
 
         if (IsPointerBlockedByUi())
+        {
+            HideCurrentPlacementTiles();
             return;
+        }
 
         Quaternion placementRotation = GetPlacementRotation();
         PlaceableObject selectedInfo = placeablePrefabs[selectedIndex].GetComponent<PlaceableObject>();
@@ -211,12 +240,16 @@ public class PlacementManager : MonoBehaviour
         if (!TryGetSnappedBoardPoint(selectedInfo, placementRotation, out snappedPosition))
         {
             SetPreviewActive(false);
+            HideCurrentPlacementTiles();
             return;
         }
 
         EnsurePreviewExists();
         if (previewObject == null)
+        {
+            HideCurrentPlacementTiles();
             return;
+        }
 
         PlaceableObject previewInfo = previewObject.GetComponent<PlaceableObject>();
         snappedPosition.y = GetPlacementY(previewInfo);
@@ -225,8 +258,15 @@ public class PlacementManager : MonoBehaviour
         AlignObjectToBoardSurface(previewObject, previewInfo);
         previewObject.SetActive(true);
 
-        bool canPlace = CanPlace(snappedPosition, previewInfo, placementRotation);
+        bool canPlace = CanPlace(previewObject, snappedPosition, previewInfo, placementRotation);
         SetPreviewColor(canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f));
+
+        ShowCurrentPlacementTiles(
+            snappedPosition,
+            previewInfo,
+            placementRotation,
+            canPlace ? availablePlacementTileColor : blockedPlacementTileColor
+        );
 
         wasCantPlace = false;
 
@@ -278,6 +318,7 @@ public class PlacementManager : MonoBehaviour
     {
         selectedIndex = -1;
         placementRotationSteps = 0;
+        HideCurrentPlacementTiles();
         DestroyPreview();
     }
 
@@ -345,7 +386,7 @@ public class PlacementManager : MonoBehaviour
         SetLayerRecursively(previewObject, LayerMask.NameToLayer("Ignore Raycast"));
     }
 
-    private bool CanPlace(Vector3 position, PlaceableObject info, Quaternion rotation)
+    private bool CanPlace(GameObject placementObject, Vector3 position, PlaceableObject info, Quaternion rotation)
     {
         if (dataStore == null || !dataStore.CanSpendPoint())
             return false;
@@ -374,6 +415,9 @@ public class PlacementManager : MonoBehaviour
         if (useCircularBoardBounds && !IsFootprintInsideCircularBoard(position, halfX, halfZ, bounds, edgeMargin))
             return false;
 
+        if (!IsPlacementVisualInsideBoard(placementObject, bounds, edgeMargin))
+            return false;
+
         Vector3 center = new Vector3(position.x, bounds.center.y + 0.5f, position.z);
         Vector3 halfExtents = new Vector3(
             Mathf.Max(0.05f, halfX - 0.05f),
@@ -382,7 +426,10 @@ public class PlacementManager : MonoBehaviour
         );
 
         Collider[] overlaps = Physics.OverlapBox(center, halfExtents, Quaternion.identity, placedObjectMask);
-        return overlaps.Length == 0;
+        if (overlaps.Length > 0)
+            return false;
+
+        return !IsPlacementVisuallyOverlappingPlacedObjects(placementObject);
     }
 
     private void PlaceSelectedObject(Vector3 position, bool canPlace)
@@ -729,6 +776,298 @@ public class PlacementManager : MonoBehaviour
         }
     }
 
+
+    private void ShowCurrentPlacementTiles(Vector3 position, PlaceableObject info, Quaternion rotation, Color color)
+    {
+        if (!showBlockedPlacementTiles || boardCollider == null)
+        {
+            HideCurrentPlacementTiles();
+            return;
+        }
+
+        EnsureBlockedTileOverlayRoot();
+        if (blockedTileOverlayRoot == null)
+            return;
+
+        Material material = GetBlockedTileOverlayMaterial(color);
+        ShowPlacementTiles(blockedTileOverlayRoot, position, GetFootprint(info, rotation), material, GetCurrentTileY());
+    }
+
+    private void ShowOccupiedPlacementTiles()
+    {
+        if (!showOccupiedPlacementTiles || boardCollider == null)
+        {
+            HideOccupiedPlacementTiles();
+            return;
+        }
+
+        EnsureOccupiedTileOverlayRoot();
+        if (occupiedTileOverlayRoot == null)
+            return;
+
+        int tileIndex = 0;
+        Material material = GetOccupiedTileOverlayMaterial();
+        HashSet<GameObject> checkedObjects = new HashSet<GameObject>();
+
+        if (placedParent != null)
+        {
+            for (int i = 0; i < placedParent.childCount; i++)
+            {
+                Transform child = placedParent.GetChild(i);
+                if (child != null)
+                    AddOccupiedPlacementTiles(child.gameObject, checkedObjects, material, ref tileIndex);
+            }
+        }
+
+        int placedLayer = LayerMask.NameToLayer(placedObjectLayerName);
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null)
+                continue;
+
+            GameObject candidate = placeable.gameObject;
+            if (placedLayer != -1 && candidate.layer != placedLayer)
+                continue;
+
+            AddOccupiedPlacementTiles(candidate, checkedObjects, material, ref tileIndex);
+        }
+
+        for (int i = tileIndex; i < occupiedTileOverlayRoot.transform.childCount; i++)
+            occupiedTileOverlayRoot.transform.GetChild(i).gameObject.SetActive(false);
+
+        occupiedTileOverlayRoot.SetActive(tileIndex > 0);
+    }
+
+    private void AddOccupiedPlacementTiles(GameObject target, HashSet<GameObject> checkedObjects, Material material, ref int tileIndex)
+    {
+        if (target == null || !target.activeInHierarchy || checkedObjects.Contains(target))
+            return;
+
+        PlaceableObject info = target.GetComponent<PlaceableObject>();
+        if (info == null)
+            return;
+
+        checkedObjects.Add(target);
+        tileIndex = ShowPlacementTiles(occupiedTileOverlayRoot, target.transform.position, GetFootprint(info, target.transform.rotation), material, GetOccupiedTileY(), tileIndex);
+    }
+
+    private int ShowPlacementTiles(GameObject root, Vector3 position, Vector2 footprint, Material material, float y, int startIndex = 0)
+    {
+        if (root == null)
+            return startIndex;
+
+        int cellsX = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(1f, footprint.x)));
+        int cellsZ = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(1f, footprint.y)));
+        int tileCount = cellsX * cellsZ;
+        int neededCount = startIndex + tileCount;
+
+        while (root.transform.childCount < neededCount)
+            CreatePlacementTile(root, material);
+
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        float inset = Mathf.Clamp(blockedPlacementTileInset, 0f, safeGridSize * 0.45f);
+        float tileSize = Mathf.Max(0.01f, safeGridSize - inset * 2f);
+        float tileHeight = 0.01f;
+        float startX = position.x - cellsX * safeGridSize * 0.5f + safeGridSize * 0.5f;
+        float startZ = position.z - cellsZ * safeGridSize * 0.5f + safeGridSize * 0.5f;
+
+        int index = startIndex;
+        for (int z = 0; z < cellsZ; z++)
+        {
+            for (int x = 0; x < cellsX; x++)
+            {
+                GameObject tile = root.transform.GetChild(index).gameObject;
+                tile.transform.position = new Vector3(startX + x * safeGridSize, y, startZ + z * safeGridSize);
+                tile.transform.localScale = new Vector3(tileSize, tileHeight, tileSize);
+
+                Renderer renderer = tile.GetComponent<Renderer>();
+                if (renderer != null && material != null)
+                    renderer.sharedMaterial = material;
+
+                tile.SetActive(true);
+                index++;
+            }
+        }
+
+        for (int i = index; i < root.transform.childCount; i++)
+            root.transform.GetChild(i).gameObject.SetActive(false);
+
+        root.SetActive(true);
+        return index;
+    }
+
+    private void HideCurrentPlacementTiles()
+    {
+        if (blockedTileOverlayRoot != null)
+            blockedTileOverlayRoot.SetActive(false);
+    }
+
+    private void HideOccupiedPlacementTiles()
+    {
+        if (occupiedTileOverlayRoot != null)
+            occupiedTileOverlayRoot.SetActive(false);
+    }
+
+    private void HidePlacementTileFeedback()
+    {
+        HideCurrentPlacementTiles();
+        HideOccupiedPlacementTiles();
+    }
+
+    private float GetCurrentTileY()
+    {
+        return boardCollider.bounds.max.y + Mathf.Max(0.001f, blockedPlacementTileYOffset);
+    }
+
+    private float GetOccupiedTileY()
+    {
+        return boardCollider.bounds.max.y + Mathf.Max(0.001f, blockedPlacementTileYOffset * 0.5f);
+    }
+
+    private void EnsureBlockedTileOverlayRoot()
+    {
+        if (blockedTileOverlayRoot != null)
+            return;
+
+        blockedTileOverlayRoot = new GameObject("PlacementCurrentTiles_Runtime");
+        blockedTileOverlayRoot.transform.SetParent(transform, false);
+        SetOverlayRootLayer(blockedTileOverlayRoot);
+    }
+
+    private void EnsureOccupiedTileOverlayRoot()
+    {
+        if (occupiedTileOverlayRoot != null)
+            return;
+
+        occupiedTileOverlayRoot = new GameObject("PlacementOccupiedTiles_Runtime");
+        occupiedTileOverlayRoot.transform.SetParent(transform, false);
+        SetOverlayRootLayer(occupiedTileOverlayRoot);
+    }
+
+    private void SetOverlayRootLayer(GameObject root)
+    {
+        int ignoreRaycastLayer = LayerMask.NameToLayer("Ignore Raycast");
+        if (ignoreRaycastLayer != -1 && root != null)
+            root.layer = ignoreRaycastLayer;
+    }
+
+    private void CreatePlacementTile(GameObject root, Material material)
+    {
+        if (root == null)
+            return;
+
+        GameObject tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        tile.name = "PlacementFeedbackTile";
+        tile.transform.SetParent(root.transform, false);
+        SetOverlayRootLayer(tile);
+
+        Collider collider = tile.GetComponent<Collider>();
+        if (collider != null)
+        {
+            if (Application.isPlaying)
+                Destroy(collider);
+            else
+                DestroyImmediate(collider);
+        }
+
+        Renderer renderer = tile.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+        }
+    }
+
+    private Material GetBlockedTileOverlayMaterial(Color color)
+    {
+        blockedTileOverlayMaterial = EnsureTileOverlayMaterial(blockedTileOverlayMaterial, "PlacementCurrentTileMaterial_Runtime", color);
+        return blockedTileOverlayMaterial;
+    }
+
+    private Material GetOccupiedTileOverlayMaterial()
+    {
+        occupiedTileOverlayMaterial = EnsureTileOverlayMaterial(occupiedTileOverlayMaterial, "PlacementOccupiedTileMaterial_Runtime", occupiedPlacementTileColor);
+        return occupiedTileOverlayMaterial;
+    }
+
+    private Material EnsureTileOverlayMaterial(Material material, string materialName, Color color)
+    {
+        if (material == null)
+        {
+            Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null)
+                shader = Shader.Find("Universal Render Pipeline/Lit");
+            if (shader == null)
+                shader = Shader.Find("Standard");
+            if (shader == null)
+                shader = Shader.Find("Unlit/Color");
+            if (shader == null)
+                return null;
+
+            material = new Material(shader);
+            material.name = materialName;
+            material.hideFlags = HideFlags.DontSave;
+            ConfigurePreviewTintMaterial(material);
+        }
+
+        ApplyPreviewTintColor(material, color);
+        return material;
+    }
+
+    private void DestroyBlockedTileOverlay()
+    {
+        if (blockedTileOverlayRoot == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(blockedTileOverlayRoot);
+        else
+            DestroyImmediate(blockedTileOverlayRoot);
+
+        blockedTileOverlayRoot = null;
+    }
+
+    private void DestroyBlockedTileOverlayMaterial()
+    {
+        if (blockedTileOverlayMaterial == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(blockedTileOverlayMaterial);
+        else
+            DestroyImmediate(blockedTileOverlayMaterial);
+
+        blockedTileOverlayMaterial = null;
+    }
+
+    private void DestroyOccupiedTileOverlay()
+    {
+        if (occupiedTileOverlayRoot == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(occupiedTileOverlayRoot);
+        else
+            DestroyImmediate(occupiedTileOverlayRoot);
+
+        occupiedTileOverlayRoot = null;
+    }
+
+    private void DestroyOccupiedTileOverlayMaterial()
+    {
+        if (occupiedTileOverlayMaterial == null)
+            return;
+
+        if (Application.isPlaying)
+            Destroy(occupiedTileOverlayMaterial);
+        else
+            DestroyImmediate(occupiedTileOverlayMaterial);
+
+        occupiedTileOverlayMaterial = null;
+    }
     private void DisableColliders(GameObject target)
     {
         Collider[] colliders = target.GetComponentsInChildren<Collider>();
@@ -1181,6 +1520,114 @@ public class PlacementManager : MonoBehaviour
                IsPointInsideCircle(new Vector2(position.x + halfX, position.z + halfZ), center, sqrRadius);
     }
 
+
+    private bool IsPlacementVisuallyOverlappingPlacedObjects(GameObject placementObject)
+    {
+        if (placementObject == null)
+            return false;
+
+        Bounds placementBounds;
+        if (!TryGetRendererBounds(placementObject, out placementBounds))
+            return false;
+
+        int placedLayer = LayerMask.NameToLayer(placedObjectLayerName);
+        HashSet<GameObject> checkedObjects = new HashSet<GameObject>();
+
+        if (placedParent != null)
+        {
+            for (int i = 0; i < placedParent.childCount; i++)
+            {
+                Transform child = placedParent.GetChild(i);
+                if (child != null && IsVisualBoundsOverlappingPlacedObject(placementBounds, child.gameObject, placementObject, checkedObjects))
+                    return true;
+            }
+        }
+
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null)
+                continue;
+
+            GameObject candidate = placeable.gameObject;
+            if (placedLayer != -1 && candidate.layer != placedLayer)
+                continue;
+
+            if (IsVisualBoundsOverlappingPlacedObject(placementBounds, candidate, placementObject, checkedObjects))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsVisualBoundsOverlappingPlacedObject(Bounds placementBounds, GameObject candidate, GameObject placementObject, HashSet<GameObject> checkedObjects)
+    {
+        if (candidate == null || placementObject == null || !candidate.activeInHierarchy)
+            return false;
+
+        if (candidate == placementObject || candidate.transform.IsChildOf(placementObject.transform))
+            return false;
+
+        if (checkedObjects.Contains(candidate))
+            return false;
+
+        checkedObjects.Add(candidate);
+
+        Bounds candidateBounds;
+        if (!TryGetRendererBounds(candidate, out candidateBounds))
+            return false;
+
+        return BoundsOverlapXZ(placementBounds, candidateBounds, visualOverlapTolerance);
+    }
+
+    private bool BoundsOverlapXZ(Bounds a, Bounds b, float tolerance)
+    {
+        float safeTolerance = Mathf.Max(0f, tolerance);
+        return a.min.x < b.max.x - safeTolerance &&
+               a.max.x > b.min.x + safeTolerance &&
+               a.min.z < b.max.z - safeTolerance &&
+               a.max.z > b.min.z + safeTolerance;
+    }
+    private bool IsPlacementVisualInsideBoard(GameObject placementObject, Bounds boardBounds, float edgeMargin)
+    {
+        if (placementObject == null)
+            return true;
+
+        Bounds visualBounds;
+        if (!TryGetRendererBounds(placementObject, out visualBounds))
+            return true;
+
+        const float tolerance = 0.001f;
+        bool insideRect =
+            visualBounds.min.x >= boardBounds.min.x + edgeMargin - tolerance &&
+            visualBounds.max.x <= boardBounds.max.x - edgeMargin + tolerance &&
+            visualBounds.min.z >= boardBounds.min.z + edgeMargin - tolerance &&
+            visualBounds.max.z <= boardBounds.max.z - edgeMargin + tolerance;
+
+        if (!insideRect)
+            return false;
+
+        if (!useCircularBoardBounds)
+            return true;
+
+        return IsBoundsInsideCircularBoard(visualBounds, boardBounds, edgeMargin);
+    }
+
+    private bool IsBoundsInsideCircularBoard(Bounds objectBounds, Bounds boardBounds, float edgeMargin)
+    {
+        float radius = Mathf.Min(boardBounds.extents.x, boardBounds.extents.z) - edgeMargin;
+        if (radius <= 0f)
+            return false;
+
+        Vector2 center = new Vector2(boardBounds.center.x, boardBounds.center.z);
+        float sqrRadius = radius * radius;
+
+        return IsPointInsideCircle(new Vector2(objectBounds.min.x, objectBounds.min.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(objectBounds.min.x, objectBounds.max.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(objectBounds.max.x, objectBounds.min.z), center, sqrRadius) &&
+               IsPointInsideCircle(new Vector2(objectBounds.max.x, objectBounds.max.z), center, sqrRadius);
+    }
     private bool IsPointInsideCircle(Vector2 point, Vector2 center, float sqrRadius)
     {
         return (point - center).sqrMagnitude <= sqrRadius + 0.001f;
