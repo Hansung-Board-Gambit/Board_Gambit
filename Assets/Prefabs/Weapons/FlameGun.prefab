@@ -431,6 +431,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198328726572987834, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: lengthInSec
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 198328726572987834, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
       propertyPath: playOnAwake
       value: 0
       objectReference: {fileID: 0}
@@ -439,7 +443,15 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 198357979241815106, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198357979241815106, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198430614344920182, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198430614344920182, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
@@ -447,7 +459,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198587907840654828, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198587907840654828, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198588129495229924, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198588129495229924, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
@@ -455,7 +475,15 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198881335734528104, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198881335734528104, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
       propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198950139799710256, guid: 1479e9954b267427db49d174fab2fd87, type: 3}
+      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 198950139799710256, guid: 1479e9954b267427db49d174fab2fd87, type: 3}

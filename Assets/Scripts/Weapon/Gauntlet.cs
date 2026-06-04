@@ -23,7 +23,9 @@ public class Gauntlet : WeaponBase
     [SerializeField] AudioSource networkAudioSource;
     [SerializeField] AudioClip punchSfx;
     [SerializeField] AudioClip shockwaveSfx;
-
+    [Header("시각효과")]
+    [SerializeField] GameObject hitEffect;
+    [SerializeField] GameObject shockwaveVFX;
     public enum GauntletSfxType
     {
         Punch,
@@ -78,6 +80,7 @@ public class Gauntlet : WeaponBase
                 hit.Hitbox.Root.GetComponent<ExplosiveBarrel>()?.RPC_TakeDamageBarrel(meleeWeapon.damage, myPlayer.gameObject.name);
             }
         }
+        RPC_SpawnPunchVFX(boxCenter, myPlayer.fpsCamera.transform.rotation);
     }
 
     private void ShockWave()
@@ -86,6 +89,8 @@ public class Gauntlet : WeaponBase
 
         Vector3 startPos = myPlayer.fpsCamera.transform.position;
         Vector3 direction = myPlayer.fpsCamera.transform.forward;
+
+        Vector3 effectCenter = startPos + (direction * (hitRange / 2f));
 
         var hits = new List<LagCompensatedHit>();
         Runner.LagCompensation.OverlapSphere(startPos + (direction * (hitRange / 2f)),
@@ -131,6 +136,7 @@ public class Gauntlet : WeaponBase
                 }
             }
         }
+        RPC_SpawnShockwaveVFX(effectCenter, myPlayer.fpsCamera.transform.rotation);
     }
 
     protected override void SkillQ() { }
@@ -150,4 +156,47 @@ public class Gauntlet : WeaponBase
                 break;
         }
     }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_SpawnPunchVFX(Vector3 centerPosition, Quaternion cameraRotation)
+    {
+        if (hitEffect != null)
+        {
+            // 1. 아직 에셋 방향을 모르니, 기본적으로 카메라가 보는 각도를 그대로 씁니다.
+            // (나중에 에셋이 누워있거나 서 있다면 * Quaternion.Euler(90f, 0f, 0f) 를 추가하세요!)
+            Quaternion spawnRotation = cameraRotation;
+
+            // 2. 이펙트 생성
+            GameObject vfx = Instantiate(hitEffect, centerPosition, spawnRotation);
+
+            // 3. 일단 기본 크기(1배수)로 소환합니다. 나중에 에셋에 맞춰서 이 숫자를 조절하세요!
+            vfx.transform.localScale = new Vector3(1f, 1f, 1f);
+
+            // 4. 2초 뒤 삭제
+            Destroy(vfx, 2f);
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    private void RPC_SpawnShockwaveVFX(Vector3 centerPosition, Quaternion cameraRotation)
+    {
+        if (shockwaveVFX != null)
+        {
+            // 1. 기본적으로 카메라가 보는 각도 유지 
+            // (만약 에셋이 바닥에 깔려야 한다면 cameraRotation * Quaternion.Euler(90f, 0f, 0f) 로 변경하세요)
+            Quaternion spawnRotation = cameraRotation;
+
+            // 2. 계산된 위치(카메라 앞 4m)에 생성
+            GameObject vfx = Instantiate(shockwaveVFX, centerPosition, spawnRotation);
+
+            // 3. 일단 1배수로 둡니다.
+            // (만약 8m 판정에 꽉 차게 만들고 싶다면 new Vector3(8f, 8f, 8f) 로 조절해보세요!)
+            vfx.transform.localScale = new Vector3(1f, 1f, 1f);
+
+            // 4. 2초 뒤 삭제
+            Destroy(vfx, 2f);
+        }
+    }
+
+
 }
