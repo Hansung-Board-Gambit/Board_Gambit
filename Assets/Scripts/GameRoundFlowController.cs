@@ -15,6 +15,15 @@ public enum GameRoundPhase
     MatchResult
 }
 
+public enum WeaponId
+{
+    None,
+    Flamegun,
+    Gauntlet,
+    Grappling,
+    Hammer
+}
+
 public class GameRoundFlowController : MonoBehaviour
 {
     [Header("Flow")]
@@ -65,6 +74,17 @@ public class GameRoundFlowController : MonoBehaviour
     public TextMeshProUGUI hostFinalScoreText;
     public TextMeshProUGUI guestFinalScoreText;
 
+    [Header("Skill")]
+    [SerializeField] private GameObject rightSkill;
+    [SerializeField] private Image rightSkillImage;
+    [SerializeField] private GameObject qSkill;
+    [SerializeField] private Image qSkillImage;
+    [SerializeField] private Sprite FlameRight;
+    [SerializeField] private Sprite HammerRight;
+    [SerializeField] private Sprite HammerQ;
+    [SerializeField] private Sprite GauntletRight;
+    [SerializeField] private Sprite GrapplingRight;
+
     [Header("BGM")]
     [SerializeField] AudioSource bgmSource;
     [SerializeField] AudioClip prepBgm;
@@ -81,8 +101,10 @@ public class GameRoundFlowController : MonoBehaviour
     [SerializeField] AudioClip matchVictorySfx;
     [SerializeField] AudioClip matchDefeatSfx;
 
+
     public GameRoundPhase CurrentPhase { get; private set; } = GameRoundPhase.Preparation;
 
+    private WeaponId currentWeapon;
     private Coroutine battleRoutine;
     private Coroutine battleSpawnRoutine;
     private bool dangerTimeSfxPlayed;
@@ -866,6 +888,8 @@ public class GameRoundFlowController : MonoBehaviour
             Debug.LogWarning("No selected weapon found for " + player + ". Index=" + equipmentIndex);
             return;
         }
+
+        currentWeapon = selectedWeapon.weaponId;
 
         PlayerWeapon playerWeapon = playerObject.GetComponent<PlayerWeapon>();
         if (playerWeapon == null)

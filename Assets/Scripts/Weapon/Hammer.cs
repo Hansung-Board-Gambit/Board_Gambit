@@ -132,6 +132,7 @@ public class Hammer : WeaponBase
                 PlayLocalSfx(plungeStartSfx);
                 StartPlunge();
                 SkillQTimer = TickTimer.CreateFromSeconds(Runner, meleeWeapon.skillQCoolTime);
+                PlayerUI.instance.StartQCooldown(baseData.qCooldown);
             }
             else if (actualHeight < minPlungeHeight)
             {
