@@ -31,6 +31,10 @@ public class PlaceableObject : MonoBehaviour
     [Header("Preview Height")]
     public float yOffset = 0.5f;
 
+    [Header("Surface Alignment")]
+    [Tooltip("Applied after automatic board-surface alignment. Use a small negative value to sink a model into the board.")]
+    public float surfaceOffset = 0f;
+
     [Header("Spawn")]
     public PlaceableSpawnMode spawnMode = PlaceableSpawnMode.LocalInstantiate;
 

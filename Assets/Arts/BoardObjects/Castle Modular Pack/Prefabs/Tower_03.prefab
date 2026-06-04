@@ -107,4 +107,6 @@ MonoBehaviour:
   sizeControlMode: 1
   footprintScaleMultiplier: 0.6666667
   yOffset: 0.5
+  surfaceOffset: -0.1
+  spawnMode: 0
   prefabId: Object

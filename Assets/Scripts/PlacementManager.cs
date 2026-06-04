@@ -222,7 +222,7 @@ public class PlacementManager : MonoBehaviour
         snappedPosition.y = GetPlacementY(previewInfo);
         previewObject.transform.rotation = placementRotation;
         previewObject.transform.position = snappedPosition;
-        AlignObjectToBoardSurface(previewObject);
+        AlignObjectToBoardSurface(previewObject, previewInfo);
         previewObject.SetActive(true);
 
         bool canPlace = CanPlace(snappedPosition, previewInfo, placementRotation);
@@ -523,7 +523,7 @@ public class PlacementManager : MonoBehaviour
 
         int enabledRenderers = EnableRenderers(placed);
         ApplyFootprintScale(placed, info, rotation);
-        AlignObjectToBoardSurface(placed);
+        AlignObjectToBoardSurface(placed, info);
         int createdColliders = EnsurePlacementCollider(placed);
         int enabledColliders = EnableColliders(placed);
         int frozenRigidbodies = FreezePlacedRigidbodies(placed);
@@ -1060,7 +1060,7 @@ public class PlacementManager : MonoBehaviour
         return Mathf.Max(0.01f, info.footprintScaleMultiplier);
     }
 
-    private void AlignObjectToBoardSurface(GameObject target)
+    private void AlignObjectToBoardSurface(GameObject target, PlaceableObject info)
     {
         if (!alignObjectsToBoardSurface || target == null)
             return;
@@ -1069,8 +1069,9 @@ public class PlacementManager : MonoBehaviour
         if (!TryGetRendererBounds(target, out bounds))
             return;
 
+        float prefabSurfaceOffset = info != null ? info.surfaceOffset : 0f;
         Vector3 position = target.transform.position;
-        position.y += GetBoardTopY() + boardSurfaceYOffset - bounds.min.y;
+        position.y += GetBoardTopY() + boardSurfaceYOffset + prefabSurfaceOffset - bounds.min.y;
         target.transform.position = position;
     }
 
@@ -1132,7 +1133,7 @@ public class PlacementManager : MonoBehaviour
             return;
 
         previewObject.transform.rotation = GetPlacementRotation();
-        AlignObjectToBoardSurface(previewObject);
+        AlignObjectToBoardSurface(previewObject, previewObject.GetComponent<PlaceableObject>());
     }
 
     private Quaternion GetPlacementRotation()
@@ -1665,15 +1666,16 @@ public class PlacementManager : MonoBehaviour
         size = Vector2.one;
 
         Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
-        if (renderers.Length == 0)
-            return false;
-
         Bounds localBounds = new Bounds();
         bool hasBounds = false;
 
         for (int i = 0; i < renderers.Length; i++)
         {
-            Bounds rendererBounds = renderers[i].bounds;
+            Renderer renderer = renderers[i];
+            if (!IsPlacementBoundsRenderer(renderer))
+                continue;
+
+            Bounds rendererBounds = renderer.bounds;
             Vector3 min = rendererBounds.min;
             Vector3 max = rendererBounds.max;
 
@@ -1736,14 +1738,34 @@ public class PlacementManager : MonoBehaviour
         bounds = new Bounds(target.transform.position, Vector3.one);
 
         Renderer[] renderers = target.GetComponentsInChildren<Renderer>(true);
-        if (renderers.Length == 0)
-            return false;
+        bool hasBounds = false;
 
-        bounds = renderers[0].bounds;
-        for (int i = 1; i < renderers.Length; i++)
-            bounds.Encapsulate(renderers[i].bounds);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (!IsPlacementBoundsRenderer(renderer))
+                continue;
 
-        return true;
+            if (!hasBounds)
+            {
+                bounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        return hasBounds;
+    }
+
+    private bool IsPlacementBoundsRenderer(Renderer renderer)
+    {
+        return renderer != null &&
+               !(renderer is ParticleSystemRenderer) &&
+               !(renderer is TrailRenderer) &&
+               !(renderer is LineRenderer);
     }
 
     private void DestroySlotPreviews()

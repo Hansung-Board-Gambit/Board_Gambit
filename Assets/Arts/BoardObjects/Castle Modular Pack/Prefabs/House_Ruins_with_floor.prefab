@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5748459669831984833}
   - component: {fileID: 1055542554104456476}
   - component: {fileID: 4360863328751884264}
+  - component: {fileID: 881001000000000001}
   m_Layer: 0
   m_Name: StoneBricks (2)
   m_TagString: Untagged
@@ -90,6 +91,28 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &881001000000000001
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3083467899365438624}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -1488795265728935751, guid: 99d4c33fc0a12894eb6bed71f2d1fc43, type: 3}
 --- !u!1 &7240659604896314173
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,6 +124,7 @@ GameObject:
   - component: {fileID: 7059595365128044606}
   - component: {fileID: 8601756136577286892}
   - component: {fileID: 8188103529727258813}
+  - component: {fileID: 881001000000000002}
   m_Layer: 0
   m_Name: StoneBricks (1)
   m_TagString: Untagged
@@ -180,6 +204,28 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &881001000000000002
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7240659604896314173}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -1488795265728935751, guid: 99d4c33fc0a12894eb6bed71f2d1fc43, type: 3}
 --- !u!1001 &3460182321421618608
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -399,7 +445,8 @@ MonoBehaviour:
   footprint: {x: 1, y: 1}
   sizeControlMode: 1
   footprintScaleMultiplier: 1
-  yOffset: 0.5
+  yOffset: 0.3
+  surfaceOffset: 0
   spawnMode: 0
   prefabId: Object
 --- !u!1001 &9166367045939090578
@@ -453,6 +500,22 @@ PrefabInstance:
     - target: {fileID: 4190201350363374588, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5828042625454561515, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5828042625454561515, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.66
+      objectReference: {fileID: 0}
+    - target: {fileID: 5828042625454561515, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -5.77
+      objectReference: {fileID: 0}
+    - target: {fileID: 5828042625454561515, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.59
       objectReference: {fileID: 0}
     - target: {fileID: 6709019982119202523, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
       propertyPath: m_LocalPosition.x
