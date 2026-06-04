@@ -12,11 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
   m_Name: BounceGun
   m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
+  weaponId: 0
+  qIcon: {fileID: 0}
+  rightIcon: {fileID: 0}
+  qCooldown: 0
+  rightCooldown: 0
+  hasRightSkill: 0
+  hasQSkill: 0
   weaponName: BounceGun
   weaponPrefab: {fileID: 265789883608579407, guid: cbf1f793f3015aa4b88d4451aa3e1e04, type: 3}
   weaponImg: {fileID: 21300000, guid: 9d97f8c7757c82346b31af684e970c84, type: 3}
   type: 1
-  damage: 20
+  damage: 18
   range: 500
   weaponIcon: {fileID: 21300000, guid: 9d97f8c7757c82346b31af684e970c84, type: 3}
   weaponDescription: "\uC88C\uD074\uB9AD : \uC77C\uBC18 \uD0C4\uD658\uC744 \uBC1C\uC0AC\uD558\uC5EC
@@ -25,6 +32,6 @@ MonoBehaviour:
   leftHandVisualPrefab: {fileID: 0}
   MaxAmmo: 30
   leftClickCoolTime: 0.5
-  rightClickCoolTime: 0.7
+  rightClickCoolTime: 0.5
   skillQCoolTime: 0
   ReloadCoolTime: 2.56

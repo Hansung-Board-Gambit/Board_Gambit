@@ -12,17 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaaa74b2d238794aa0f1db8dc6f5f2e, type: 3}
   m_Name: SelfieStick
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
+  weaponId: 0
+  qIcon: {fileID: 0}
+  rightIcon: {fileID: 0}
+  qCooldown: 0
+  rightCooldown: 0
+  hasRightSkill: 0
+  hasQSkill: 0
   weaponName: selfieStick
   weaponPrefab: {fileID: 8341782770975167195, guid: 7626495097a9ec14496e9b72fbb8b7eb, type: 3}
   weaponImg: {fileID: 21300000, guid: 63f8587c002d9e04ea266233662e616f, type: 3}
   type: 0
-  damage: 10
+  damage: 50
   range: 2
   weaponIcon: {fileID: 21300000, guid: 63f8587c002d9e04ea266233662e616f, type: 3}
   weaponDescription: "\uC88C\uD074\uB9AD : \uC140\uCE74\uBD09\uC744 \uD718\uB458\uB7EC
     10\uC758 \uD53C\uD574\uB97C \uC900\uB2E4.\n\uC6B0\uD074\uB9AD\uC744 \uB204\uB974\uACE0
     \uC788\uB294 \uB3D9\uC548 3\uC778\uCE6D \uC2DC\uC810\uC73C\uB85C \uC804\uD658\uD55C\uB2E4."
   leftHandVisualPrefab: {fileID: 0}
-  leftClickCoolTime: 1
+  leftClickCoolTime: 2
   rightClickCoolTime: 0
   skillQCoolTime: 0
