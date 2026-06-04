@@ -619,7 +619,7 @@ MonoBehaviour:
   deleteHoverColor: {r: 1, g: 0, b: 0, a: 0.65}
   allowEditorLocalTest: 1
   sfxSource: {fileID: 224800627}
-  selectSfx: {fileID: 8300000, guid: 1cd6bd1395cedd94c81c42fb203aad82, type: 3}
+  selectSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
   placeSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
   deleteSfx: {fileID: 8300000, guid: 03bec4d1bf6bb47458f5025a2d82e0f4, type: 3}
   rotateSfx: {fileID: 8300000, guid: 0977fc6993725394698d5b63d6997b3f, type: 3}
@@ -5968,7 +5968,7 @@ MonoBehaviour:
   audioSource: {fileID: 1024786536}
   prepStartSfx: {fileID: 8300000, guid: 460090bf5ad271f48ae020fdf2350b18, type: 3}
   warningAudioSource: {fileID: 1024786538}
-  timerWarningSfx: {fileID: 8300000, guid: 5bd15a38a2bf1dd4da9724f5157679dd, type: 3}
+  timerWarningSfx: {fileID: 8300000, guid: d7163c22e4200224f860c8aba766c196, type: 3}
   playOnStart: 1
   allowEditorLocalTest: 1
   turnIntroCanvasGroup: {fileID: 1271981652}
@@ -6087,7 +6087,7 @@ MonoBehaviour:
   drawSfx: {fileID: 8300000, guid: dff9a6594aef5764e97c90b64ec2e59d, type: 3}
   countdownTickSfx: {fileID: 8300000, guid: e5ad9cd1e26d8ed4ebfdd54b8a3d4247, type: 3}
   fightSfx: {fileID: 8300000, guid: 0d2f13b2eafaff542a9028df1cfd8853, type: 3}
-  dangerTimeSfx: {fileID: 8300000, guid: 5bd15a38a2bf1dd4da9724f5157679dd, type: 3}
+  dangerTimeSfx: {fileID: 8300000, guid: d7163c22e4200224f860c8aba766c196, type: 3}
   matchVictorySfx: {fileID: 8300000, guid: 626a071c825dc284192f7826c6fd1b68, type: 3}
   matchDefeatSfx: {fileID: 8300000, guid: 34d1f226717f9c944a3a5e652cbf6eff, type: 3}
 --- !u!82 &1024786536
@@ -8071,7 +8071,7 @@ MonoBehaviour:
   spawnPlacementShadowLights: []
   allowEditorLocalTest: 1
   sfxSource: {fileID: 1209979574}
-  selectSfx: {fileID: 8300000, guid: 1cd6bd1395cedd94c81c42fb203aad82, type: 3}
+  selectSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
   placeSfx: {fileID: 8300000, guid: fd8f6ced82b7bec48b0d8135c0b5d36e, type: 3}
   errorSfx: {fileID: 8300000, guid: d427deb90cb0a4f41ac7c84c8e89d3db, type: 3}
 --- !u!82 &1209979574
