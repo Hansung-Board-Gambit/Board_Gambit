@@ -597,6 +597,14 @@ MonoBehaviour:
   - {fileID: 6397409338888445636, guid: b478cddd619971b4c80d46a8d74522bd, type: 3}
   - {fileID: 3572185690310193516, guid: e98f82c408fd45640b1a1aed1b135f81, type: 3}
   - {fileID: 4262920303831934288, guid: c510e234a77fe0f468391e63c279c32f, type: 3}
+  showBlockedPlacementTiles: 1
+  availablePlacementTileColor: {r: 0, g: 1, b: 0, a: 0.28}
+  blockedPlacementTileColor: {r: 1, g: 0, b: 0, a: 0.35}
+  showOccupiedPlacementTiles: 1
+  occupiedPlacementTileColor: {r: 1, g: 0, b: 0, a: 0.22}
+  blockedPlacementTileInset: 0.08
+  blockedPlacementTileYOffset: 0.055
+  visualOverlapTolerance: 0.02
   rotateKey: 114
   autoScaleObjectsToFootprint: 1
   footprintFitPadding: 0.85
@@ -742,7 +750,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &226455312
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7315,7 +7323,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -10573,7 +10581,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1764919875
 RectTransform:
   m_ObjectHideFlags: 0
