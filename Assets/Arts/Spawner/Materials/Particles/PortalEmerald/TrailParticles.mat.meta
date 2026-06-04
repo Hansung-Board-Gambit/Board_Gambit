@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4e07ad966e2003a489fe0f87a9da9a7a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 66636
+  packageName: Fantasy Portal Platform
+  packageVersion: 1.1
+  assetPath: Assets/OrdossFX/FantasyPortalPlatform/Materials/Particles/PortalEmerald/TrailParticles.mat
+  uploadId: 468051

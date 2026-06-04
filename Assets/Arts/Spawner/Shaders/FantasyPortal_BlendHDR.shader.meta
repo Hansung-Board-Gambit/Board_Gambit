@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 18e836adb453e184c93c39dcd14b653a
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 66636
+  packageName: Fantasy Portal Platform
+  packageVersion: 1.1
+  assetPath: Assets/OrdossFX/FantasyPortalPlatform/Shaders/FantasyPortal_BlendHDR.shader
+  uploadId: 468051

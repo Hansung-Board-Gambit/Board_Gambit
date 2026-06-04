@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 12090f60587ef3d49a2ffa0ff1d596f3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 66636
+  packageName: Fantasy Portal Platform
+  packageVersion: 1.1
+  assetPath: Assets/OrdossFX/FantasyPortalPlatform/Materials/Particles/PortalGreen/BottomTrail.mat
+  uploadId: 468051
