@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 00e7839096a13124ea03c4ff6686a433
+VisualEffectImporter:
+  externalObjects: {}
+  serializedVersion: 1
+  template:
+    name: 
+    category: 
+    description: 
+    icon: {instanceID: 0}
+    thumbnail: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371824
+  packageName: Stylized Projectiles & Magic FX
+  packageVersion: 1.0
+  assetPath: Assets/Stylized Projectiles & Magic FX/Systems/Base_Head_Water_old.vfx
+  uploadId: 897450

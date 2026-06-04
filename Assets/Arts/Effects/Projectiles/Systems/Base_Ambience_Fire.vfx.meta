@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 70d61461b180c0146a7fec91aad9fff3
+VisualEffectImporter:
+  externalObjects: {}
+  serializedVersion: 1
+  template:
+    name: 
+    category: 
+    description: 
+    icon: {instanceID: 0}
+    thumbnail: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371824
+  packageName: Stylized Projectiles & Magic FX
+  packageVersion: 1.0
+  assetPath: Assets/Stylized Projectiles & Magic FX/Systems/Base_Ambience_Fire.vfx
+  uploadId: 897450

@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 8107762f6fe9d604481b6cb445d1537e
+VisualEffectImporter:
+  externalObjects: {}
+  serializedVersion: 1
+  template:
+    name: 
+    category: 
+    description: 
+    icon: {instanceID: 0}
+    thumbnail: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371824
+  packageName: Stylized Projectiles & Magic FX
+  packageVersion: 1.0
+  assetPath: Assets/Stylized Projectiles & Magic FX/Systems/Base_Head_Lightning.vfx
+  uploadId: 897450

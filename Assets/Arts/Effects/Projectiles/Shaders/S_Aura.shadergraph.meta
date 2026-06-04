@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 67bfcc2880bb41e4d89280fc7d574e2e
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371824
+  packageName: Stylized Projectiles & Magic FX
+  packageVersion: 1.0
+  assetPath: Assets/Stylized Projectiles & Magic FX/Shaders/S_Aura.shadergraph
+  uploadId: 897450

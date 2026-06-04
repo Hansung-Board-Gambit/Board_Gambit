@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 26207b0ebd4803c44a8ad0b92bf437e7
+VisualEffectImporter:
+  externalObjects: {}
+  serializedVersion: 1
+  template:
+    name: 
+    category: 
+    description: 
+    icon: {instanceID: 0}
+    thumbnail: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 371824
+  packageName: Stylized Projectiles & Magic FX
+  packageVersion: 1.0
+  assetPath: Assets/Stylized Projectiles & Magic FX/Systems/Base_Fire_Tail.vfx
+  uploadId: 897450
