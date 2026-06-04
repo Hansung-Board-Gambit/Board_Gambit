@@ -190,9 +190,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 577
   audioSource: {fileID: 2200141972839464675}
-  swingSfx: {fileID: 8300000, guid: 5bab647da42c45945a8660b1cc85f461, type: 3}
-  enterTpsSfx: {fileID: 8300000, guid: 9a5183993072dcd4488f97edc1f7d5a0, type: 3}
-  exitTpsSfx: {fileID: 8300000, guid: 524c9b15d47caef489509b4284395206, type: 3}
+  swingSfx: {fileID: 8300000, guid: 34aedc57dc0df594daf7b07d24606a81, type: 3}
+  enterTpsSfx: {fileID: 8300000, guid: 4c124bf2833c9da42874a6595615a9cd, type: 3}
+  exitTpsSfx: {fileID: 8300000, guid: bb913067b4fc5a743b47aa8aaa57a1e9, type: 3}
   hitEffect: {fileID: 4275861517976644475}
 --- !u!114 &-2696578732400097002
 MonoBehaviour:

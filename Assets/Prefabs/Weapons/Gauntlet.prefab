@@ -197,8 +197,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 513
   networkAudioSource: {fileID: 7038196435191468037}
-  punchSfx: {fileID: 8300000, guid: d0b5d1296781fd8408bf987132b6ce74, type: 3}
-  shockwaveSfx: {fileID: 8300000, guid: 892fc2aa7910f5e40a383ebf68cc55ac, type: 3}
+  punchSfx: {fileID: 8300000, guid: 0078711433771794c9bb0164bff70d96, type: 3}
+  shockwaveSfx: {fileID: 8300000, guid: c115cdcd9aff4054bb9f36381adada3d, type: 3}
   hitEffect: {fileID: 4249132857423812204}
   shockwaveVFX: {fileID: 8560370688714771947}
 --- !u!114 &1487896013241867688
