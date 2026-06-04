@@ -103,7 +103,6 @@ GameObject:
   - component: {fileID: 7511603965850974510}
   - component: {fileID: 6757314665976099666}
   - component: {fileID: 910000000000002001}
-  - component: {fileID: 2881334179968208737}
   m_Layer: 0
   m_Name: Barrel
   m_TagString: Untagged
@@ -215,21 +214,6 @@ MonoBehaviour:
   footprint: {x: 1, y: 1}
   yOffset: 0
   prefabId: Gas_Barrel
---- !u!114 &2881334179968208737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 790361116177392329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad1a0e6e4d955c143b4b7c182f4abaa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
-  footprint: {x: 1, y: 1}
-  yOffset: 0.5
-  prefabId: Object
 --- !u!1 &2705692385655746592
 GameObject:
   m_ObjectHideFlags: 0

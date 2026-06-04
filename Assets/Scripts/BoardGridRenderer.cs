@@ -81,8 +81,8 @@ public class BoardGridRenderer : MonoBehaviour
         float width = Mathf.Max(0.001f, lineWidth);
         float height = Mathf.Max(0.001f, lineHeight);
         Material material = GetLineMaterial();
-        Material centerMaterial = GetCenterLineMaterial();
-        float centerWidth = width * Mathf.Max(1f, centerLineWidthMultiplier);
+        Material centerMaterial = material;
+        float centerWidth = width;
         float centerX = SnapToGrid(bounds.center.x, safeGridSize);
         float centerZ = SnapToGrid(bounds.center.z, safeGridSize);
         bool drawCenterX = drawCenterLines && centerX >= minX - 0.001f && centerX <= maxX + 0.001f;
@@ -124,7 +124,7 @@ public class BoardGridRenderer : MonoBehaviour
             );
         }
 
-        float centerLineY = y + Mathf.Max(0.001f, centerLineYOffset);
+        float centerLineY = y;
         if (drawCenterX)
         {
             float zLength = bounds.size.z;

@@ -642,7 +642,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4782005121389470}
   - component: {fileID: 910000000000002004}
-  - component: {fileID: 3756185241768613990}
   m_Layer: 0
   m_Name: PlasticBarrel_Skin2
   m_TagString: Untagged
@@ -686,21 +685,6 @@ MonoBehaviour:
   footprint: {x: 1, y: 1}
   yOffset: 0
   prefabId: PlasticBarrel_Skin2
---- !u!114 &3756185241768613990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1866590579267404}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad1a0e6e4d955c143b4b7c182f4abaa9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
-  footprint: {x: 1, y: 1}
-  yOffset: 0.5
-  prefabId: Object
 --- !u!1 &1889669188116114
 GameObject:
   m_ObjectHideFlags: 0

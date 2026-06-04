@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &3572828978925039845
+--- !u!1001 &4264664332435170521
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -9,24 +9,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 7469500817696591, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-      propertyPath: yOffset
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7469500817696591, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: surfaceOffset
       value: -0.3
       objectReference: {fileID: 0}
     - target: {fileID: 141303480774020879, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.2593112
+      value: 4.131832
       objectReference: {fileID: 0}
     - target: {fileID: 141303480774020879, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.00000050267835
+      value: 0.000003014774
       objectReference: {fileID: 0}
     - target: {fileID: 141303480774020879, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 7.667894
+      value: 7.1271634
       objectReference: {fileID: 0}
     - target: {fileID: 141303480774020879, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -56,24 +52,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 523740803917289242, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 523740803917289242, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.15
-      objectReference: {fileID: 0}
     - target: {fileID: 774006059319662005, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_Name
-      value: House_Ruins_without_floor
+      value: House_Ruins_with_floor_colider
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 3083467899365438624, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-    - {fileID: 7240659604896314173, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-    - {fileID: 4087454186069836897, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
-    - {fileID: 1454198049326698993, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}

@@ -85,7 +85,9 @@ MonoBehaviour:
   footprint: {x: 1, y: 1}
   sizeControlMode: 1
   footprintScaleMultiplier: 0.6
-  yOffset: 0.5
+  yOffset: 1
+  surfaceOffset: 0
+  spawnMode: 0
   prefabId: Object
 --- !u!1 &3209230655828842081 stripped
 GameObject:
