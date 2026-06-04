@@ -583,6 +583,7 @@ MonoBehaviour:
   sizeControlMode: 0
   footprintScaleMultiplier: 1
   yOffset: 0.5
+  surfaceOffset: 0
   spawnMode: 1
   prefabId: Object
 --- !u!114 &7408961385160723983
@@ -598,7 +599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosiveBarrel
   explosionRadius: 5
-  explosionDamage: 50
+  explosionDamage: 45
   playerLayer:
     serializedVersion: 2
     m_Bits: 576
