@@ -58,6 +58,12 @@ public class RechargeableLaser : WeaponBase
             chargeParticle.Stop();
             chargeParticle.transform.localScale = Vector3.zero;
         }
+        if (laserLine != null)
+        {
+            laserLine.positionCount = 0;
+            laserLine.enabled = false;
+        }
+        if (laserBodyParticles != null) laserBodyParticles.Stop();
     }
 
     protected override void CheckLeftClick(NetworkInputData data, NetworkButtons prevButtons)
@@ -183,7 +189,6 @@ public class RechargeableLaser : WeaponBase
         if (hitCount <= 0)
         {
             Debug.Log("2. 허공에 빗나감");
-            return;
         }
         if (hitCount > 0)
         {
@@ -246,7 +251,8 @@ public class RechargeableLaser : WeaponBase
                 }
             }
         }
-        RPC_DrawLaser(laserMuzzle.position, endPoint);
+        Vector3 visualEndPoint = origin + (direction * rangedWeapon.range);
+        RPC_DrawLaser(laserMuzzle.position, visualEndPoint);
     }
 
     /*
@@ -423,5 +429,26 @@ public class RechargeableLaser : WeaponBase
         // 다음 발사를 위해 색상 투명도 복구 (안 하면 다음번 쏠 때 안 보임!)
         laserLine.startColor = new Color(startColor.r, startColor.g, startColor.b, 1f);
         laserLine.endColor = new Color(endColor.r, endColor.g, endColor.b, 1f);
+    }
+
+    private void OnEnable()
+    {
+        // 무기를 꺼내거나 새 라운드가 시작돼서 화면에 나타날 때 무조건 레이저 선 숨김
+        if (laserLine != null)
+        {
+            laserLine.enabled = false;
+            laserLine.positionCount = 0;
+        }
+    }
+
+    private void OnDisable()
+    {
+        // 무기를 집어넣거나 라운드가 끝나서 캐릭터가 꺼질 때 파티클 찌꺼기 강제 종료
+        if (laserLine != null)
+        {
+            laserLine.positionCount = 0;
+            laserLine.enabled = false;
+        }
+        if (laserBodyParticles != null) laserBodyParticles.Stop();
     }
 }

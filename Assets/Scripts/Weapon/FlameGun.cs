@@ -65,6 +65,19 @@ public class FlameGun : WeaponBase
         }
     }
 
+    public override void OnFixedUpdateNetwork()
+    {
+        bool wasReloading = IsReloading;
+        base.OnFixedUpdateNetwork();
+        if (!wasReloading && IsReloading)
+        {
+            if (HasInputAuthority)
+            {
+                PlayLocalSfx(reloadSfx); 
+            }
+        }
+    }
+
     private void SpawnProjectile()
     {
         if(HasStateAuthority)
