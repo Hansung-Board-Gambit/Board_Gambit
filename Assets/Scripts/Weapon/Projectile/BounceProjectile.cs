@@ -10,6 +10,8 @@ public class BounceProjectile : NetworkBehaviour
     [Header("사운드")]
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip bounceSfx;
+    [SerializeField] AudioClip hitPlayerSfx;
+
     [Header("투사체 세팅")]
     [SerializeField] float speed = 20f;
     [SerializeField] float explosionRadius = 3f;
@@ -63,6 +65,7 @@ public class BounceProjectile : NetworkBehaviour
                 }
                 else
                 {
+                    RPC_PlayHitPlayerSfx();
                     Explode();
                     return;
                 }
@@ -151,5 +154,11 @@ public class BounceProjectile : NetworkBehaviour
         {
             audioSource.PlayOneShot(bounceSfx);
         }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_PlayHitPlayerSfx()
+    {
+        audioSource.PlayOneShot(hitPlayerSfx);
     }
 }
