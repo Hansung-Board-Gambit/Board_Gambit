@@ -72,7 +72,9 @@ public class FlameTrap : NetworkBehaviour, INetworkPlacedObject
             return;
 
         if (!IsBattlePhase())
+        {
             return;
+        }
 
         if ((playerLayer.value & (1 << other.gameObject.layer)) == 0)
             return;
@@ -81,12 +83,21 @@ public class FlameTrap : NetworkBehaviour, INetworkPlacedObject
         if (health == null || health.CurrentHP <= 0)
             return;
 
+        health.SetFlameHit();
+
         if (damageCooldowns.TryGetValue(health, out TickTimer cooldown) && !cooldown.ExpiredOrNotRunning(Runner))
             return;
 
         damageCooldowns[health] = TickTimer.CreateFromSeconds(Runner, damageInterval);
         health.RPC_TakeDamage(tickDamage, "Flame Trap", Object.InputAuthority);
-        health.SetFlameHit();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!HasStateAuthority)
+            return;
+
+        PlayerHealth health = other.GetComponentInParent<PlayerHealth>();
     }
 
     private void ConfigureDamageTrigger()

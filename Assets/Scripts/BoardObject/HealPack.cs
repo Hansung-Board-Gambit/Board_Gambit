@@ -102,6 +102,12 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
             if (ph != null && ph.CurrentHP > 0 && ph.CurrentHP < ph.maxHP)
             {
                 ph.RPC_Heal(healAmount);
+
+                if (ph.Object.HasInputAuthority)
+                {
+                    ph.RPC_PlayHealSfx();
+                }
+
                 IsActive = false;
                 RespawnTimer = TickTimer.CreateFromSeconds(Runner, respawnTime);
             }

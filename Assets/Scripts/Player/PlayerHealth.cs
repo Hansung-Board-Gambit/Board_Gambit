@@ -5,8 +5,11 @@ using System.Collections;
 public class PlayerHealth : NetworkBehaviour
 {
     [SerializeField] private AudioSource hitConfirmAudioSource;
+    [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioClip hitConfirmSfx;
     [SerializeField] private AudioClip flameClip;
+    [SerializeField] private AudioClip flameHitSfx;
+    [SerializeField] private AudioClip healSfx;
 
     [SerializeField] public int maxHP = 100;
 
@@ -56,18 +59,22 @@ public class PlayerHealth : NetworkBehaviour
     public void SetFlameHit()
     {
         flameTimer = 0.25f;
+        Debug.Log("SetFlameHit");
     }
 
     private void Update()
     {
-        if (!HasInputAuthority) return;
+        if (!HasInputAuthority)
+            return;
 
         flameTimer -= Time.deltaTime;
 
         if (flameTimer > 0f)
         {
+            Debug.Log($"Flame Playing {Object.InputAuthority}");
             if (!hitConfirmAudioSource.isPlaying)
             {
+                Debug.Log("Play FlameClip");
                 hitConfirmAudioSource.clip = flameClip;
                 hitConfirmAudioSource.loop = true;
                 hitConfirmAudioSource.Play();
@@ -188,6 +195,28 @@ public class PlayerHealth : NetworkBehaviour
 
         if (hitConfirmAudioSource != null && hitConfirmSfx != null)
             hitConfirmAudioSource.PlayOneShot(hitConfirmSfx);
+    }
+
+    public void PlayFlameLocalSfx()
+    {
+        if (hitConfirmAudioSource == null || flameHitSfx == null)
+            return;
+
+        hitConfirmAudioSource.PlayOneShot(flameHitSfx);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    public void RPC_PlayHealSfx()
+    {
+        PlayHealLocalSfx();
+    }
+
+    public void PlayHealLocalSfx()
+    {
+        if (healSfx == null || hitConfirmAudioSource == null)
+            return;
+
+        hitConfirmAudioSource.PlayOneShot(healSfx);
     }
 
     public void OnHPChanged()
