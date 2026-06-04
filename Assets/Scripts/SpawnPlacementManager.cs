@@ -22,16 +22,22 @@ public class SpawnPlacementManager : MonoBehaviour
     [Header("Markers")]
     public GameObject mySpawnMarker;
     public GameObject opponentSpawnMarker;
+    public GameObject mySpawnMarkerPrefab;
+    public GameObject opponentSpawnMarkerPrefab;
 
     [Header("Button Labels")]
     public Text mySpawnButtonLabel;
     public Text opponentSpawnButtonLabel;
     public string setMySpawnText = "Set My Spawn";
     public string setEnemySpawnText = "Set Enemy Spawn";
+    public string mySpawnDisplayText = "My Spawn";
+    public string enemySpawnDisplayText = "Enemy Spawn";
     public float spawnButtonMinHeight = 56f;
     public float spawnButtonHorizontalPadding = 12f;
     public Color spawnButtonBackgroundColor = new Color(0.08f, 0.09f, 0.13f, 0.95f);
     public Color spawnButtonSelectedColor = new Color(0.12f, 0.32f, 0.58f, 0.95f);
+    public Color mySpawnButtonSelectedColor = new Color(0.4196079f, 1f, 0.8745098f, 0.95f);
+    public Color enemySpawnButtonSelectedColor = new Color(0.682353f, 0.4196079f, 1f, 0.95f);
 
     [Header("Layers")]
     public LayerMask boardLayer;
@@ -42,6 +48,8 @@ public class SpawnPlacementManager : MonoBehaviour
     public int blockedEdgeCellCount = 0;
     public bool useCircularBoardBounds = false;
     public float markerYOffset = 0.3f;
+    public bool fitSpawnMarkersToGridCell = true;
+    public float spawnMarkerCellFill = 0.9f;
     public Vector3 spawnCheckHalfExtents = new Vector3(0.4f, 1f, 0.4f);
 
     [Header("Spawn Shadows")]
@@ -62,6 +70,8 @@ public class SpawnPlacementManager : MonoBehaviour
     private SpawnMode previewMarkerMode = SpawnMode.None;
     private Image mySpawnButtonBackground;
     private Image opponentSpawnButtonBackground;
+    private GameObject activeMySpawnMarkerPrefab;
+    private GameObject activeOpponentSpawnMarkerPrefab;
 
     private bool spawnPlacementShadowsHidden;
     private readonly Dictionary<Light, LightShadows> originalSpawnLightShadows = new Dictionary<Light, LightShadows>();
@@ -90,6 +100,7 @@ public class SpawnPlacementManager : MonoBehaviour
         UpdateSpawnButtonLabels();
         SetupSpawnButtonBackgrounds();
         UpdateSpawnButtonVisuals();
+        EnsurePrefabSpawnMarkers();
         DisableMarkerColliders();
         RestoreSavedMarkers();
     }
@@ -107,6 +118,12 @@ public class SpawnPlacementManager : MonoBehaviour
 
         UpdateSpawnButtonLabels();
         UpdateSpawnButtonVisuals();
+        if (EnsurePrefabSpawnMarkers())
+        {
+            DisableMarkerColliders();
+            RestoreSavedMarkers();
+            DestroyPreviewMarker();
+        }
 
         if (!CanLocalControlSpawnPlacement())
         {
@@ -517,9 +534,16 @@ public class SpawnPlacementManager : MonoBehaviour
     {
         CacheSpawnButtonLabels();
 
-        bool localOwnsSpawnPlacement = CanLocalControlSpawnPlacement();
-        SetLabelText(mySpawnButtonLabel, localOwnsSpawnPlacement ? setMySpawnText : setEnemySpawnText);
-        SetLabelText(opponentSpawnButtonLabel, localOwnsSpawnPlacement ? setEnemySpawnText : setMySpawnText);
+        if (CanLocalControlSpawnPlacement())
+        {
+            SetLabelText(mySpawnButtonLabel, setMySpawnText);
+            SetLabelText(opponentSpawnButtonLabel, setEnemySpawnText);
+            return;
+        }
+
+        bool mySpawnSlotIsLocalPlayer = IsMySpawnSlotLocalPlayer();
+        SetLabelText(mySpawnButtonLabel, mySpawnSlotIsLocalPlayer ? mySpawnDisplayText : enemySpawnDisplayText);
+        SetLabelText(opponentSpawnButtonLabel, mySpawnSlotIsLocalPlayer ? enemySpawnDisplayText : mySpawnDisplayText);
     }
 
     private void SetLabelText(Text label, string text)
@@ -607,11 +631,24 @@ public class SpawnPlacementManager : MonoBehaviour
 
     private void UpdateSpawnButtonVisuals()
     {
+        if (!CanLocalControlSpawnPlacement())
+        {
+            bool mySpawnSlotIsLocalPlayer = IsMySpawnSlotLocalPlayer();
+
+            if (mySpawnButtonBackground != null)
+                mySpawnButtonBackground.color = mySpawnSlotIsLocalPlayer ? mySpawnButtonSelectedColor : enemySpawnButtonSelectedColor;
+
+            if (opponentSpawnButtonBackground != null)
+                opponentSpawnButtonBackground.color = mySpawnSlotIsLocalPlayer ? enemySpawnButtonSelectedColor : mySpawnButtonSelectedColor;
+
+            return;
+        }
+
         if (mySpawnButtonBackground != null)
-            mySpawnButtonBackground.color = currentMode == SpawnMode.MySpawn ? spawnButtonSelectedColor : spawnButtonBackgroundColor;
+            mySpawnButtonBackground.color = currentMode == SpawnMode.MySpawn ? mySpawnButtonSelectedColor : spawnButtonBackgroundColor;
 
         if (opponentSpawnButtonBackground != null)
-            opponentSpawnButtonBackground.color = currentMode == SpawnMode.OpponentSpawn ? spawnButtonSelectedColor : spawnButtonBackgroundColor;
+            opponentSpawnButtonBackground.color = currentMode == SpawnMode.OpponentSpawn ? enemySpawnButtonSelectedColor : spawnButtonBackgroundColor;
     }
 
     private void RestoreSavedMarkers()
@@ -624,6 +661,128 @@ public class SpawnPlacementManager : MonoBehaviour
 
         if (dataStore.spawnData.hasOpponentSpawn)
             UpdateMarker(opponentSpawnMarker, dataStore.spawnData.opponentSpawnPosition);
+    }
+
+    private bool EnsurePrefabSpawnMarkers()
+    {
+        GameObject mySlotPrefab = GetSpawnMarkerPrefabForDataSlot(true);
+        GameObject opponentSlotPrefab = GetSpawnMarkerPrefabForDataSlot(false);
+
+        bool changed = false;
+        mySpawnMarker = EnsurePrefabSpawnMarker(mySlotPrefab, mySpawnMarker, "MySpawnMarker", ref activeMySpawnMarkerPrefab, ref changed);
+        opponentSpawnMarker = EnsurePrefabSpawnMarker(opponentSlotPrefab, opponentSpawnMarker, "OpponentSpawnMarker", ref activeOpponentSpawnMarkerPrefab, ref changed);
+        return changed;
+    }
+
+    private GameObject GetSpawnMarkerPrefabForDataSlot(bool isMySpawnSlot)
+    {
+        bool mySpawnSlotIsLocalPlayer = IsMySpawnSlotLocalPlayer();
+        bool slotBelongsToLocalPlayer = isMySpawnSlot ? mySpawnSlotIsLocalPlayer : !mySpawnSlotIsLocalPlayer;
+        GameObject preferredPrefab = slotBelongsToLocalPlayer ? mySpawnMarkerPrefab : opponentSpawnMarkerPrefab;
+        GameObject fallbackPrefab = isMySpawnSlot ? mySpawnMarkerPrefab : opponentSpawnMarkerPrefab;
+        return preferredPrefab != null ? preferredPrefab : fallbackPrefab;
+    }
+
+    private bool IsMySpawnSlotLocalPlayer()
+    {
+        if (LobbyState.Instance == null || LobbyState.Instance.Runner == null)
+            return true;
+
+        bool localIsHost = LobbyState.Instance.Runner.IsServer;
+        bool spawnOwnerIsHost = !LobbyState.Instance.objectPlacementAuthorityIsHost;
+        return localIsHost == spawnOwnerIsHost;
+    }
+
+    private GameObject EnsurePrefabSpawnMarker(GameObject markerPrefab, GameObject currentMarker, string markerName, ref GameObject activeMarkerPrefab, ref bool changed)
+    {
+        if (markerPrefab == null)
+            return currentMarker;
+
+        if (currentMarker != null && activeMarkerPrefab == markerPrefab)
+            return currentMarker;
+
+        Transform parent = currentMarker != null && currentMarker.transform.parent != null
+            ? currentMarker.transform.parent
+            : transform;
+
+        Vector3 position = currentMarker != null ? currentMarker.transform.position : Vector3.zero;
+        bool active = currentMarker != null && currentMarker.activeSelf;
+
+        if (currentMarker != null)
+        {
+            if (activeMarkerPrefab != null)
+                Destroy(currentMarker);
+            else
+                currentMarker.SetActive(false);
+        }
+
+        GameObject marker = Instantiate(markerPrefab, parent);
+        marker.name = markerName;
+        marker.transform.position = position;
+        marker.transform.rotation = markerPrefab.transform.rotation;
+        marker.transform.localScale = markerPrefab.transform.localScale;
+        FitMarkerToGridCell(marker);
+        marker.SetActive(active);
+        SetCollidersEnabled(marker, false);
+
+        activeMarkerPrefab = markerPrefab;
+        changed = true;
+        return marker;
+    }
+
+    private void FitMarkerToGridCell(GameObject marker)
+    {
+        if (!fitSpawnMarkersToGridCell || marker == null)
+            return;
+
+        Bounds bounds;
+        if (!TryGetMarkerBounds(marker, out bounds))
+            return;
+
+        float horizontalSize = Mathf.Max(bounds.size.x, bounds.size.z);
+        if (horizontalSize <= 0.001f)
+            return;
+
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        float targetSize = safeGridSize * Mathf.Clamp(spawnMarkerCellFill, 0.1f, 1f);
+        marker.transform.localScale *= targetSize / horizontalSize;
+    }
+
+    private bool TryGetMarkerBounds(GameObject marker, out Bounds bounds)
+    {
+        Renderer[] renderers = marker.GetComponentsInChildren<Renderer>(true);
+        if (TryCollectMarkerBounds(renderers, false, out bounds))
+            return true;
+
+        return TryCollectMarkerBounds(renderers, true, out bounds);
+    }
+
+    private bool TryCollectMarkerBounds(Renderer[] renderers, bool includeParticles, out Bounds bounds)
+    {
+        bounds = new Bounds();
+        bool hasBounds = false;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+                continue;
+
+            if (!includeParticles && renderer is ParticleSystemRenderer)
+                continue;
+
+            if (!hasBounds)
+            {
+                bounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        return hasBounds;
     }
 
     private void DisableMarkerColliders()
