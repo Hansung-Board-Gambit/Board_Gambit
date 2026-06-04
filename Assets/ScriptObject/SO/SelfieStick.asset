@@ -26,9 +26,12 @@ MonoBehaviour:
   damage: 40
   range: 2
   weaponIcon: {fileID: 21300000, guid: 63f8587c002d9e04ea266233662e616f, type: 3}
-  weaponDescription: "\uC88C\uD074\uB9AD : \uC140\uCE74\uBD09\uC744 \uD718\uB458\uB7EC
-    10\uC758 \uD53C\uD574\uB97C \uC900\uB2E4.\n\uC6B0\uD074\uB9AD\uC744 \uB204\uB974\uACE0
-    \uC788\uB294 \uB3D9\uC548 3\uC778\uCE6D \uC2DC\uC810\uC73C\uB85C \uC804\uD658\uD55C\uB2E4."
+  weaponDescription: "Mouse L\n- \uC870\uC900\uC810 \uB0B4\uC758 \uBB3C\uCCB4\uC5D0
+    40\uC758 \uD53C\uD574\uB97C \uC900\uB2E4.\n\nMouse R\n- \uB9C8\uC6B0\uC2A4\uB97C
+    \uD640\uB4DC\uD558\uC5EC 3\uC778\uCE6D \uC2DC\uC810\uC73C\uB85C \uC804\uD658\uD55C\uB2E4.\n-
+    \uD640\uB4DC\uB97C \uD574\uC81C\uD558\uBA74 1\uC778\uCE6D \uC2DC\uC810\uC73C\uB85C
+    \uBCF5\uADC0\uD55C\uB2E4.\n- 3\uC778\uCE6D \uC2DC\uC810\uC5D0\uC11C Mouse L\uC744
+    \uC0AC\uC6A9\uD560 \uC218 \uC5C6\uB2E4."
   leftHandVisualPrefab: {fileID: 0}
   leftClickCoolTime: 2
   rightClickCoolTime: 0

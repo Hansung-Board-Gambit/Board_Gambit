@@ -26,9 +26,13 @@ MonoBehaviour:
   damage: 10
   range: 2
   weaponIcon: {fileID: 21300000, guid: d68c8c55f89e63b42930bbea66c9bdc6, type: 3}
-  weaponDescription: "\uC6B0\uD074\uB9AD : \uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C
-    \uCFE0\uB098\uC774\uB97C \uB358\uC838 \uC774\uB3D9\uD55C\uB2E4.\n\uC88C\uD074\uB9AD
-    : \uADFC\uC811 \uACF5\uACA9\uD558\uC5EC 35\uC758 \uD53C\uD574\uB97C \uC900\uB2E4."
+  weaponDescription: "Mouse L\n- \uC870\uC900\uC810 \uB0B4\uC758 \uBB3C\uCCB4\uC5D0
+    10\uC758 \uD53C\uD574\uB97C \uC900\uB2E4.\n\nMouse R\n- \uC870\uC900\uC810 \uB0B4\uC758
+    \uBB3C\uCCB4\uC5D0 \uCFE0\uB098\uC774\uB97C \uD22C\uCC99\uD55C\uB2E4.\n- \uD50C\uB808\uC774\uC5B4\uB294
+    \uD22C\uCC99\uD55C \uCFE0\uB098\uC774\uC758 \uC704\uCE58\uB85C \uB0A0\uC544\uAC04\uB2E4.\n-
+    \uB0A0\uC544\uAC00\uB294 \uB3C4\uC911, \uC0C8\uB85C\uC6B4 \uCFE0\uB098\uC774\uB97C
+    \uD22C\uCC99\uD560 \uC218 \uC788\uB2E4.\n- \uC7AC\uC0AC\uC6A9 \uB300\uAE30\uC2DC\uAC04
+    : 4\uCD08\n- \uCD5C\uB300 \uCDA9\uC804 \uD69F\uC218 : 2\uD68C"
   leftHandVisualPrefab: {fileID: 8062316620607733816, guid: 845dbe0f3e7b0fb40af4baa263e28587, type: 3}
   leftClickCoolTime: 0.6
   rightClickCoolTime: 0
