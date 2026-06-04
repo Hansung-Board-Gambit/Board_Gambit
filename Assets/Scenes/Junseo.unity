@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.38885722, g: 0.4550225, b: 0.6226415, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 369b9ebe3a62b904dbc19bd332b44086, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: cede08c9fc471e64884909cd4bbeaf59, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -5651,7 +5651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CircularBoardWall
   boardCollider: {fileID: 2051830065}
-  wallMaterial: {fileID: 2100000, guid: 94f56123865054b62a3c385450ada42d, type: 2}
+  wallMaterial: {fileID: 2100000, guid: a9c89baf8de078b48938b89271f041c0, type: 2}
   squareWallsToHide:
   - {fileID: 910001001}
   - {fileID: 910002001}
@@ -5665,7 +5665,14 @@ MonoBehaviour:
   wallThickness: 0.5
   wallHeight: 8
   segments: 128
-  textureRepeatPerMeter: 1
+  useLayeredVisibleWall: 1
+  lowerWallHeight: 2
+  middleWallHeight: 8
+  upperWallHeight: 2
+  lowerWallMaterial: {fileID: -1113638249110346221, guid: d3acb8cb6f56a9c419995869d9055431, type: 3}
+  middleWallMaterial: {fileID: 2100000, guid: a9c89baf8de078b48938b89271f041c0, type: 2}
+  upperWallMaterial: {fileID: -1113638249110346221, guid: d3acb8cb6f56a9c419995869d9055431, type: 3}
+  textureRepeatPerMeter: 0.13
   createInvisibleTopCollider: 1
   invisibleTopHeight: 60
   generatedRootName: CircularBoardWall_Generated
@@ -12487,7 +12494,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: db6a37a1ce8f742aebcff4c72f94b067, type: 2}
+  - {fileID: 2100000, guid: 22a599da0ed4df145bb0069bbc3c6af3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
