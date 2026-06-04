@@ -77,6 +77,8 @@ public class SelfieStick : WeaponBase
 
     protected override void BasicAttack()
     {
+        if (isTpsMode) return;
+
         if (LeftClickTimer.ExpiredOrNotRunning(Runner) && !isSwinging)
         {
             RPC_PlaySwingSfx();
