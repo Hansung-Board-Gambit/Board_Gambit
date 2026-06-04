@@ -156,10 +156,10 @@ MonoBehaviour:
     m_Bits: 577
   attackWidth: 2
   dashForce: 50
-  Damage: 60
-  minPlungeHeight: 1.5
+  Damage: 30
+  minPlungeHeight: 6
   plungeSpeed: 30
-  slamRadius: 3
+  slamRadius: 5
   hammerModel: {fileID: 0}
   swingSpeed: 10
   swingRotation: {x: 0, y: -90, z: 0}
