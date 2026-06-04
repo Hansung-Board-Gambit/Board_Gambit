@@ -28,6 +28,7 @@ public class RechargeableLaser : WeaponBase
     [SerializeField] LineRenderer laserLine;
     [SerializeField] Transform laserMuzzle;
     [SerializeField] float laserFadeDuration = 0.5f;
+    [SerializeField] ParticleSystem laserBodyParticles;
 
     private Coroutine laserFadeCoroutine;
 
@@ -356,6 +357,26 @@ public class RechargeableLaser : WeaponBase
             Destroy(hitVfx, 1f);
         }
         */
+        if (laserBodyParticles != null)
+        {
+            // 시작점(총구)부터 끝점(맞은 곳)까지의 길이를 계산합니다.
+            float distance = Vector3.Distance(startPos, endPos);
+
+            // 파티클의 Shape 모듈을 가져와서 길이를 레이저 길이와 똑같이 맞춥니다.
+            var shape = laserBodyParticles.shape;
+            shape.radius = distance / 2f;
+
+            var emission = laserBodyParticles.emission;
+            emission.rateOverTime = distance * 100f;
+
+            // 파티클의 위치와 방향을 잡아줍니다.
+            // (총구 위치에서 시작해서, 맞은 곳을 바라보게 회전시킵니다.)
+            laserBodyParticles.transform.position = Vector3.Lerp(startPos, endPos, 0.5f);
+            laserBodyParticles.transform.LookAt(endPos);
+
+            // 파티클 재생!
+            laserBodyParticles.Play();
+        }
         // 3. 기존에 페이드 효과가 돌고 있었다면 끄고 새로 시작 (연사 시 깜빡임 방지)
         if (laserFadeCoroutine != null)
         {
@@ -371,6 +392,11 @@ public class RechargeableLaser : WeaponBase
         // 라인 렌더러의 원래 색상 가져오기
         Color startColor = laserLine.startColor;
         Color endColor = laserLine.endColor;
+
+        startColor.a = 1f;
+        endColor.a = 1f;
+        laserLine.startColor = startColor;
+        laserLine.endColor = endColor;
 
         float t = 0;
         while (t < 1f)
@@ -388,6 +414,11 @@ public class RechargeableLaser : WeaponBase
         }
 
         laserLine.enabled = false; // 완전히 투명해지면 선 끄기
+
+        if (laserBodyParticles != null)
+        {
+            laserBodyParticles.Stop();
+        }
 
         // 다음 발사를 위해 색상 투명도 복구 (안 하면 다음번 쏠 때 안 보임!)
         laserLine.startColor = new Color(startColor.r, startColor.g, startColor.b, 1f);

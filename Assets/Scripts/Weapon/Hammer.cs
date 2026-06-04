@@ -309,7 +309,7 @@ public class Hammer : WeaponBase
         }
     }
 
-    [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     private void RPC_PlaySlamVFX(Vector3 slamPosition, float radius)
     {
         if (slamVFXObject != null)
