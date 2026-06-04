@@ -135,6 +135,14 @@ public class GameRoundFlowController : MonoBehaviour
         EnsureBattleHudUi();
     }
 
+    private void Update()
+    {
+        if (CurrentPhase == GameRoundPhase.Battle)
+        {
+            UpdateBattleHPUI();
+        }
+    }
+
     private void OnEnable()
     {
         if (prepFlow != null)
@@ -985,6 +993,37 @@ public class GameRoundFlowController : MonoBehaviour
         }
 
         canvasGroup.alpha = 1f;
+    }
+
+    private void UpdateBattleHPUI()
+    {
+        if (PlayerUI.instance == null)
+            return;
+
+        if (!TryGetPlayerHealth(1, out PlayerHealth hostHealth))
+            return;
+
+        if (!TryGetPlayerHealth(2, out PlayerHealth guestHealth))
+            return;
+
+        bool localIsHost = LobbyState.Instance.Runner.IsServer;
+
+        if (localIsHost)
+        {
+            PlayerUI.instance.UpdateMatchHP(
+                hostHealth.CurrentHP,
+                hostHealth.maxHP,
+                guestHealth.CurrentHP,
+                guestHealth.maxHP);
+        }
+        else
+        {
+            PlayerUI.instance.UpdateMatchHP(
+                guestHealth.CurrentHP,
+                guestHealth.maxHP,
+                hostHealth.CurrentHP,
+                hostHealth.maxHP);
+        }
     }
 
     private void ShowRoundResultUI()

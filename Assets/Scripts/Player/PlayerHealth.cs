@@ -187,7 +187,7 @@ public class PlayerHealth : NetworkBehaviour
     }
 
     public void OnHPChanged()
-    {
+    { 
         if (HasInputAuthority && PlayerUI.instance != null)
         {
             PlayerUI.instance.UpdateHP(CurrentHP, maxHP);

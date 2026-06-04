@@ -11,6 +11,8 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI ammoText;
     [SerializeField] private TextMeshProUGUI hostNameText;
     [SerializeField] private TextMeshProUGUI guestNameText;
+    [SerializeField] private Image myHpFillImage;
+    [SerializeField] private Image enemyHpFillImage;
     //[SerializeField] TextMeshProUGUI grapplingText;
 
     private void Awake()
@@ -44,6 +46,15 @@ public class PlayerUI : MonoBehaviour
         float ratio = (float)currentHP / maxHP;
         hpFillImage.fillAmount = (float)currentHP / maxHP;
         Debug.Log($"fillAmount = {hpFillImage.fillAmount}");
+    }
+
+    public void UpdateMatchHP(int myCurrent, int myMax, int enemyCurrent, int enemyMax)
+    {
+        if (myHpFillImage != null)
+            myHpFillImage.fillAmount = (float)myCurrent / myMax;
+
+        if (enemyHpFillImage != null)
+            enemyHpFillImage.fillAmount = (float)enemyCurrent / enemyMax;
     }
 
     public void UpdateAmmoText(int currentAmmo, int maxAmmo)
