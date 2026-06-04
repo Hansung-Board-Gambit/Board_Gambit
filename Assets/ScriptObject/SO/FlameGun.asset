@@ -23,7 +23,7 @@ MonoBehaviour:
   weaponPrefab: {fileID: 8925667759205097380, guid: e0ae9dd6304c5144799f8be00242106e, type: 3}
   weaponImg: {fileID: 21300000, guid: f11127940c3165140888258912a1f604, type: 3}
   type: 1
-  damage: 5
+  damage: 20
   range: 500
   weaponIcon: {fileID: 21300000, guid: f11127940c3165140888258912a1f604, type: 3}
   weaponDescription: "\uC88C\uD074\uB9AD : \uD654\uC5FC\uC744 \uBC1C\uC0AC\uD558\uC5EC

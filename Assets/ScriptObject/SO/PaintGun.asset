@@ -31,7 +31,7 @@ MonoBehaviour:
     \uC774\uB3D9 \uD754\uC801 \uB514\uBC84\uD504\uB97C \uBD80\uC5EC\uD55C\uB2E4."
   leftHandVisualPrefab: {fileID: 0}
   MaxAmmo: 50
-  leftClickCoolTime: 0.3
+  leftClickCoolTime: 0.1
   rightClickCoolTime: 0
   skillQCoolTime: 0
   ReloadCoolTime: 3.5

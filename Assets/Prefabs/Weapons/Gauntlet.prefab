@@ -192,7 +192,7 @@ MonoBehaviour:
   knockbackDistance: 8
   shockPower: 30
   shockwaveBaseDamage: 0
-  wallDamage: 30
+  wallDamage: 40
   environmentLayer:
     serializedVersion: 2
     m_Bits: 513

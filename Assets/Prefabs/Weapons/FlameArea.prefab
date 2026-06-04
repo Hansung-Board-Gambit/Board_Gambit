@@ -200,9 +200,9 @@ MonoBehaviour:
   audioSource: {fileID: 4186205328315694219}
   flameAreaSfx: {fileID: 8300000, guid: 76c891aff3b1e9b49b0fafe4205c79cd, type: 3}
   radius: 2
-  lifeTime: 5
+  lifeTime: 10
   damageInterval: 0.1
-  tickDamage: 1
+  tickDamage: 2
 --- !u!114 &3350282563190050146
 MonoBehaviour:
   m_ObjectHideFlags: 0

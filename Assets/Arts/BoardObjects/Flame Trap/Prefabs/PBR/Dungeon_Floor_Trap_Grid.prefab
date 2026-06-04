@@ -191,7 +191,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4f577f95b53cb43b22b5702418a7e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlameTrap
-  tickDamage: 1
+  tickDamage: 2
   damageInterval: 0.1
   playerLayer:
     serializedVersion: 2
