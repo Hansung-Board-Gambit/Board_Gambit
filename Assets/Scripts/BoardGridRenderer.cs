@@ -23,6 +23,13 @@ public class BoardGridRenderer : MonoBehaviour
     private Material lineMaterial;
     private Material centerLineMaterial;
     private GameObject gridRootObject;
+    private Vector3 lastBoundsCenter;
+    private Vector3 lastBoundsSize;
+    private float lastGridSize;
+    private float lastYOffset;
+    private float lastLineWidth;
+    private float lastLineHeight;
+    private bool lastUseCircularBoardBounds;
 
     private void Start()
     {
@@ -31,6 +38,9 @@ public class BoardGridRenderer : MonoBehaviour
 
     private void Update()
     {
+        if (ShouldRebuildGrid())
+            RebuildGrid();
+
         UpdateGridVisibility();
     }
 
@@ -155,7 +165,46 @@ public class BoardGridRenderer : MonoBehaviour
             );
         }
 
+        CacheGridState(bounds, safeGridSize);
         UpdateGridVisibility();
+    }
+
+    private bool ShouldRebuildGrid()
+    {
+        if (boardCollider == null)
+            return false;
+
+        if (gridRootObject == null)
+            return true;
+
+        Bounds bounds = boardCollider.bounds;
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+
+        return !Approximately(lastBoundsCenter, bounds.center) ||
+               !Approximately(lastBoundsSize, bounds.size) ||
+               !Mathf.Approximately(lastGridSize, safeGridSize) ||
+               !Mathf.Approximately(lastYOffset, yOffset) ||
+               !Mathf.Approximately(lastLineWidth, lineWidth) ||
+               !Mathf.Approximately(lastLineHeight, lineHeight) ||
+               lastUseCircularBoardBounds != useCircularBoardBounds;
+    }
+
+    private void CacheGridState(Bounds bounds, float safeGridSize)
+    {
+        lastBoundsCenter = bounds.center;
+        lastBoundsSize = bounds.size;
+        lastGridSize = safeGridSize;
+        lastYOffset = yOffset;
+        lastLineWidth = lineWidth;
+        lastLineHeight = lineHeight;
+        lastUseCircularBoardBounds = useCircularBoardBounds;
+    }
+
+    private bool Approximately(Vector3 a, Vector3 b)
+    {
+        return Mathf.Approximately(a.x, b.x) &&
+               Mathf.Approximately(a.y, b.y) &&
+               Mathf.Approximately(a.z, b.z);
     }
 
     private void ClearGrid()

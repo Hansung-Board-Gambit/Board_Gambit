@@ -262,6 +262,7 @@ public class PlacementManager : MonoBehaviour
         SetPreviewColor(canPlace ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 0f, 0f, 0.5f));
 
         ShowCurrentPlacementTiles(
+            previewObject,
             snappedPosition,
             previewInfo,
             placementRotation,
@@ -427,6 +428,9 @@ public class PlacementManager : MonoBehaviour
 
         Collider[] overlaps = Physics.OverlapBox(center, halfExtents, Quaternion.identity, placedObjectMask);
         if (overlaps.Length > 0)
+            return false;
+
+        if (IsPlacementTileOverlappingOccupiedTiles(placementObject))
             return false;
 
         return !IsPlacementVisuallyOverlappingPlacedObjects(placementObject);
@@ -625,6 +629,12 @@ public class PlacementManager : MonoBehaviour
         if (placedObject == null)
             return;
 
+        if (dataStore == null || !dataStore.CanSpendPoint())
+        {
+            PlaySfx(errorSfx);
+            return;
+        }
+
         Vector3 deletePosition = placedObject.transform.position;
         RestoreDeleteHover();
         if (LobbyState.Instance != null)
@@ -660,7 +670,17 @@ public class PlacementManager : MonoBehaviour
 
     private void DeletePlacedObjectAt(Vector3 position)
     {
+        if (dataStore == null || !dataStore.CanSpendPoint())
+        {
+            PlaySfx(errorSfx);
+            return;
+        }
+
         GameObject placedObject = FindPlacedObjectByPosition(position);
+        bool removedData = dataStore.RemovePlacedObject(position, deletePositionTolerance);
+
+        if (placedObject == null && !removedData)
+            return;
 
         if (placedObject != null)
         {
@@ -678,11 +698,8 @@ public class PlacementManager : MonoBehaviour
             }
         }
 
-        if (dataStore != null && dataStore.RemovePlacedObject(position, deletePositionTolerance))
-        {
-            dataStore.RefundPoint();
-            UpdatePointText();
-        }
+        dataStore.SpendPoint();
+        UpdatePointText();
     }
 
     private void DespawnOrDestroyPlacedObject(GameObject placedObject)
@@ -777,7 +794,7 @@ public class PlacementManager : MonoBehaviour
     }
 
 
-    private void ShowCurrentPlacementTiles(Vector3 position, PlaceableObject info, Quaternion rotation, Color color)
+    private void ShowCurrentPlacementTiles(GameObject placementObject, Vector3 position, PlaceableObject info, Quaternion rotation, Color color)
     {
         if (!showBlockedPlacementTiles || boardCollider == null)
         {
@@ -790,7 +807,11 @@ public class PlacementManager : MonoBehaviour
             return;
 
         Material material = GetBlockedTileOverlayMaterial(color);
-        ShowPlacementTiles(blockedTileOverlayRoot, position, GetFootprint(info, rotation), material, GetCurrentTileY());
+        Bounds bounds;
+        if (TryGetOccupancyBounds(placementObject, out bounds))
+            ShowPlacementTilesForBounds(blockedTileOverlayRoot, bounds, material, GetCurrentTileY());
+        else
+            ShowPlacementTiles(blockedTileOverlayRoot, position, GetFootprint(info, rotation), material, GetCurrentTileY());
     }
 
     private void ShowOccupiedPlacementTiles()
@@ -845,12 +866,18 @@ public class PlacementManager : MonoBehaviour
         if (target == null || !target.activeInHierarchy || checkedObjects.Contains(target))
             return;
 
-        PlaceableObject info = target.GetComponent<PlaceableObject>();
-        if (info == null)
-            return;
-
         checkedObjects.Add(target);
-        tileIndex = ShowPlacementTiles(occupiedTileOverlayRoot, target.transform.position, GetFootprint(info, target.transform.rotation), material, GetOccupiedTileY(), tileIndex);
+
+        Bounds bounds;
+        if (TryGetOccupancyBounds(target, out bounds))
+        {
+            tileIndex = ShowPlacementTilesForBounds(occupiedTileOverlayRoot, bounds, material, GetOccupiedTileY(), tileIndex);
+            return;
+        }
+
+        PlaceableObject info = target.GetComponentInChildren<PlaceableObject>();
+        if (info != null)
+            tileIndex = ShowPlacementTiles(occupiedTileOverlayRoot, info.transform.position, GetFootprint(info, info.transform.rotation), material, GetOccupiedTileY(), tileIndex);
     }
 
     private int ShowPlacementTiles(GameObject root, Vector3 position, Vector2 footprint, Material material, float y, int startIndex = 0)
@@ -880,6 +907,64 @@ public class PlacementManager : MonoBehaviour
             {
                 GameObject tile = root.transform.GetChild(index).gameObject;
                 tile.transform.position = new Vector3(startX + x * safeGridSize, y, startZ + z * safeGridSize);
+                tile.transform.localScale = new Vector3(tileSize, tileHeight, tileSize);
+
+                Renderer renderer = tile.GetComponent<Renderer>();
+                if (renderer != null && material != null)
+                    renderer.sharedMaterial = material;
+
+                tile.SetActive(true);
+                index++;
+            }
+        }
+
+        for (int i = index; i < root.transform.childCount; i++)
+            root.transform.GetChild(i).gameObject.SetActive(false);
+
+        root.SetActive(true);
+        return index;
+    }
+
+    private int ShowPlacementTilesForBounds(GameObject root, Bounds bounds, Material material, float y, int startIndex = 0)
+    {
+        if (root == null || boardCollider == null)
+            return startIndex;
+
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        Bounds boardBounds = boardCollider.bounds;
+        float firstX = Mathf.Ceil(boardBounds.min.x / safeGridSize) * safeGridSize;
+        float lastX = Mathf.Floor(boardBounds.max.x / safeGridSize) * safeGridSize;
+        float firstZ = Mathf.Ceil(boardBounds.min.z / safeGridSize) * safeGridSize;
+        float lastZ = Mathf.Floor(boardBounds.max.z / safeGridSize) * safeGridSize;
+        int cellCountX = Mathf.Max(1, Mathf.RoundToInt((lastX - firstX) / safeGridSize));
+        int cellCountZ = Mathf.Max(1, Mathf.RoundToInt((lastZ - firstZ) / safeGridSize));
+        float padding = Mathf.Max(0f, visualOverlapTolerance);
+
+        int minCellX = Mathf.Clamp(Mathf.FloorToInt((bounds.min.x - padding - firstX) / safeGridSize), 0, cellCountX - 1);
+        int maxCellX = Mathf.Clamp(Mathf.CeilToInt((bounds.max.x + padding - firstX) / safeGridSize) - 1, 0, cellCountX - 1);
+        int minCellZ = Mathf.Clamp(Mathf.FloorToInt((bounds.min.z - padding - firstZ) / safeGridSize), 0, cellCountZ - 1);
+        int maxCellZ = Mathf.Clamp(Mathf.CeilToInt((bounds.max.z + padding - firstZ) / safeGridSize) - 1, 0, cellCountZ - 1);
+
+        if (maxCellX < minCellX || maxCellZ < minCellZ)
+            return startIndex;
+
+        int tileCount = (maxCellX - minCellX + 1) * (maxCellZ - minCellZ + 1);
+        int neededCount = startIndex + tileCount;
+
+        while (root.transform.childCount < neededCount)
+            CreatePlacementTile(root, material);
+
+        float inset = Mathf.Clamp(blockedPlacementTileInset, 0f, safeGridSize * 0.45f);
+        float tileSize = Mathf.Max(0.01f, safeGridSize - inset * 2f);
+        float tileHeight = 0.01f;
+        int index = startIndex;
+
+        for (int z = minCellZ; z <= maxCellZ; z++)
+        {
+            for (int x = minCellX; x <= maxCellX; x++)
+            {
+                GameObject tile = root.transform.GetChild(index).gameObject;
+                tile.transform.position = new Vector3(firstX + (x + 0.5f) * safeGridSize, y, firstZ + (z + 0.5f) * safeGridSize);
                 tile.transform.localScale = new Vector3(tileSize, tileHeight, tileSize);
 
                 Renderer renderer = tile.GetComponent<Renderer>();
@@ -1521,13 +1606,119 @@ public class PlacementManager : MonoBehaviour
     }
 
 
+    private bool IsPlacementTileOverlappingOccupiedTiles(GameObject placementObject)
+    {
+        if (placementObject == null)
+            return false;
+
+        RectInt placementCells;
+        if (!TryGetPlacementCellRect(placementObject, out placementCells))
+            return false;
+
+        int placedLayer = LayerMask.NameToLayer(placedObjectLayerName);
+        HashSet<GameObject> checkedObjects = new HashSet<GameObject>();
+
+        if (placedParent != null)
+        {
+            for (int i = 0; i < placedParent.childCount; i++)
+            {
+                Transform child = placedParent.GetChild(i);
+                if (child != null && IsPlacementCellOverlappingPlacedObject(placementCells, child.gameObject, placementObject, checkedObjects))
+                    return true;
+            }
+        }
+
+        PlaceableObject[] placeables = FindObjectsByType<PlaceableObject>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < placeables.Length; i++)
+        {
+            PlaceableObject placeable = placeables[i];
+            if (placeable == null)
+                continue;
+
+            GameObject candidate = placeable.gameObject;
+            if (placedLayer != -1 && candidate.layer != placedLayer)
+                continue;
+
+            if (IsPlacementCellOverlappingPlacedObject(placementCells, candidate, placementObject, checkedObjects))
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool IsPlacementCellOverlappingPlacedObject(RectInt placementCells, GameObject candidate, GameObject placementObject, HashSet<GameObject> checkedObjects)
+    {
+        if (candidate == null || placementObject == null || !candidate.activeInHierarchy)
+            return false;
+
+        if (candidate == placementObject || candidate.transform.IsChildOf(placementObject.transform))
+            return false;
+
+        if (checkedObjects.Contains(candidate))
+            return false;
+
+        checkedObjects.Add(candidate);
+
+        RectInt candidateCells;
+        if (!TryGetPlacementCellRect(candidate, out candidateCells))
+            return false;
+
+        return PlacementCellsOverlap(placementCells, candidateCells);
+    }
+
+    private bool TryGetPlacementCellRect(GameObject target, out RectInt cellRect)
+    {
+        cellRect = new RectInt();
+
+        Bounds bounds;
+        if (!TryGetOccupancyBounds(target, out bounds))
+            return false;
+
+        return TryGetPlacementCellRect(bounds, out cellRect);
+    }
+
+    private bool TryGetPlacementCellRect(Bounds bounds, out RectInt cellRect)
+    {
+        cellRect = new RectInt();
+        if (boardCollider == null)
+            return false;
+
+        float safeGridSize = Mathf.Max(0.01f, Mathf.Abs(gridSize));
+        Bounds boardBounds = boardCollider.bounds;
+        float firstX = Mathf.Ceil(boardBounds.min.x / safeGridSize) * safeGridSize;
+        float lastX = Mathf.Floor(boardBounds.max.x / safeGridSize) * safeGridSize;
+        float firstZ = Mathf.Ceil(boardBounds.min.z / safeGridSize) * safeGridSize;
+        float lastZ = Mathf.Floor(boardBounds.max.z / safeGridSize) * safeGridSize;
+        int cellCountX = Mathf.Max(1, Mathf.RoundToInt((lastX - firstX) / safeGridSize));
+        int cellCountZ = Mathf.Max(1, Mathf.RoundToInt((lastZ - firstZ) / safeGridSize));
+        float padding = Mathf.Max(0f, visualOverlapTolerance);
+
+        int minCellX = Mathf.Clamp(Mathf.FloorToInt((bounds.min.x - padding - firstX) / safeGridSize), 0, cellCountX - 1);
+        int maxCellX = Mathf.Clamp(Mathf.CeilToInt((bounds.max.x + padding - firstX) / safeGridSize) - 1, 0, cellCountX - 1);
+        int minCellZ = Mathf.Clamp(Mathf.FloorToInt((bounds.min.z - padding - firstZ) / safeGridSize), 0, cellCountZ - 1);
+        int maxCellZ = Mathf.Clamp(Mathf.CeilToInt((bounds.max.z + padding - firstZ) / safeGridSize) - 1, 0, cellCountZ - 1);
+
+        if (maxCellX < minCellX || maxCellZ < minCellZ)
+            return false;
+
+        cellRect = new RectInt(minCellX, minCellZ, maxCellX - minCellX + 1, maxCellZ - minCellZ + 1);
+        return true;
+    }
+
+    private bool PlacementCellsOverlap(RectInt a, RectInt b)
+    {
+        return a.xMin < b.xMax &&
+               a.xMax > b.xMin &&
+               a.yMin < b.yMax &&
+               a.yMax > b.yMin;
+    }
     private bool IsPlacementVisuallyOverlappingPlacedObjects(GameObject placementObject)
     {
         if (placementObject == null)
             return false;
 
         Bounds placementBounds;
-        if (!TryGetRendererBounds(placementObject, out placementBounds))
+        if (!TryGetOccupancyBounds(placementObject, out placementBounds))
             return false;
 
         int placedLayer = LayerMask.NameToLayer(placedObjectLayerName);
@@ -1575,7 +1766,7 @@ public class PlacementManager : MonoBehaviour
         checkedObjects.Add(candidate);
 
         Bounds candidateBounds;
-        if (!TryGetRendererBounds(candidate, out candidateBounds))
+        if (!TryGetOccupancyBounds(candidate, out candidateBounds))
             return false;
 
         return BoundsOverlapXZ(placementBounds, candidateBounds, visualOverlapTolerance);
@@ -1595,7 +1786,7 @@ public class PlacementManager : MonoBehaviour
             return true;
 
         Bounds visualBounds;
-        if (!TryGetRendererBounds(placementObject, out visualBounds))
+        if (!TryGetOccupancyBounds(placementObject, out visualBounds))
             return true;
 
         const float tolerance = 0.001f;
@@ -2180,6 +2371,35 @@ public class PlacementManager : MonoBehaviour
         return previewCamera;
     }
 
+    private bool TryGetOccupancyBounds(GameObject target, out Bounds bounds)
+    {
+        bounds = new Bounds();
+        if (target == null)
+            return false;
+
+        bool hasBounds = TryGetRendererBounds(target, out bounds);
+        Collider[] colliders = target.GetComponentsInChildren<Collider>(true);
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            Collider collider = colliders[i];
+            if (collider == null || !collider.enabled || collider.isTrigger)
+                continue;
+
+            if (!hasBounds)
+            {
+                bounds = collider.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(collider.bounds);
+            }
+        }
+
+        return hasBounds;
+    }
+
     private bool TryGetRendererBounds(GameObject target, out Bounds bounds)
     {
         bounds = new Bounds(target.transform.position, Vector3.one);
@@ -2352,7 +2572,7 @@ public class PlacementManager : MonoBehaviour
             return null;
 
         Bounds bounds;
-        if (TryGetRendererBounds(candidate, out bounds))
+        if (TryGetOccupancyBounds(candidate, out bounds))
         {
             float padding = Mathf.Max(0.05f, Mathf.Abs(gridSize) * 0.1f);
             bool insideBounds =
