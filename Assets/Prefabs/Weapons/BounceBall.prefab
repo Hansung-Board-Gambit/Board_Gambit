@@ -36,7 +36,7 @@ Transform:
   m_LocalScale: {x: 0.44315, y: 0.44315, z: 0.44315}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5803129487246832011}
+  - {fileID: 6777084737323441008}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3047340307840890103
@@ -131,6 +131,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BounceProjectile
   audioSource: {fileID: 2268863022619064340}
   bounceSfx: {fileID: 8300000, guid: 3dc8467c0b4a5aa40b62bab57d852b21, type: 3}
+  hitPlayerSfx: {fileID: 0}
   speed: 20
   explosionRadius: 3
   lifeTime: 4
@@ -279,15 +280,24 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 6577598434081929322}
     m_Modifications:
-    - target: {fileID: 2043921902904102007, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
-      propertyPath: m_Name
-      value: BounceBall_VFX
-      objectReference: {fileID: 0}
     - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
       propertyPath: m_LocalPosition.x
@@ -318,18 +328,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -341,9 +339,48 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[0].m_Name
+      value: Size
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[1].m_Name
+      value: Density
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[0].m_Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[1].m_Value
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[0].m_Overridden
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1944668730619640255, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[1].m_Overridden
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2043921902904102007, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_Name
+      value: BounceBall_VFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 7837607269917977398, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
+      propertyPath: m_PropertySheet.m_Float.m_Array.Array.data[0].m_Value
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
---- !u!4 &5803129487246832011 stripped
+--- !u!4 &6777084737323441008 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1046472478631897850, guid: e2e76d9f38e91474187a11e7a8e93f68, type: 3}
   m_PrefabInstance: {fileID: 5803129487246832010}

@@ -3,15 +3,17 @@ using UnityEngine;
 
 public class HealPack : NetworkBehaviour, INetworkPlacedObject
 {
-    [Header("힐팩 설정")]
+    [Header("Heal Pack Settings")]
     [SerializeField] int healAmount = 30;
     [SerializeField] float respawnTime = 5f;
     [SerializeField] LayerMask playerLayer;
     [SerializeField] float rotationSpeed = 120f;
+    [SerializeField] Transform visualRoot;
+    [SerializeField] Collider pickupCollider;
 
     [Networked] public TickTimer RespawnTimer { get; set; }
 
-    // 힐팩이 현재 맵에 존재하는지 여부
+    // Whether the heal pack is currently available in battle.
     [Networked, OnChangedRender(nameof(OnActiveStateChanged))]
     public NetworkBool IsActive { get; set; }
 
@@ -36,6 +38,7 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
 
         ApplyPlacement();
         OnActiveStateChanged();
+        DisableBlockingColliders();
     }
 
     public void InitializeNetworkPlacement(Vector3 position, Quaternion rotation)
@@ -47,6 +50,8 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
         PlacementRotation = rotation;
         PlacementInitialized = true;
         transform.SetPositionAndRotation(position, rotation);
+        DisableBlockingColliders();
+        OnActiveStateChanged();
     }
 
     public void ResetForPreparationPhase()
@@ -58,6 +63,7 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
         RespawnTimer = TickTimer.None;
         ApplyPlacement();
         OnActiveStateChanged();
+        DisableBlockingColliders();
     }
 
     private void OnPlacementChanged()
@@ -88,7 +94,7 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
     {
         if (!HasStateAuthority || !IsActive) return;
 
-        //부딪힌 오브젝트가 플레이어 레이어인지 확인
+        // Check whether the touched object is on the player layer.
         if ((playerLayer.value & (1 << other.gameObject.layer)) > 0)
         {
             PlayerHealth ph = other.GetComponentInParent<PlayerHealth>();
@@ -105,13 +111,38 @@ public class HealPack : NetworkBehaviour, INetworkPlacedObject
     public override void Render()
     {
         if (IsActive)
-            transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+            GetVisualRoot().Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
     }
 
     public void OnActiveStateChanged()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+        Transform targetRoot = GetVisualRoot();
+
+        Renderer[] renderers = targetRoot.GetComponentsInChildren<Renderer>(true);
         foreach (var rend in renderers)
             rend.enabled = IsActive;
+
+        DisableBlockingColliders();
+    }
+
+    private void DisableBlockingColliders()
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
+        foreach (var col in colliders)
+        {
+            if (col == pickupCollider)
+            {
+                col.isTrigger = true;
+                col.enabled = IsActive;
+                continue;
+            }
+
+            col.enabled = false;
+        }
+    }
+
+    private Transform GetVisualRoot()
+    {
+        return visualRoot != null ? visualRoot : transform;
     }
 }
