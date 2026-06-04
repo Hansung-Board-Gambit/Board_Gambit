@@ -248,7 +248,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &866412305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,12 +261,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2adc446a970e43b48b0f1b38e8210b52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestOverlapGizmo
-  showBox: 1
-  showSphere: 0
+  showBox: 0
+  showSphere: 1
   attackWidth: 2
   attackRange: 2
   attackHeight: 2
-  slamRadius: 3
+  slamRadius: 5
   referenceTransform: {fileID: 0}
 --- !u!4 &866412306
 Transform:

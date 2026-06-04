@@ -127,6 +127,19 @@ public class PaintGun : WeaponBase
         base.CheckReload(data, prevButtons);
     }
 
+    public override void OnFixedUpdateNetwork()
+    {
+        bool wasReloading = IsReloading;
+        base.OnFixedUpdateNetwork();
+        if (!wasReloading && IsReloading)
+        {
+            if (HasInputAuthority)
+            {
+                PlayLocalSfx(reloadSfx);
+            }
+        }
+    }
+
     void PlayLocalSfx(AudioClip clip)
     {
         if (clip == null || localAudioSource == null)

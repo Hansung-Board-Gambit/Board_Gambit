@@ -33,6 +33,8 @@ public class PlayerHealth : NetworkBehaviour
 
         foreach (var r in renderers)
         {
+            if (r is LineRenderer) continue;
+
             if (r != null)
                 r.enabled = false;
         }
@@ -44,6 +46,8 @@ public class PlayerHealth : NetworkBehaviour
 
         foreach (var r in renderers)
         {
+            if (r is LineRenderer) continue;
+
             if (r != null)
                 r.enabled = true;
         }
