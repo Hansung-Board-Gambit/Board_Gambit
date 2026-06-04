@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f6edee4595e56345a552fd7342ebdfc, type: 3}
   m_Name: FlameGun
   m_EditorClassIdentifier: Assembly-CSharp::RangedWeapon
+  weaponId: 1
+  qIcon: {fileID: 0}
+  rightIcon: {fileID: 21300000, guid: d6c1ec1046a6af546a78e5f913575825, type: 3}
+  qCooldown: 0
+  rightCooldown: 0
+  hasRightSkill: 1
+  hasQSkill: 0
   weaponName: FlameGun
   weaponPrefab: {fileID: 8925667759205097380, guid: e0ae9dd6304c5144799f8be00242106e, type: 3}
   weaponImg: {fileID: 21300000, guid: f11127940c3165140888258912a1f604, type: 3}
