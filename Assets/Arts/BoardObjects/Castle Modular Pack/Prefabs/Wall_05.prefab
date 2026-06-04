@@ -84,7 +84,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlaceableObject
   footprint: {x: 1, y: 1}
   sizeControlMode: 1
-  footprintScaleMultiplier: 0.6
+  footprintScaleMultiplier: 1
   yOffset: 1
   surfaceOffset: 0
   spawnMode: 0

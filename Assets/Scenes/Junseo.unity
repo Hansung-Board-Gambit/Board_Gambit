@@ -593,10 +593,16 @@ MonoBehaviour:
   - {fileID: 3561579029745449286, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
   - {fileID: 4844452223093545786, guid: d8f9fe6bdf6e85345a8d521f1c982806, type: 3}
   - {fileID: 1967167016130352128, guid: fef1b0947acc91840a6cff215a47ede0, type: 3}
-  - {fileID: 5642499610892450038, guid: 4e87d1f695a238c4c8a85057ff94d0bf, type: 3}
   - {fileID: 6397409338888445636, guid: b478cddd619971b4c80d46a8d74522bd, type: 3}
   - {fileID: 3572185690310193516, guid: e98f82c408fd45640b1a1aed1b135f81, type: 3}
-  - {fileID: 4262920303831934288, guid: c510e234a77fe0f468391e63c279c32f, type: 3}
+  showBlockedPlacementTiles: 1
+  availablePlacementTileColor: {r: 0, g: 1, b: 0, a: 0.28}
+  blockedPlacementTileColor: {r: 1, g: 0, b: 0, a: 0.35}
+  showOccupiedPlacementTiles: 1
+  occupiedPlacementTileColor: {r: 1, g: 0, b: 0, a: 0.22}
+  blockedPlacementTileInset: 0.08
+  blockedPlacementTileYOffset: 0.055
+  visualOverlapTolerance: 0.02
   rotateKey: 114
   autoScaleObjectsToFootprint: 1
   footprintFitPadding: 0.85
