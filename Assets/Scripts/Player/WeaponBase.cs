@@ -53,6 +53,17 @@ public abstract class WeaponBase : NetworkBehaviour
         {
             OnAmmoUIChanged();
         }
+
+        if (PlayerUI.instance != null && rangedData != null)
+        {
+            PlayerUI.instance.SetWeaponUI(baseData);
+
+            if (rangedData.rightClickCoolTime > 0)
+                PlayerUI.instance.StartRightCooldown(rangedData.rightClickCoolTime);
+
+            if (rangedData.skillQCoolTime > 0)
+                PlayerUI.instance.StartQCooldown(rangedData.skillQCoolTime);
+        }
     }
     /*
     public override void Spawned()
@@ -162,5 +173,4 @@ public abstract class WeaponBase : NetworkBehaviour
             SkillQTimer = TickTimer.None;
         }
     }
-
 }

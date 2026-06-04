@@ -3,6 +3,15 @@ public enum WeaponType {Melee, Ranged, Special}
 
 public class WeaponData : ScriptableObject
 {
+    [Header("스킬 쿨타임")]
+    public WeaponId weaponId;
+    public Sprite qIcon;
+    public Sprite rightIcon;
+    public float qCooldown;
+    public float rightCooldown;
+    public bool hasRightSkill;
+    public bool hasQSkill;
+
     [Header("무기 정보")]
     public string weaponName;
     public GameObject weaponPrefab;
