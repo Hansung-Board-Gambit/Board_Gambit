@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 7469500817696591, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: surfaceOffset
-      value: -0.3
+      value: -0.35
       objectReference: {fileID: 0}
     - target: {fileID: 141303480774020879, guid: c421a2f1598755c49a6c79d73efb3ee8, type: 3}
       propertyPath: m_LocalPosition.x

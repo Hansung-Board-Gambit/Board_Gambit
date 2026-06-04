@@ -805,10 +805,8 @@ MonoBehaviour:
   - {fileID: 3561579029745449286, guid: 9806fe41717fb34469742649ab4a816a, type: 3}
   - {fileID: 4844452223093545786, guid: d8f9fe6bdf6e85345a8d521f1c982806, type: 3}
   - {fileID: 1967167016130352128, guid: fef1b0947acc91840a6cff215a47ede0, type: 3}
-  - {fileID: 5642499610892450038, guid: 4e87d1f695a238c4c8a85057ff94d0bf, type: 3}
   - {fileID: 6397409338888445636, guid: b478cddd619971b4c80d46a8d74522bd, type: 3}
   - {fileID: 3572185690310193516, guid: e98f82c408fd45640b1a1aed1b135f81, type: 3}
-  - {fileID: 4262920303831934288, guid: c510e234a77fe0f468391e63c279c32f, type: 3}
   showBlockedPlacementTiles: 1
   availablePlacementTileColor: {r: 0, g: 1, b: 0, a: 0.28}
   blockedPlacementTileColor: {r: 1, g: 0, b: 0, a: 0.35}
@@ -8760,14 +8758,20 @@ MonoBehaviour:
   dataStore: {fileID: 1024786534}
   mySpawnMarker: {fileID: 323754536}
   opponentSpawnMarker: {fileID: 1216546176}
+  mySpawnMarkerPrefab: {fileID: 2048664183536907289, guid: 1e42b45e002b07c4faabb47484ecd241, type: 3}
+  opponentSpawnMarkerPrefab: {fileID: 8672719384039455360, guid: f4695858bf2309c469b8beedece902a3, type: 3}
   mySpawnButtonLabel: {fileID: 0}
   opponentSpawnButtonLabel: {fileID: 0}
   setMySpawnText: Set My Spawn
   setEnemySpawnText: Set Enemy Spawn
+  mySpawnDisplayText: My Spawn
+  enemySpawnDisplayText: Enemy Spawn
   spawnButtonMinHeight: 56
   spawnButtonHorizontalPadding: 12
   spawnButtonBackgroundColor: {r: 0.08, g: 0.09, b: 0.13, a: 0.95}
   spawnButtonSelectedColor: {r: 0.12, g: 0.32, b: 0.58, a: 0.95}
+  mySpawnButtonSelectedColor: {r: 0.41960785, g: 1, b: 0.8745098, a: 0.95}
+  enemySpawnButtonSelectedColor: {r: 0.68235296, g: 0.41960785, b: 1, a: 0.95}
   boardLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -8778,6 +8782,8 @@ MonoBehaviour:
   blockedEdgeCellCount: 0
   useCircularBoardBounds: 1
   markerYOffset: 0.3
+  fitSpawnMarkersToGridCell: 1
+  spawnMarkerCellFill: 0.9
   spawnCheckHalfExtents: {x: 0.4, y: 1, z: 0.4}
   hideShadowsDuringSpawnPlacement: 1
   spawnPlacementShadowLights: []
