@@ -46,7 +46,7 @@ public abstract class WeaponBase : NetworkBehaviour
 
         if (HasStateAuthority && rangedData != null)
         {
-           // CurrentAmmo = rangedData.MaxAmmo;
+           CurrentAmmo = rangedData.MaxAmmo;
         }
 
         if(HasInputAuthority)
@@ -54,7 +54,7 @@ public abstract class WeaponBase : NetworkBehaviour
             OnAmmoUIChanged();
         }
     }
-
+    /*
     public override void Spawned()
     {
         base.Spawned();
@@ -67,6 +67,7 @@ public abstract class WeaponBase : NetworkBehaviour
             ReloadTimer = TickTimer.None;
         }
     }
+    */
 
     public virtual void ProcessInput(NetworkInputData data,NetworkButtons prevButtons, NetworkRunner runner)
     {

@@ -602,7 +602,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 576
-  explosionVFX: {fileID: 0}
+  explosionVFX: {fileID: 5481530993414605263, guid: 7a12b40fb78f3694ea3ba5830db032b4, type: 3}
   audioSource: {fileID: 1132034924884224769}
   explosionSfx: {fileID: 8300000, guid: 16100d3018cc6cc4db107d9438cd63a3, type: 3}
   _IsExploded:

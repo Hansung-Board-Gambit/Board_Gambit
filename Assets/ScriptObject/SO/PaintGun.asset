@@ -27,4 +27,4 @@ MonoBehaviour:
   leftClickCoolTime: 0.2
   rightClickCoolTime: 0
   skillQCoolTime: 0
-  ReloadCoolTime: 0.6
+  ReloadCoolTime: 3.5

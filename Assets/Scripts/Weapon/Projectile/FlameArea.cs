@@ -21,7 +21,7 @@ public class FlameArea : NetworkBehaviour
 
     public override void Spawned()
     {
-        transform.localScale = new Vector3(radius * 2f, 0.05f, radius * 2f);
+        //transform.localScale = new Vector3(radius * 2f, 0.05f, radius * 2f);
         //if(flameParticle != null) { var shape = flameParticle.shape; shape.radius = this.radius } 
 
         if (audioSource != null && flameAreaSfx != null)
