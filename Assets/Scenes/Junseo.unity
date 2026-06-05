@@ -6149,9 +6149,9 @@ MonoBehaviour:
   spawnPlacementPanel: {fileID: 1012031851}
   equipmentSelectionPanel: {fileID: 1368956989}
   placementManager: {fileID: 0}
-  objectPlacementDuration: 20
+  objectPlacementDuration: 40
   spawnPlacementDuration: 20
-  equipmentSelectionDuration: 10
+  equipmentSelectionDuration: 30
   objectPlacementTimerFill: {fileID: 1926957119}
   spawnPlacementTimerFill: {fileID: 1718673063}
   equipmentSelectionTimerFill: {fileID: 415707697}
